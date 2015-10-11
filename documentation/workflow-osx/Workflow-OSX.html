@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Workflow.OSX</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><script src="haddock-util.js" type="text/javascript"></script><script type="text/javascript">//<![CDATA[
+window.onload = function () {pageLoad();setSynopsis("mini_Workflow-OSX.html");};
+//]]>
+</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">workflow-osx-0.0.0: a &quot;Desktop Workflow&quot; monad with Objective-C bindings</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>None</td></tr><tr><th>Language</th><td>Haskell2010</td></tr></table><p class="caption">Workflow.OSX</p></div><div id="description"><p class="caption">Description</p><div class="doc"><p>Example 1:</p><pre>import qualified Data.ByteString.Char8  as BS
+import qualified Network.HTTP.Types.URI as WAI
+
+-- | google a query, in the default browser. properly encodes the url. 
+google :: (MonadWorkflow m) =&gt; String -&gt; m ()
+google (BS.pack -&gt; query) = do
+ <code><a href="Workflow-OSX-DSL.html#v:openURL">openURL</a></code> (BS.unpack $ &quot;https://www.google.com/search&quot; &lt;&gt; WAI.renderQuery True [(&quot;q&quot;, Just query)])
+</pre><p>Example 2:</p><pre>-- | access the currently selected region from Haskell, via the clipboard  
+copy :: (MonadWorkflow m) =&gt; m String
+copy = do
+ <code><a href="Workflow-OSX-DSL.html#v:sendKeyChord">sendKeyChord</a></code> [<code><a href="Workflow-OSX-Types.html#v:CommandModifier">CommandModifier</a></code>] <code><a href="Workflow-OSX-Types.html#v:CKey">CKey</a></code>
+ <code><a href="Workflow-OSX-DSL.html#v:delay">delay</a></code> 250
+ <code><a href="Workflow-OSX-DSL.html#v:getClipboard">getClipboard</a></code>
+
+</pre><p>Example 3:</p><pre>import qualified Data.Char 
+
+-- uppercase the contents of the clipboard, and paste the result 
+uppercase_clipboard = do
+ oldContents &lt;- <code><a href="Workflow-OSX-DSL.html#v:getClipboard">getClipboard</a></code>
+ let newContents = fmap Data.Char.toUpper oldContents
+ <code><a href="Workflow-OSX-DSL.html#v:setClipboard">setClipboard</a></code> newContents 
+ <code><a href="Workflow-OSX-DSL.html#v:sendKeyChord">sendKeyChord</a></code> [<code><a href="Workflow-OSX-Types.html#v:CommandModifier">CommandModifier</a></code>] <code><a href="Workflow-OSX-Types.html#v:VKey">VKey</a></code>
+</pre><p>Example 4:</p><pre>-- pause/play the first YouTube tab open in the Chrome browser, by pressing a key after full-screening it 
+-- 
+-- (this script is super-duper-robust)
+youtube_toggle_sound = do
+ app &lt;- <code><a href="Workflow-OSX-DSL.html#v:currentApplication">currentApplication</a></code>                     -- save the currently open application 
+ reach_youtube
+ <code><a href="Workflow-OSX-DSL.html#v:sendKeyChord">sendKeyChord</a></code> [<code><a href="Workflow-OSX-Types.html#v:CommandModifier">CommandModifier</a></code>] <code>UpKey</code>          -- move to the top of the screen 
+ <code><a href="Workflow-OSX-DSL.html#v:delay">delay</a></code> chromeDelay 
+ youtube_toggle_fullscreen 
+ <code><a href="Workflow-OSX-DSL.html#v:delay">delay</a></code> chromeDelay
+ <code><a href="Workflow-OSX-DSL.html#v:sendKeyChord">sendKeyChord</a></code> [] <code><a href="Workflow-OSX-Types.html#v:KKey">KKey</a></code>                          -- pauses/plays the video
+ <code><a href="Workflow-OSX-DSL.html#v:delay">delay</a></code> chromeDelay 
+ youtube_toggle_fullscreen 
+ <code><a href="Workflow-OSX-DSL.html#v:delay">delay</a></code> 2000
+ <code><a href="Workflow-OSX-DSL.html#v:openApplication">openApplication</a></code> app                           -- restore the previously open application 
+
+youtube_toggle_fullscreen = do
+ <code><a href="Workflow-OSX-DSL.html#v:sendKeyChord">sendKeyChord</a></code> [<code><a href="Workflow-OSX-Types.html#v:ShiftModifier">ShiftModifier</a></code>] <code><a href="Workflow-OSX-Types.html#v:FKey">FKey</a></code>
+
+reach_youtube = do
+ <code><a href="Workflow-OSX-DSL.html#v:openApplication">openApplication</a></code> &quot;Google Chrome&quot;
+ <code>switch_tab</code> &quot;YouTube.com&quot;
+
+switch_tab s = do
+ <code><a href="Workflow-OSX-DSL.html#v:sendKeyChord">sendKeyChord</a></code> [<code><a href="Workflow-OSX-Types.html#v:OptionModifier">OptionModifier</a></code>] <code><a href="Workflow-OSX-Types.html#v:TKey">TKey</a></code>            -- needs the <a href="https://chrome.google.com/webstore/detail/tab-ahead/naoajjeoiblmpegfelhkapanmmaaghmi?hl=en">Tab Ahead</a> chrome extension 
+ <code><a href="Workflow-OSX-DSL.html#v:delay">delay</a></code> chromeDelay 
+ <code><a href="Workflow-OSX-DSL.html#v:sendText">sendText</a></code> s
+ <code><a href="Workflow-OSX-DSL.html#v:sendKeyChord">sendKeyChord</a></code> [] <code><a href="Workflow-OSX-Types.html#v:ReturnKey">ReturnKey</a></code>
+ 
+chromeDelay = 250                              -- milliseconds
+</pre></div></div><div id="interface"><h1>Documentation</h1><div class="top"><p class="src">module <a href="Workflow-OSX-Types.html">Workflow.OSX.Types</a></p></div><div class="top"><p class="src">module <a href="Workflow-OSX-DSL.html">Workflow.OSX.DSL</a></p></div><div class="top"><p class="src">module <a href="Workflow-OSX-Bindings-Raw.html">Workflow.OSX.Bindings.Raw</a></p></div><div class="top"><p class="src">module <a href="Workflow-OSX-Constants.html">Workflow.OSX.Constants</a></p></div><div class="top"><p class="src">module <a href="Workflow-OSX-Marshall.html">Workflow.OSX.Marshall</a></p></div><div class="top"><p class="src">module <a href="Workflow-OSX-Execute.html">Workflow.OSX.Execute</a></p></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.16.0</p></div></body></html>
