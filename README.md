@@ -1,6 +1,6 @@
 remote:
 
-[http://sboosali.github.io]
+http://sboosali.github.io
 
 local:
 
