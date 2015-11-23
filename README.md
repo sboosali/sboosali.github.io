@@ -1,0 +1,1 @@
+open ~/sboosali.github.io/index.html

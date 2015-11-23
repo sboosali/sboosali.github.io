@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Data.Enumerate.Domain</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><script src="haddock-util.js" type="text/javascript"></script><script type="text/javascript">//<![CDATA[
+window.onload = function () {pageLoad();setSynopsis("mini_Data-Enumerate-Domain.html");};
+//]]>
+</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">enumerate-0.0.0: enumerate all the values in a finite type (automatically)</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>None</td></tr><tr><th>Language</th><td>Haskell2010</td></tr></table><p class="caption">Data.Enumerate.Domain</p></div><div id="description"><p class="caption">Description</p><div class="doc"><p>e.g. generate a boilerplate <code><a href="file:///Users/sambo/enumerate/.cabal-sandbox/share/doc/x86_64-osx-ghc-7.10.1/MemoTrie-0.6.4/html/Data-MemoTrie.html#t:HasTrie">HasTrie</a></code> instance for a <code>Context</code> type that has both sum types and product types </p><pre>data Context
+ = GlobalContext | EmacsContext BufferName BufferMode BufferContents | OtherContext String
+ deriving (Show,Generic) 
+ -- Strings are infinite, so Context is too, that's okay 
+
+instance HasDomain Context 
+
+type BufferName = String
+type BufferMode = String
+type BufferContents = String
+
+instance HasTrie Context where
+ type a :-&gt;: b = ContextTrie (<code>TrieGeneric</code> a b)
+ trie = <code><a href="file:///Users/sambo/enumerate/.cabal-sandbox/share/doc/x86_64-osx-ghc-7.10.1/MemoTrie-0.6.4/html/Data-MemoTrie.html#v:trieGeneric">trieGeneric</a></code>
+ untrie = <code><a href="file:///Users/sambo/enumerate/.cabal-sandbox/share/doc/x86_64-osx-ghc-7.10.1/MemoTrie-0.6.4/html/Data-MemoTrie.html#v:untrieGeneric">untrieGeneric</a></code>
+</pre><p>the conversions (between a type <code>a</code> and its representation <code>(Rep a x)</code>) make the generic instance 
+slower than a manual instance.</p><p>but, if the function you're memoizing is costly enough, and the datatype it consumes is messy enough, 
+the four-line <code>HasTrie</code> instance (and a one line call to <code><a href="file:///Users/sambo/enumerate/.cabal-sandbox/share/doc/x86_64-osx-ghc-7.10.1/MemoTrie-0.6.4/html/Data-MemoTrie.html#v:memo">memo</a></code>) can save both runtime and developer time.</p></div></div><div id="interface"></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.16.0</p></div></body></html>
