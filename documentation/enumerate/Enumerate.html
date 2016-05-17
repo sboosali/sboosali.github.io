@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Enumerate</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><script src="haddock-util.js" type="text/javascript"></script><script type="text/javascript">//<![CDATA[
+window.onload = function () {pageLoad();setSynopsis("mini_Enumerate.html");};
+//]]>
+</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="src/Enumerate.html">Source</a></li><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">enumerate-0.2.1: enumerate all the values in a finite type (automatically)</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>None</td></tr><tr><th>Language</th><td>Haskell2010</td></tr></table><p class="caption">Enumerate</p></div><div id="description"><p class="caption">Description</p><div class="doc"><p>enumerate all values in a finite type.</p><p>e.g.</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>:set -XDeriveGeneric
+</code></strong><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>:set -XDeriveAnyClass
+</code></strong></pre><p>given:</p><pre>-- an <code><a href="Enumerate-Types.html#t:Enumerable">Enumerable</a></code> can be automatically derived,
+-- even though it's a nested sum type (and thus not an <code><a href="../base-4.8.2.0/Prelude.html#t:Enum">Enum</a></code>).
+data Edit = Edit Action Slice Region
+ deriving (Show,Read,Eq,Ord,Generic,Enumerable)
+
+data Action
+ = Select
+ | Copy
+ | Delete
+ deriving (Show,Read,Eq,Ord,Enum,Bounded,Generic,Enumerable)
+
+data Slice
+ = Whole
+ | Backwards
+ | Forwards
+ deriving (Show,Read,Eq,Ord,Enum,Bounded,Generic,Enumerable)
+
+data Region
+ = Character
+ | Token
+ | Line
+ deriving (Show,Read,Eq,Ord,Enum,Bounded,Generic,Enumerable)
+</pre><p>we can enumerate every possible editing action:</p><pre>&gt; <code><a href="Enumerate-Types.html#v:enumerated">enumerated</a></code> :: [Edit]
+Edit Select Whole Character
+Edit Select Whole Token
+Edit Select Whole Line
+Edit Select Backwards Character
+Edit Select Backwards Token
+Edit Select Backwards Line
+Edit Select Forwards Character
+Edit Select Forwards Token
+Edit Select Forwards Line
+Edit Copy Whole Character
+Edit Copy Whole Token
+Edit Copy Whole Line
+Edit Copy Backwards Character
+Edit Copy Backwards Token
+Edit Copy Backwards Line
+Edit Copy Forwards Character
+Edit Copy Forwards Token
+Edit Copy Forwards Line
+Edit Delete Whole Character
+Edit Delete Whole Token
+Edit Delete Whole Line
+Edit Delete Backwards Character
+Edit Delete Backwards Token
+Edit Delete Backwards Line
+Edit Delete Forwards Character
+Edit Delete Forwards Token
+Edit Delete Forwards Line
+</pre><p>see <a href="Enumerate-Types.html">Enumerate.Types</a> for detailed documentation.</p><p>the modules <a href="Enumerate-Large.html">Enumerate.Large</a> and <a href="Enumerate-Function.html">Enumerate.Function</a> have
+orphan instances for large types,
+and aren't reexported by default.
+this makes attempting to enumerate them a type error,
+rather than runtime non-termination.</p><p>See the source of <a href="Enumerate-Example.html">Enumerate.Example</a> for an example.</p></div></div><div id="interface"><h1>Documentation</h1><div class="top"><p class="src">module <a href="Enumerate-Types.html">Enumerate.Types</a></p></div><div class="top"><p class="src">module <a href="Enumerate-Cardinality.html">Enumerate.Cardinality</a></p></div><div class="top"><p class="src">module <a href="Enumerate-Enum.html">Enumerate.Enum</a></p></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.16.1</p></div></body></html>
