@@ -199,6 +199,24 @@ instance (Enumerate.Cardinality.Finite a, Enumerate.Cardinality.Finite b) => Enu
 
 -- | enumerate all values in a finite type.
 --   
+--   e.g.
+--   
+--   <pre>
+--   data A
+--     = A0 Bool
+--     | A1 (Either Bool) (Maybe Bool)
+--     | A2 (Bool, Bool)
+--     | A3 (Set Bool)
+--     deriving (Show,Generic,Enumerable)
+--   
+--   &gt; enumerate
+--   A0 False
+--   A0 True
+--   A1 ...
+--   
+--   &gt; cardinality ([]::[A])
+--   </pre>
+--   
 --   see the <a>Enumerable</a> class for documentation.
 --   
 --   see <a>Enumerate.Example</a> for examples.
@@ -212,7 +230,7 @@ instance (Enumerate.Cardinality.Finite a, Enumerate.Cardinality.Finite b) => Enu
 --   validStrings :: [String]
 --   makeValidString :: String -&gt; Maybe ValidString
 --   makeValidString s = if s <tt>member</tt> validStrings then Just (ValidString s) else Nothing
---   instance <a>Enumerable</a> ValidString where enumerated = ValidString <a>$</a> validStrings ... -- manually (since normal String's are infinite)
+--   instance <a>Enumerable</a> ValidString where enumerated = ValidString &lt;$&gt; validStrings ... -- manually (since normal String's are infinite)
 --   instance <a>Arbitrary</a> ValidString where arbitrary = elements <a>enumerated</a>
 --   
 --   data ValidName = ValidName ValidString ValidString | CoolValidName [ValidString]
@@ -298,6 +316,8 @@ module Enumerate.Types
 --   (<tt>Bounded</tt> constraint elided for convenience, but relevant.)
 --   
 --   ("inputs" a type, outputs a list of values).
+--   
+--   Every type in <tt>base</tt> (that can be an instance) is an instance.
 class Enumerable a where enumerated = to <$> genumerated cardinality _ = genericLength (enumerated :: [a])
 enumerated :: Enumerable a => [a]
 cardinality :: Enumerable a => proxy a -> Natural
@@ -559,7 +579,6 @@ instance Enumerate.Types.Enumerable Foreign.C.Types.CShort
 instance Enumerate.Types.Enumerable Foreign.C.Types.CUShort
 instance Enumerate.Types.Enumerable GHC.Generics.Associativity
 instance Enumerate.Types.Enumerable GHC.Exts.SpecConstrAnnotation
-instance Enumerate.Types.Enumerable GHC.Conc.Windows.ConsoleEvent
 instance Enumerate.Types.Enumerable GHC.IO.Buffer.BufferState
 instance Enumerate.Types.Enumerable GHC.IO.Device.IODeviceType
 instance Enumerate.Types.Enumerable GHC.IO.Encoding.Failure.CodingFailureMode
@@ -682,7 +701,7 @@ instance Enumerate.Types.Enumerable GHC.Types.Word
 --   
 --   <pre>
 --   -- an <a>Enumerable</a> can be automatically derived,
---   -- even though it's a nested sum type (and thus not an <a>Enum</a>).
+--   -- even though it's a nested sum type (and thus not an <tt>Enum</tt>).
 --   data Edit = Edit Action Slice Region
 --    deriving (Show,Read,Eq,Ord,Generic,Enumerable)
 --   
@@ -752,7 +771,7 @@ module Enumerate.Main
 main :: IO ()
 
 module Enumerate.Example
-main :: IO ()
+main :: IO [()]
 
 -- | (for documentation)
 --   
@@ -770,6 +789,11 @@ Demo0 :: Void -> Demo a
 Demo1 :: Demo a
 Demo2 :: Bool -> (Maybe Bool) -> Demo a
 Demo3 :: a -> Demo a
+data A a
+A0 :: a -> A a
+A1 :: (Maybe a) -> (Either a a) -> A a
+A2 :: (a, a) -> A a
+A3 :: (Set a) -> A a
 
 -- | (for documentation)
 --   
@@ -792,11 +816,19 @@ Demo3 :: a -> Demo a
 demoEnumerated :: [Demo Bool]
 array_DemoBool :: Array Int (Demo Bool)
 table_DemoBool :: Map (Demo Bool) Int
+instance GHC.Generics.Constructor Enumerate.Example.C1_3A
+instance GHC.Generics.Constructor Enumerate.Example.C1_2A
+instance GHC.Generics.Constructor Enumerate.Example.C1_1A
+instance GHC.Generics.Constructor Enumerate.Example.C1_0A
+instance GHC.Generics.Datatype Enumerate.Example.D1A
 instance GHC.Generics.Constructor Enumerate.Example.C1_3Demo
 instance GHC.Generics.Constructor Enumerate.Example.C1_2Demo
 instance GHC.Generics.Constructor Enumerate.Example.C1_1Demo
 instance GHC.Generics.Constructor Enumerate.Example.C1_0Demo
 instance GHC.Generics.Datatype Enumerate.Example.D1Demo
+instance (GHC.Classes.Ord a, Enumerate.Types.Enumerable a) => Enumerate.Types.Enumerable (Enumerate.Example.A a)
+instance GHC.Generics.Generic (Enumerate.Example.A a)
+instance GHC.Show.Show a => GHC.Show.Show (Enumerate.Example.A a)
 instance Enumerate.Types.Enumerable a => Enumerate.Types.Enumerable (Enumerate.Example.Demo a)
 instance GHC.Generics.Generic (Enumerate.Example.Demo a)
 instance GHC.Classes.Ord a => GHC.Classes.Ord (Enumerate.Example.Demo a)

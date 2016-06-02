@@ -4,7 +4,7 @@ window.onload = function () {pageLoad();setSynopsis("mini_Enumerate.html");};
 </script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="src/Enumerate.html">Source</a></li><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">enumerate-0.2.1: enumerate all the values in a finite type (automatically)</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>None</td></tr><tr><th>Language</th><td>Haskell2010</td></tr></table><p class="caption">Enumerate</p></div><div id="description"><p class="caption">Description</p><div class="doc"><p>enumerate all values in a finite type.</p><p>e.g.</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>:set -XDeriveGeneric
 </code></strong><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>:set -XDeriveAnyClass
 </code></strong></pre><p>given:</p><pre>-- an <code><a href="Enumerate-Types.html#t:Enumerable">Enumerable</a></code> can be automatically derived,
--- even though it's a nested sum type (and thus not an <code><a href="../base-4.8.2.0/Prelude.html#t:Enum">Enum</a></code>).
+-- even though it's a nested sum type (and thus not an <code>Enum</code>).
 data Edit = Edit Action Slice Region
  deriving (Show,Read,Eq,Ord,Generic,Enumerable)
 
