@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Enumerate.Function.Map</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><script src="haddock-util.js" type="text/javascript"></script><script type="text/javascript">//<![CDATA[
+window.onload = function () {pageLoad();setSynopsis("mini_Enumerate-Function-Map.html");};
+//]]>
+</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="src/Enumerate-Function-Map.html">Source</a></li><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">enumerate-function-0.0.0: TODO</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>None</td></tr><tr><th>Language</th><td>Haskell2010</td></tr></table><p class="caption">Enumerate.Function.Map</p></div><div id="description"><p class="caption">Description</p><div class="doc"><p>converting between partial functions and maps.</p><pre>(for doctest)</pre><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>:set +m
+</code></strong><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>:set -XLambdaCase
+</code></strong><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>:{
+</code></strong>let uppercasePartial :: (MonadThrow m) =&gt; Char -&gt; m Char  -- :: Partial Char Char
+    uppercasePartial = \case
+     'a' -&gt; return 'A'
+     'b' -&gt; return 'B'
+     'z' -&gt; return 'Z'
+     _   -&gt; failed &quot;uppercasePartial&quot;
+:}
+</pre><p>a (safely-)partial function is isomorphic with a <code>Map</code>:</p><pre><code><a href="Enumerate-Function-Invert.html#v:fromFunctionM">fromFunctionM</a></code> . <code><a href="Enumerate-Function-Map.html#v:toFunctionM">toFunctionM</a></code> = <code><a href="../base-4.8.2.0/Data-Function.html#v:id">id</a></code>
+<code><a href="Enumerate-Function-Map.html#v:toFunctionM">toFunctionM</a></code> . <code><a href="Enumerate-Function-Invert.html#v:fromFunctionM">fromFunctionM</a></code> = <code><a href="../base-4.8.2.0/Data-Function.html#v:id">id</a></code>
+</pre><p>modulo the error thrown.</p></div></div><div id="synopsis"><p id="control.syn" class="caption expander" onclick="toggleSection('syn')">Synopsis</p><ul id="section.syn" class="hide" onclick="toggleSection('syn')"><li class="src short"><a href="#v:toFunction">toFunction</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a) =&gt; <a href="../containers-0.5.6.2/Data-Map-Lazy.html#t:Map">Map</a> a b -&gt; <a href="../base-4.8.2.0/Data-Maybe.html#t:Maybe">Maybe</a> (a -&gt; b)</li><li class="src short"><a href="#v:toFunctionM">toFunctionM</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a) =&gt; <a href="../containers-0.5.6.2/Data-Map-Lazy.html#t:Map">Map</a> a b -&gt; <a href="Enumerate-Function-Types.html#t:Partial">Partial</a> a b</li><li class="src short"><a href="#v:unsafeToFunction">unsafeToFunction</a> :: <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a =&gt; <a href="../containers-0.5.6.2/Data-Map-Lazy.html#t:Map">Map</a> a b -&gt; a -&gt; b</li><li class="src short"><a href="#v:isTotalM">isTotalM</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a) =&gt; <a href="Enumerate-Function-Types.html#t:Partial">Partial</a> a b -&gt; <a href="../base-4.8.2.0/Data-Maybe.html#t:Maybe">Maybe</a> (a -&gt; b)</li><li class="src short"><a href="#v:unsafeFromList">unsafeFromList</a> :: <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a =&gt; [(a, b)] -&gt; a -&gt; b</li><li class="src short"><a href="#v:functionEnumerated">functionEnumerated</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> b, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> b) =&gt; [a -&gt; b]</li><li class="src short"><a href="#v:functionCardinality">functionCardinality</a> :: <span class="keyword">forall</span> a b proxy. (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> b) =&gt; proxy (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Numeric-Natural.html#t:Natural">Natural</a></li><li class="src short"><a href="#v:extensionallyEqual">extensionallyEqual</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Eq.html#t:Eq">Eq</a> b) =&gt; (a -&gt; b) -&gt; (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Data-Bool.html#t:Bool">Bool</a></li><li class="src short"><a href="#v:extensionallyUnequal">extensionallyUnequal</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Eq.html#t:Eq">Eq</a> b) =&gt; (a -&gt; b) -&gt; (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Data-Bool.html#t:Bool">Bool</a></li><li class="src short"><a href="#v:functionShowsPrec">functionShowsPrec</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> a, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> b) =&gt; <a href="../base-4.8.2.0/Data-Int.html#t:Int">Int</a> -&gt; (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Text-Show.html#t:ShowS">ShowS</a></li><li class="src short"><a href="#v:displayFunction">displayFunction</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> a, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> b) =&gt; (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Data-String.html#t:String">String</a></li><li class="src short"><a href="#v:displayInjective">displayInjective</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> b, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> a, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> b) =&gt; (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Data-Maybe.html#t:Maybe">Maybe</a> <a href="../base-4.8.2.0/Data-String.html#t:String">String</a></li><li class="src short"><a href="#v:mappingEnumeratedAt">mappingEnumeratedAt</a> :: [a] -&gt; [b] -&gt; [[(a, b)]]</li><li class="src short"><a href="#v:crossProduct">crossProduct</a> :: [a] -&gt; [b] -&gt; [[(a, b)]]</li></ul></div><div id="interface"><h1>Documentation</h1><div class="top"><p class="src"><a name="v:toFunction" class="def">toFunction</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a) =&gt; <a href="../containers-0.5.6.2/Data-Map-Lazy.html#t:Map">Map</a> a b -&gt; <a href="../base-4.8.2.0/Data-Maybe.html#t:Maybe">Maybe</a> (a -&gt; b) <a href="src/Enumerate-Function-Map.html#toFunction" class="link">Source</a></p><div class="doc"><p>convert a map to a function, if the map is total.</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>let (Just not_) = toFunction (Map.fromList [(False,True),(True,False)])
+</code></strong><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>not_ False
+</code></strong>True
+</pre></div></div><div class="top"><p class="src"><a name="v:toFunctionM" class="def">toFunctionM</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a) =&gt; <a href="../containers-0.5.6.2/Data-Map-Lazy.html#t:Map">Map</a> a b -&gt; <a href="Enumerate-Function-Types.html#t:Partial">Partial</a> a b <a href="src/Enumerate-Function-Map.html#toFunctionM" class="link">Source</a></p><div class="doc"><p>convert a (safely-)partial function to a map.</p><p>lookup failures are <code><a href="../exceptions-0.8.2.1/Control-Monad-Catch.html#v:throwM">throwM</a></code>n as a <code><a href="../base-4.8.2.0/Control-Exception-Base.html#t:PatternMatchFail">PatternMatchFail</a></code>.</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>let idPartial = toFunctionM (Map.fromList [(True,True)])
+</code></strong><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>idPartial True
+</code></strong>True
+</pre><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>idPartial False
+</code></strong>*** Exception: toFunctionM
+</pre></div></div><div class="top"><p class="src"><a name="v:unsafeToFunction" class="def">unsafeToFunction</a> :: <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a =&gt; <a href="../containers-0.5.6.2/Data-Map-Lazy.html#t:Map">Map</a> a b -&gt; a -&gt; b <a href="src/Enumerate-Function-Map.html#unsafeToFunction" class="link">Source</a></p><div class="doc"><p>wraps <code><a href="../containers-0.5.6.2/Data-Map-Lazy.html#v:lookup">lookup</a></code></p></div></div><div class="top"><p class="src"><a name="v:isTotalM" class="def">isTotalM</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a) =&gt; <a href="Enumerate-Function-Types.html#t:Partial">Partial</a> a b -&gt; <a href="../base-4.8.2.0/Data-Maybe.html#t:Maybe">Maybe</a> (a -&gt; b) <a href="src/Enumerate-Function-Map.html#isTotalM" class="link">Source</a></p><div class="doc"><p>refines the partial function, if total.</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>:{
+</code></strong>let myNotM :: Monad m =&gt; Bool -&gt; m Bool
+    myNotM False = return True
+    myNotM True  = return False
+:}
+<code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>let (Just myNot) = isTotalM myNotM
+</code></strong><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>myNot False
+</code></strong>True
+</pre></div></div><div class="top"><p class="src"><a name="v:unsafeFromList" class="def">unsafeFromList</a> :: <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a =&gt; [(a, b)] -&gt; a -&gt; b <a href="src/Enumerate-Function-Map.html#unsafeFromList" class="link">Source</a></p><div class="doc"><p>wraps <code><a href="../containers-0.5.6.2/Data-Map-Lazy.html#v:lookup">lookup</a></code></p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>(unsafeFromList [(False,True),(True,False)]) False
+</code></strong>True
+<code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>(unsafeFromList [(False,True),(True,False)]) True
+</code></strong>False
+</pre></div></div><div class="top"><p class="src"><a name="v:functionEnumerated" class="def">functionEnumerated</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> b, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> b) =&gt; [a -&gt; b] <a href="src/Enumerate-Function-Map.html#functionEnumerated" class="link">Source</a></p><div class="doc"><p>see <code><a href="Enumerate-Function-Map.html#v:mappingEnumeratedAt">mappingEnumeratedAt</a></code> </p></div></div><div class="top"><p class="src"><a name="v:functionCardinality" class="def">functionCardinality</a> :: <span class="keyword">forall</span> a b proxy. (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> b) =&gt; proxy (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Numeric-Natural.html#t:Natural">Natural</a> <a href="src/Enumerate-Function-Map.html#functionCardinality" class="link">Source</a></p><div class="doc"><pre>|b| ^ |a|</pre></div></div><div class="top"><p class="src"><a name="v:extensionallyEqual" class="def">extensionallyEqual</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Eq.html#t:Eq">Eq</a> b) =&gt; (a -&gt; b) -&gt; (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Data-Bool.html#t:Bool">Bool</a> <a href="src/Enumerate-Function-Map.html#extensionallyEqual" class="link">Source</a></p><div class="doc"><p>are all pairs of outputs the same for the same input? (short-ciruits).</p></div></div><div class="top"><p class="src"><a name="v:extensionallyUnequal" class="def">extensionallyUnequal</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Eq.html#t:Eq">Eq</a> b) =&gt; (a -&gt; b) -&gt; (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Data-Bool.html#t:Bool">Bool</a> <a href="src/Enumerate-Function-Map.html#extensionallyUnequal" class="link">Source</a></p><div class="doc"><p>is any pair of outputs different for the same input? (short-ciruits).</p></div></div><div class="top"><p class="src"><a name="v:functionShowsPrec" class="def">functionShowsPrec</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> a, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> b) =&gt; <a href="../base-4.8.2.0/Data-Int.html#t:Int">Int</a> -&gt; (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Text-Show.html#t:ShowS">ShowS</a> <a href="src/Enumerate-Function-Map.html#functionShowsPrec" class="link">Source</a></p><div class="doc"><p>show all inputs and their outputs, as <code>unsafeFromList [...]</code>.</p></div></div><div class="top"><p class="src"><a name="v:displayFunction" class="def">displayFunction</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> a, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> b) =&gt; (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Data-String.html#t:String">String</a> <a href="src/Enumerate-Function-Map.html#displayFunction" class="link">Source</a></p><div class="doc"><p>show all inputs and their outputs, as <code>case ...</code>.</p></div></div><div class="top"><p class="src"><a name="v:displayInjective" class="def">displayInjective</a> :: (<a href="../enumerate-0.2.1/Enumerate-Types.html#t:Enumerable">Enumerable</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> a, <a href="../base-4.8.2.0/Data-Ord.html#t:Ord">Ord</a> b, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> a, <a href="../base-4.8.2.0/Text-Show.html#t:Show">Show</a> b) =&gt; (a -&gt; b) -&gt; <a href="../base-4.8.2.0/Data-Maybe.html#t:Maybe">Maybe</a> <a href="../base-4.8.2.0/Data-String.html#t:String">String</a> <a href="src/Enumerate-Function-Map.html#displayInjective" class="link">Source</a></p></div><div class="top"><p class="src"><a name="v:mappingEnumeratedAt" class="def">mappingEnumeratedAt</a> :: [a] -&gt; [b] -&gt; [[(a, b)]] <a href="src/Enumerate-Function-Map.html#mappingEnumeratedAt" class="link">Source</a></p><div class="doc"><p><code>[(a,b)]</code> is a mapping, <code>[[(a,b)]]</code> is a list of mappings.</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>let orderingPredicates = mappingEnumeratedAt [LT,EQ,GT] [False,True]
+</code></strong><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>print $ length orderingPredicates
+</code></strong>8
+<code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>printMappings $ orderingPredicates
+</code></strong>
+(LT,False)
+(EQ,False)
+(GT,False)
+
+(LT,False)
+(EQ,False)
+(GT,True)
+
+(LT,False)
+(EQ,True)
+(GT,False)
+
+(LT,False)
+(EQ,True)
+(GT,True)
+
+(LT,True)
+(EQ,False)
+(GT,False)
+
+(LT,True)
+(EQ,False)
+(GT,True)
+
+(LT,True)
+(EQ,True)
+(GT,False)
+
+(LT,True)
+(EQ,True)
+(GT,True)
+</pre><p>where the (total) mapping:</p><pre>(LT,False)
+(EQ,False)
+(GT,True)
+</pre><p>is equivalent to the function:</p><pre>\case
+ LT -&gt; False
+ EQ -&gt; False
+ GT -&gt; True
+</pre></div></div><div class="top"><p class="src"><a name="v:crossProduct" class="def">crossProduct</a> :: [a] -&gt; [b] -&gt; [[(a, b)]] <a href="src/Enumerate-Function-Map.html#crossProduct" class="link">Source</a></p><div class="doc"><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>let crossOrderingBoolean = crossProduct [LT,EQ,GT] [False,True]
+</code></strong><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>printMappings $ crossOrderingBoolean
+</code></strong>
+(LT,False)
+(LT,True)
+
+(EQ,False)
+(EQ,True)
+
+(GT,False)
+(GT,True)
+</pre><p>the length of the outer list is the size of the first set, and
+the length of the inner list is the size of the second set.</p><pre class="screen"><code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>print $ length crossOrderingBoolean
+</code></strong>3
+<code class="prompt">&gt;&gt;&gt; </code><strong class="userinput"><code>print $ length (head crossOrderingBoolean)
+</code></strong>2
+</pre></div></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.16.1</p></div></body></html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Enumerate.Function</title><link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" /><script src="haddock-util.js" type="text/javascript"></script><script type="text/javascript">//<![CDATA[
+window.onload = function () {pageLoad();setSynopsis("mini_Enumerate-Function.html");};
+//]]>
+</script></head><body><div id="package-header"><ul class="links" id="page-menu"><li><a href="src/Enumerate-Function.html">Source</a></li><li><a href="index.html">Contents</a></li><li><a href="doc-index.html">Index</a></li></ul><p class="caption">enumerate-function-0.0.0: TODO</p></div><div id="content"><div id="module-header"><table class="info"><tr><th>Safe Haskell</th><td>None</td></tr><tr><th>Language</th><td>Haskell2010</td></tr></table><p class="caption">Enumerate.Function</p></div><div id="description"><p class="caption">Description</p><div class="doc"><p>e.g.</p><ol><li>given:</li></ol><pre>data Edit = Edit Action Slice Region
+ deriving (Show,Read,Eq,Ord,Generic,Enumerable)
+
+data Action
+ = Transpose
+ | Copy
+ | Delete
+ deriving (Show,Read,Eq,Ord,Enum,Bounded,Generic,Enumerable)
+
+data Slice
+ = Whole
+ | Backwards
+ | Forwards
+ deriving (Show,Read,Eq,Ord,Enum,Bounded,Generic,Enumerable)
+
+data Region
+ = Character
+ | Token
+ | Line
+ deriving (Show,Read,Eq,Ord,Enum,Bounded,Generic,Enumerable)
+</pre><p>we can enumerate every possible editing action:</p><pre>&gt; <code>enumerated</code> :: [Edit]
+</pre><ol><li>given a mapping to keyboard shortcuts within emacs:</li></ol><pre>type KeyBinding = [String]
+emacsEdit :: Edit -&gt; KeyBinding
+</pre><p>the `enumerate-function` package can:</p><ul><li>verify that <code>emacsEdit</code> doesn't map different editing actions
+to the same keybindings, which would mean that one would shadow the other
+i.e. it has no collisions; i.e. it's is injective.</li><li>TODO verify that <code>emacsEdit</code> maps every editing action to some keybinding,
+which asserts that the relevant application supports <code>Edit</code>ing in its entirety.
+(e.g. <code>Emacs</code> can, <code>Chrome</code> can't); i.e. it's is surjective.</li><li>detect whether <code>emacsEdit</code> is actually total; i.e.
+free of bottoms. Haskell's exhaustivity checker (enable `-Wall`) can verify the
+totality of <code>emacsEdit</code>, assuming no partial functions.</li><li>serialize <code>emacsEdit</code> into a mapping,
+from which <code>elisp</code> source can be extracted.</li></ul><p>(also see the source of <a href="Enumerate-Function-Example.html">Enumerate.Function.Example</a>)</p></div></div><div id="interface"><h1>Documentation</h1><div class="top"><p class="src">module <a href="Enumerate-Function-Types.html">Enumerate.Function.Types</a></p></div><div class="top"><p class="src">module <a href="Enumerate-Function-Reify.html">Enumerate.Function.Reify</a></p></div><div class="top"><p class="src">module <a href="Enumerate-Function-Map.html">Enumerate.Function.Map</a></p></div><div class="top"><p class="src">module <a href="Enumerate-Function-Invert.html">Enumerate.Function.Invert</a></p></div></div></div><div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.16.1</p></div></body></html>
