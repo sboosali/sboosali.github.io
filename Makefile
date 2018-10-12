@@ -7,31 +7,62 @@ SHELL=bash
 .EXPORT_ALL_VARIABLES:
 
 ##################################################
-# Customizeable Variables ########################
+# Customizeable Variables: Installation ########## 
 ##################################################
 
 Port?=2666
 
-###BaseDirectory?=$(CURDIR)
+# ^ server port.
+
+##################################################
+
+Python?=python
+
+Serve?=$(Python) -m SimpleHTTPServer $(Port)
+
+# ^ server program.
+
+##################################################
+# Customizeable Variables: Development ###########
+##################################################
+
+# Target?=test
+# Target?=check
+
+Target?=check
+
+# ^ default (Makefile) target.
+
+##################################################
+# Paths:
+
+BaseDirectory?=$(CURDIR)
 
 ##################################################
 # Programs:
 
 Open?=xdg-open
 
-Python?=python
+CheckHtml?=tidy -errors
 
-CheckHtml?=tidy
+# ^ "⦗ -errors, -e ⦘ — show only errors and warnings."
 
 # CheckCss?=
 
 # CheckJs?=
 
-##################################################
-# Files ##########################################
-##################################################
+CheckBash?=shellcheck
+#CheckNix?=nix-instantiate
 
-IndexFile=index.html
+# CheckTarball?=tar -C /tmp -zxvf
+
+# CheckJson?=jsonlint
+# CheckMarkdown?=$(Markdown)
+# CheckProse?=spellcheck
+
+##################################################
+# Constants ######################################
+##################################################
 
 HtmlFiles=*.html
 
@@ -40,9 +71,19 @@ CssFiles=css/*.css
 JsFiles=js/*.js
 
 ##################################################
+
+IndexFile=index.html
+
+##################################################
+
+BashFiles=scripts/*.sh
+
+NixFiles=nix/*.nix
+
+##################################################
 # Targets ########################################
 ##################################################
-default: test
+default: $(Target)
 
 .PHONY: default
 
@@ -62,29 +103,45 @@ build:
 .PHONY: build
 
 ##################################################
-check: check-html check-css check-js
+check: check-html check-bash
 
 .PHONY: check
 
+#TODO# check: check-html check-css check-js check-bash check-nix check-json check-md check-txt
+
 ##################################################
-# Linter Targets #################################
+# Targets: File Types ############################
 ##################################################
-check-html: $(HtmlFiles)
-	$(CheckHtml) $(HtmlFiles)
+
+$(HtmlFiles): check-html
+
+$(BashFiles): check-bash
+
+##################################################
+# Targets: Linters ###############################
+##################################################
+check-html:
+	$(CheckHtml) $(HtmlFiles) 2>/dev/null
 
 .PHONY: check-html
 
 ##################################################
-check-css: $(CssFiles)
-#TODO#	$(CheckCss) $(CssFiles)
+check-bash:
+	$(CheckBash) $(BashFiles) 2>/dev/null
 
-.PHONY: check-css
+.PHONY: check-bash
 
-##################################################
-check-js: $(JsFiles)
-#TODO#	$(CheckJs) $(JsFiles)
+# ##################################################
+# check-css: $(CssFiles)
+# 	$(CheckCss) $(CssFiles)
 
-.PHONY: check-js
+# .PHONY: check-css
+
+# ##################################################
+# check-js: $(JsFiles)
+# 	$(CheckJs) $(JsFiles)
+
+# .PHONY: check-js
 
 ##################################################
 # Fake Targets (never return, or always succeed) #
@@ -96,7 +153,7 @@ open:
 
 ##################################################
 serve:
-	$(Python) -m SimpleHTTPServer $(Port)
+	$(Serve)
 
 .PHONY: serve
 
