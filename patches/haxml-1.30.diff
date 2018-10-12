@@ -1,0 +1,3755 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..cb9577c
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,49 @@
++# my
++.sboo/
++ignore/ 
++temporary/
++
++# ghcid
++*.ghcid
++.ghcid.d/
++
++# Haskell
++.ghc.environment.*
++cabal.project.local
++*.o
++*.hi
++*.chi
++*.chs.h
++report.html
++.cabal-sandbox/
++cabal.sandbox.config
++cabal.config
++dist-newstyle/
++dist-*/
++dist/
++.stack-work/
++.styx/
++
++# nix
++result-*/
++result/
++
++# Emacs
++*~
++\#*
++.\#*
++\#*\#
++,*
++.*.swp
++.*.swo
++TAGS
++.projectile
++
++# Python
++*.pyc
++
++# OS X
++.DS_Store
++
++# miscellaneous
++*.save
+diff --git a/HaXml.cabal b/HaXml.cabal
+index 154ddba..20ab6cd 100644
+--- a/HaXml.cabal
++++ b/HaXml.cabal
+@@ -1,26 +1,65 @@
++cabal-version:  2.2
++build-type:     Simple
++
+ name:           HaXml
+-version:        1.25.4
+-x-revision: 1
+-license:        LGPL
+-license-file:   COPYRIGHT
+-author:         Malcolm Wallace <Malcolm.Wallace@me.com>
+-maintainer:     author
+-homepage:       http://projects.haskell.org/HaXml/
++version:        1.30
++
++--x-revision:     0
++
++----------------------------------------
++
+ category:       Text, XML
+ synopsis:       Utilities for manipulating XML documents
+ description:
+-        Haskell utilities for parsing, filtering, transforming and
+-        generating XML documents.
+-build-type:     Simple
+-cabal-version:  >=1.8
+-extra-source-files:    LICENCE-GPL, LICENCE-LGPL
++            Haskell utilities for parsing, filtering, transforming and generating XML documents.
++            .
++            Fork of @HaXml@.
++            .
++            (If you are the maintainer, please: [1] add your repository and issue-tracker (see below);
++            and [2] review the emailed patch, also here <TODO>. The patch preserves the package name as @HaXml@.)
++            .
++
++tested-with:
++            GHC == 7.10.3
++          , GHC == 8.0.2
++          , GHC == 8.2.2
++          , GHC == 8.4.3
++          , GHC == 8.6.1
++
++license:        LGPL-3.0-only
++license-file:   LICENSE.LGPL.3.txt
++author:         Malcolm Wallace <Malcolm.Wallace@me.com>
++maintainer:     Malcolm Wallace <Malcolm.Wallace@me.com>, Spiros Boosalis <samboosalis@gmail.com>
++copyright:      Malcolm Wallace 2017, 2018 Spiros Boosalis
++homepage:       http://projects.haskell.org/HaXml/
++
++extra-source-files: LICENSE.LGPL.3.txt, Makefile
++
++----------------------------------------
++
++bug-reports:    http://github.com/sboosali/haxml2/issues
++
++source-repository head
++  type:     git
++  location: git://github.com/sboosali/haxml2.git
++
++----------------------------------------
+ 
+ flag splitBase
+   default: True
++
+ flag bytestringInBase
+   default: False
+ 
++flag executables
++  default: False
++
++----------------------------------------
++
+ library
++
++  hs-source-dirs: src
++
+   exposed-modules:
+         Text.XML.HaXml,
+         Text.XML.HaXml.ByteStringPP,
+@@ -64,74 +103,135 @@ library
+         Text.XML.HaXml.Xtract.Combinators,
+         Text.XML.HaXml.Xtract.Lex,
+         Text.XML.HaXml.Xtract.Parse
++
+   if impl(ghc)
+     exposed-modules:
+         Text.XML.HaXml.Schema.Schema
+-  hs-source-dirs: src
+-  build-depends: polyparse >= 1.10, filepath
++
++  build-depends: polyparse >= 1.30, filepath
+   if flag(splitBase)
+-    build-depends: base >= 3 && < 4.11, pretty, random, containers
++    build-depends: base >= 3 && < 5, pretty, random, containers
+   else
+     build-depends: base < 3
+   if flag(bytestringInBase)
+     build-depends: base >= 2 && < 3
+   else
+     build-depends: base < 2 || >= 3, bytestring
+-  extensions: CPP, ExistentialQuantification
++
++  default-language:   Haskell98
++  default-extensions: CPP, ExistentialQuantification
+   nhc98-options: -K10M
+ 
++----------------------------------------
++
+ Executable Canonicalise
++
+   GHC-Options: -Wall
+-  Extensions:  CPP
++  default-language: Haskell98
++  default-extensions: CPP
+   Hs-Source-Dirs: src/tools
+   Main-Is: Canonicalise.hs
+   build-depends: base, HaXml, pretty
+ 
++  if !flag(executables)
++     buildable: False
++
++----------------------------------------
++
+ Executable CanonicaliseLazy
++
+   GHC-Options: -Wall
+-  Extensions:  CPP
++  default-language: Haskell98
++  default-extensions: CPP
+   Hs-Source-Dirs: src/tools
+   Main-Is: CanonicaliseLazy.hs
+   build-depends: base, HaXml, pretty
+ 
++  if !flag(executables)
++     buildable: False
++
++----------------------------------------
++
+ Executable Xtract
++
+   GHC-Options: -Wall
+-  Extensions:  CPP
++  default-language: Haskell98
++  default-extensions: CPP
+   Hs-Source-Dirs: src/tools
+   Main-Is: Xtract.hs
+   build-depends: base, HaXml, pretty
+ 
++  if !flag(executables)
++     buildable: False
++
++----------------------------------------
++
+ Executable Validate
++
+   GHC-Options: -Wall
+-  Extensions:  CPP
++  default-language: Haskell98
++  default-extensions: CPP
+   Hs-Source-Dirs: src/tools
+   Main-Is: Validate.hs
+   build-depends: base, HaXml
+ 
++  if !flag(executables)
++     buildable: False
++
++----------------------------------------
++
+ Executable MkOneOf
++
+   GHC-Options: -Wall
+-  Extensions:  CPP
++  default-language: Haskell98
++  default-extensions: CPP
+   Hs-Source-Dirs: src/tools
+   Main-Is: MkOneOf.hs
+   build-depends: base, HaXml
+ 
++  if !flag(executables)
++     buildable: False
++
++----------------------------------------
++
+ Executable DtdToHaskell
++
+   GHC-Options: -Wall
+-  Extensions:  CPP
++  default-language: Haskell98
++  default-extensions: CPP
+   Hs-Source-Dirs: src/tools
+   Main-Is: DtdToHaskell.hs
+   build-depends: base, HaXml, pretty
+ 
++  if !flag(executables)
++     buildable: False
++
++----------------------------------------
++
+ Executable XsdToHaskell
++
+   GHC-Options: -Wall
+-  Extensions:  CPP
++  default-language: Haskell98
++  default-extensions: CPP
+   Hs-Source-Dirs: src/tools
+   Main-Is: XsdToHaskell.hs
+   build-depends: base, HaXml, pretty, polyparse, directory
+ 
++  if !flag(executables)
++     buildable: False
++
++----------------------------------------
++
+ Executable FpMLToHaskell
++
+   GHC-Options: -Wall
+-  Extensions:  CPP
++  default-language: Haskell98
++  default-extensions: CPP
+   Hs-Source-Dirs: src/tools
+   Main-Is: FpMLToHaskell.hs
+   build-depends: base, HaXml, pretty, polyparse, directory
++
++  if !flag(executables)
++     buildable: False
++
++----------------------------------------
+\ No newline at end of file
+diff --git a/LICENCE-GPL b/LICENCE-GPL
+deleted file mode 100644
+index 7c35400..0000000
+--- a/LICENCE-GPL
++++ /dev/null
+@@ -1,343 +0,0 @@
+-		    GNU GENERAL PUBLIC LICENSE
+-		       Version 2, June 1991
+-
+- Copyright (C) 1989, 1991 Free Software Foundation, Inc.
+-     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+-
+- Everyone is permitted to copy and distribute verbatim copies
+- of this license document, but changing it is not allowed.
+-
+-			    Preamble
+-
+-  The licenses for most software are designed to take away your
+-freedom to share and change it.  By contrast, the GNU General Public
+-License is intended to guarantee your freedom to share and change free
+-software--to make sure the software is free for all its users.  This
+-General Public License applies to most of the Free Software
+-Foundation's software and to any other program whose authors commit to
+-using it.  (Some other Free Software Foundation software is covered by
+-the GNU Library General Public License instead.)  You can apply it to
+-your programs, too.
+-
+-  When we speak of free software, we are referring to freedom, not
+-price.  Our General Public Licenses are designed to make sure that you
+-have the freedom to distribute copies of free software (and charge for
+-this service if you wish), that you receive source code or can get it
+-if you want it, that you can change the software or use pieces of it
+-in new free programs; and that you know you can do these things.
+-
+-  To protect your rights, we need to make restrictions that forbid
+-anyone to deny you these rights or to ask you to surrender the rights.
+-These restrictions translate to certain responsibilities for you if you
+-distribute copies of the software, or if you modify it.
+-
+-  For example, if you distribute copies of such a program, whether
+-gratis or for a fee, you must give the recipients all the rights that
+-you have.  You must make sure that they, too, receive or can get the
+-source code.  And you must show them these terms so they know their
+-rights.
+-
+-  We protect your rights with two steps: (1) copyright the software, and
+-(2) offer you this license which gives you legal permission to copy,
+-distribute and/or modify the software.
+-
+-  Also, for each author's protection and ours, we want to make certain
+-that everyone understands that there is no warranty for this free
+-software.  If the software is modified by someone else and passed on, we
+-want its recipients to know that what they have is not the original, so
+-that any problems introduced by others will not reflect on the original
+-authors' reputations.
+-
+-  Finally, any free program is threatened constantly by software
+-patents.  We wish to avoid the danger that redistributors of a free
+-program will individually obtain patent licenses, in effect making the
+-program proprietary.  To prevent this, we have made it clear that any
+-patent must be licensed for everyone's free use or not licensed at all.
+-
+-  The precise terms and conditions for copying, distribution and
+-modification follow.
+-
+-
+-		    GNU GENERAL PUBLIC LICENSE
+-   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+-
+-  0. This License applies to any program or other work which contains
+-a notice placed by the copyright holder saying it may be distributed
+-under the terms of this General Public License.  The "Program", below,
+-refers to any such program or work, and a "work based on the Program"
+-means either the Program or any derivative work under copyright law:
+-that is to say, a work containing the Program or a portion of it,
+-either verbatim or with modifications and/or translated into another
+-language.  (Hereinafter, translation is included without limitation in
+-the term "modification".)  Each licensee is addressed as "you".
+-
+-Activities other than copying, distribution and modification are not
+-covered by this License; they are outside its scope.  The act of
+-running the Program is not restricted, and the output from the Program
+-is covered only if its contents constitute a work based on the
+-Program (independent of having been made by running the Program).
+-Whether that is true depends on what the Program does.
+-
+-  1. You may copy and distribute verbatim copies of the Program's
+-source code as you receive it, in any medium, provided that you
+-conspicuously and appropriately publish on each copy an appropriate
+-copyright notice and disclaimer of warranty; keep intact all the
+-notices that refer to this License and to the absence of any warranty;
+-and give any other recipients of the Program a copy of this License
+-along with the Program.
+-
+-You may charge a fee for the physical act of transferring a copy, and
+-you may at your option offer warranty protection in exchange for a fee.
+-
+-  2. You may modify your copy or copies of the Program or any portion
+-of it, thus forming a work based on the Program, and copy and
+-distribute such modifications or work under the terms of Section 1
+-above, provided that you also meet all of these conditions:
+-
+-    a) You must cause the modified files to carry prominent notices
+-    stating that you changed the files and the date of any change.
+-
+-    b) You must cause any work that you distribute or publish, that in
+-    whole or in part contains or is derived from the Program or any
+-    part thereof, to be licensed as a whole at no charge to all third
+-    parties under the terms of this License.
+-
+-    c) If the modified program normally reads commands interactively
+-    when run, you must cause it, when started running for such
+-    interactive use in the most ordinary way, to print or display an
+-    announcement including an appropriate copyright notice and a
+-    notice that there is no warranty (or else, saying that you provide
+-    a warranty) and that users may redistribute the program under
+-    these conditions, and telling the user how to view a copy of this
+-    License.  (Exception: if the Program itself is interactive but
+-    does not normally print such an announcement, your work based on
+-    the Program is not required to print an announcement.)
+-
+-These requirements apply to the modified work as a whole.  If
+-identifiable sections of that work are not derived from the Program,
+-and can be reasonably considered independent and separate works in
+-themselves, then this License, and its terms, do not apply to those
+-sections when you distribute them as separate works.  But when you
+-distribute the same sections as part of a whole which is a work based
+-on the Program, the distribution of the whole must be on the terms of
+-this License, whose permissions for other licensees extend to the
+-entire whole, and thus to each and every part regardless of who wrote it.
+-
+-Thus, it is not the intent of this section to claim rights or contest
+-your rights to work written entirely by you; rather, the intent is to
+-exercise the right to control the distribution of derivative or
+-collective works based on the Program.
+-
+-In addition, mere aggregation of another work not based on the Program
+-with the Program (or with a work based on the Program) on a volume of
+-a storage or distribution medium does not bring the other work under
+-the scope of this License.
+-
+-  3. You may copy and distribute the Program (or a work based on it,
+-under Section 2) in object code or executable form under the terms of
+-Sections 1 and 2 above provided that you also do one of the following:
+-
+-    a) Accompany it with the complete corresponding machine-readable
+-    source code, which must be distributed under the terms of Sections
+-    1 and 2 above on a medium customarily used for software interchange; or,
+-
+-    b) Accompany it with a written offer, valid for at least three
+-    years, to give any third party, for a charge no more than your
+-    cost of physically performing source distribution, a complete
+-    machine-readable copy of the corresponding source code, to be
+-    distributed under the terms of Sections 1 and 2 above on a medium
+-    customarily used for software interchange; or,
+-
+-    c) Accompany it with the information you received as to the offer
+-    to distribute corresponding source code.  (This alternative is
+-    allowed only for noncommercial distribution and only if you
+-    received the program in object code or executable form with such
+-    an offer, in accord with Subsection b above.)
+-
+-The source code for a work means the preferred form of the work for
+-making modifications to it.  For an executable work, complete source
+-code means all the source code for all modules it contains, plus any
+-associated interface definition files, plus the scripts used to
+-control compilation and installation of the executable.  However, as a
+-special exception, the source code distributed need not include
+-anything that is normally distributed (in either source or binary
+-form) with the major components (compiler, kernel, and so on) of the
+-operating system on which the executable runs, unless that component
+-itself accompanies the executable.
+-
+-If distribution of executable or object code is made by offering
+-access to copy from a designated place, then offering equivalent
+-access to copy the source code from the same place counts as
+-distribution of the source code, even though third parties are not
+-compelled to copy the source along with the object code.
+-
+-  4. You may not copy, modify, sublicense, or distribute the Program
+-except as expressly provided under this License.  Any attempt
+-otherwise to copy, modify, sublicense or distribute the Program is
+-void, and will automatically terminate your rights under this License.
+-However, parties who have received copies, or rights, from you under
+-this License will not have their licenses terminated so long as such
+-parties remain in full compliance.
+-
+-  5. You are not required to accept this License, since you have not
+-signed it.  However, nothing else grants you permission to modify or
+-distribute the Program or its derivative works.  These actions are
+-prohibited by law if you do not accept this License.  Therefore, by
+-modifying or distributing the Program (or any work based on the
+-Program), you indicate your acceptance of this License to do so, and
+-all its terms and conditions for copying, distributing or modifying
+-the Program or works based on it.
+-
+-  6. Each time you redistribute the Program (or any work based on the
+-Program), the recipient automatically receives a license from the
+-original licensor to copy, distribute or modify the Program subject to
+-these terms and conditions.  You may not impose any further
+-restrictions on the recipients' exercise of the rights granted herein.
+-You are not responsible for enforcing compliance by third parties to
+-this License.
+-
+-  7. If, as a consequence of a court judgment or allegation of patent
+-infringement or for any other reason (not limited to patent issues),
+-conditions are imposed on you (whether by court order, agreement or
+-otherwise) that contradict the conditions of this License, they do not
+-excuse you from the conditions of this License.  If you cannot
+-distribute so as to satisfy simultaneously your obligations under this
+-License and any other pertinent obligations, then as a consequence you
+-may not distribute the Program at all.  For example, if a patent
+-license would not permit royalty-free redistribution of the Program by
+-all those who receive copies directly or indirectly through you, then
+-the only way you could satisfy both it and this License would be to
+-refrain entirely from distribution of the Program.
+-
+-If any portion of this section is held invalid or unenforceable under
+-any particular circumstance, the balance of the section is intended to
+-apply and the section as a whole is intended to apply in other
+-circumstances.
+-
+-It is not the purpose of this section to induce you to infringe any
+-patents or other property right claims or to contest validity of any
+-such claims; this section has the sole purpose of protecting the
+-integrity of the free software distribution system, which is
+-implemented by public license practices.  Many people have made
+-generous contributions to the wide range of software distributed
+-through that system in reliance on consistent application of that
+-system; it is up to the author/donor to decide if he or she is willing
+-to distribute software through any other system and a licensee cannot
+-impose that choice.
+-
+-This section is intended to make thoroughly clear what is believed to
+-be a consequence of the rest of this License.
+-
+-  8. If the distribution and/or use of the Program is restricted in
+-certain countries either by patents or by copyrighted interfaces, the
+-original copyright holder who places the Program under this License
+-may add an explicit geographical distribution limitation excluding
+-those countries, so that distribution is permitted only in or among
+-countries not thus excluded.  In such case, this License incorporates
+-the limitation as if written in the body of this License.
+-
+-  9. The Free Software Foundation may publish revised and/or new versions
+-of the General Public License from time to time.  Such new versions will
+-be similar in spirit to the present version, but may differ in detail to
+-address new problems or concerns.
+-
+-Each version is given a distinguishing version number.  If the Program
+-specifies a version number of this License which applies to it and "any
+-later version", you have the option of following the terms and conditions
+-either of that version or of any later version published by the Free
+-Software Foundation.  If the Program does not specify a version number of
+-this License, you may choose any version ever published by the Free Software
+-Foundation.
+-
+-  10. If you wish to incorporate parts of the Program into other free
+-programs whose distribution conditions are different, write to the author
+-to ask for permission.  For software which is copyrighted by the Free
+-Software Foundation, write to the Free Software Foundation; we sometimes
+-make exceptions for this.  Our decision will be guided by the two goals
+-of preserving the free status of all derivatives of our free software and
+-of promoting the sharing and reuse of software generally.
+-
+-			    NO WARRANTY
+-
+-  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+-FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
+-OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+-PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED
+-OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS
+-TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE
+-PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,
+-REPAIR OR CORRECTION.
+-
+-  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+-WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+-REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,
+-INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING
+-OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED
+-TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY
+-YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER
+-PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
+-POSSIBILITY OF SUCH DAMAGES.
+-
+-		     END OF TERMS AND CONDITIONS
+-
+-
+-	    How to Apply These Terms to Your New Programs
+-
+-  If you develop a new program, and you want it to be of the greatest
+-possible use to the public, the best way to achieve this is to make it
+-free software which everyone can redistribute and change under these terms.
+-
+-  To do so, attach the following notices to the program.  It is safest
+-to attach them to the start of each source file to most effectively
+-convey the exclusion of warranty; and each file should have at least
+-the "copyright" line and a pointer to where the full notice is found.
+-
+-    <one line to give the program's name and a brief idea of what it does.>
+-    Copyright (C) <year>  <name of author>
+-
+-    This program is free software; you can redistribute it and/or modify
+-    it under the terms of the GNU General Public License as published by
+-    the Free Software Foundation; either version 2 of the License, or
+-    (at your option) any later version.
+-
+-    This program is distributed in the hope that it will be useful,
+-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-    GNU General Public License for more details.
+-
+-    You should have received a copy of the GNU General Public License
+-    along with this program; if not, write to the Free Software
+-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-
+-
+-Also add information on how to contact you by electronic and paper mail.
+-
+-If the program is interactive, make it output a short notice like this
+-when it starts in an interactive mode:
+-
+-    Gnomovision version 69, Copyright (C) year name of author
+-    Gnomovision comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+-    This is free software, and you are welcome to redistribute it
+-    under certain conditions; type `show c' for details.
+-
+-The hypothetical commands `show w' and `show c' should show the appropriate
+-parts of the General Public License.  Of course, the commands you use may
+-be called something other than `show w' and `show c'; they could even be
+-mouse-clicks or menu items--whatever suits your program.
+-
+-You should also get your employer (if you work as a programmer) or your
+-school, if any, to sign a "copyright disclaimer" for the program, if
+-necessary.  Here is a sample; alter the names:
+-
+-  Yoyodyne, Inc., hereby disclaims all copyright interest in the program
+-  `Gnomovision' (which makes passes at compilers) written by James Hacker.
+-
+-  <signature of Ty Coon>, 1 April 1989
+-  Ty Coon, President of Vice
+-
+-This General Public License does not permit incorporating your program into
+-proprietary programs.  If your program is a subroutine library, you may
+-consider it more useful to permit linking proprietary applications with the
+-library.  If this is what you want to do, use the GNU Library General
+-Public License instead of this License.
+diff --git a/LICENCE-LGPL b/LICENCE-LGPL
+deleted file mode 100644
+index 2ae47b5..0000000
+--- a/LICENCE-LGPL
++++ /dev/null
+@@ -1,508 +0,0 @@
+-                  GNU LESSER GENERAL PUBLIC LICENSE
+-                       Version 2.1, February 1999
+-
+- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+-     51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+-
+- Everyone is permitted to copy and distribute verbatim copies
+- of this license document, but changing it is not allowed.
+-
+-[This is the first released version of the Lesser GPL.  It also counts
+- as the successor of the GNU Library Public License, version 2, hence
+- the version number 2.1.]
+-
+-                            Preamble
+-
+-  The licenses for most software are designed to take away your
+-freedom to share and change it.  By contrast, the GNU General Public
+-Licenses are intended to guarantee your freedom to share and change
+-free software--to make sure the software is free for all its users.
+-
+-  This license, the Lesser General Public License, applies to some
+-specially designated software packages--typically libraries--of the
+-Free Software Foundation and other authors who decide to use it.  You
+-can use it too, but we suggest you first think carefully about whether
+-this license or the ordinary General Public License is the better
+-strategy to use in any particular case, based on the explanations
+-below.
+-
+-  When we speak of free software, we are referring to freedom of use,
+-not price.  Our General Public Licenses are designed to make sure that
+-you have the freedom to distribute copies of free software (and charge
+-for this service if you wish); that you receive source code or can get
+-it if you want it; that you can change the software and use pieces of
+-it in new free programs; and that you are informed that you can do
+-these things.
+-
+-  To protect your rights, we need to make restrictions that forbid
+-distributors to deny you these rights or to ask you to surrender these
+-rights.  These restrictions translate to certain responsibilities for
+-you if you distribute copies of the library or if you modify it.
+-
+-  For example, if you distribute copies of the library, whether gratis
+-or for a fee, you must give the recipients all the rights that we gave
+-you.  You must make sure that they, too, receive or can get the source
+-code.  If you link other code with the library, you must provide
+-complete object files to the recipients, so that they can relink them
+-with the library after making changes to the library and recompiling
+-it.  And you must show them these terms so they know their rights.
+-
+-  We protect your rights with a two-step method: (1) we copyright the
+-library, and (2) we offer you this license, which gives you legal
+-permission to copy, distribute and/or modify the library.
+-
+-  To protect each distributor, we want to make it very clear that
+-there is no warranty for the free library.  Also, if the library is
+-modified by someone else and passed on, the recipients should know
+-that what they have is not the original version, so that the original
+-author's reputation will not be affected by problems that might be
+-introduced by others.
+-
+-  Finally, software patents pose a constant threat to the existence of
+-any free program.  We wish to make sure that a company cannot
+-effectively restrict the users of a free program by obtaining a
+-restrictive license from a patent holder.  Therefore, we insist that
+-any patent license obtained for a version of the library must be
+-consistent with the full freedom of use specified in this license.
+-
+-  Most GNU software, including some libraries, is covered by the
+-ordinary GNU General Public License.  This license, the GNU Lesser
+-General Public License, applies to certain designated libraries, and
+-is quite different from the ordinary General Public License.  We use
+-this license for certain libraries in order to permit linking those
+-libraries into non-free programs.
+-
+-  When a program is linked with a library, whether statically or using
+-a shared library, the combination of the two is legally speaking a
+-combined work, a derivative of the original library.  The ordinary
+-General Public License therefore permits such linking only if the
+-entire combination fits its criteria of freedom.  The Lesser General
+-Public License permits more lax criteria for linking other code with
+-the library.
+-
+-  We call this license the "Lesser" General Public License because it
+-does Less to protect the user's freedom than the ordinary General
+-Public License.  It also provides other free software developers Less
+-of an advantage over competing non-free programs.  These disadvantages
+-are the reason we use the ordinary General Public License for many
+-libraries.  However, the Lesser license provides advantages in certain
+-special circumstances.
+-
+-  For example, on rare occasions, there may be a special need to
+-encourage the widest possible use of a certain library, so that it
+-becomes a de-facto standard.  To achieve this, non-free programs must
+-be allowed to use the library.  A more frequent case is that a free
+-library does the same job as widely used non-free libraries.  In this
+-case, there is little to gain by limiting the free library to free
+-software only, so we use the Lesser General Public License.
+-
+-  In other cases, permission to use a particular library in non-free
+-programs enables a greater number of people to use a large body of
+-free software.  For example, permission to use the GNU C Library in
+-non-free programs enables many more people to use the whole GNU
+-operating system, as well as its variant, the GNU/Linux operating
+-system.
+-
+-  Although the Lesser General Public License is Less protective of the
+-users' freedom, it does ensure that the user of a program that is
+-linked with the Library has the freedom and the wherewithal to run
+-that program using a modified version of the Library.
+-
+-  The precise terms and conditions for copying, distribution and
+-modification follow.  Pay close attention to the difference between a
+-"work based on the library" and a "work that uses the library".  The
+-former contains code derived from the library, whereas the latter must
+-be combined with the library in order to run.
+-
+-
+-                  GNU LESSER GENERAL PUBLIC LICENSE
+-   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+-
+-  0. This License Agreement applies to any software library or other
+-program which contains a notice placed by the copyright holder or
+-other authorized party saying it may be distributed under the terms of
+-this Lesser General Public License (also called "this License").
+-Each licensee is addressed as "you".
+-
+-  A "library" means a collection of software functions and/or data
+-prepared so as to be conveniently linked with application programs
+-(which use some of those functions and data) to form executables.
+-
+-  The "Library", below, refers to any such software library or work
+-which has been distributed under these terms.  A "work based on the
+-Library" means either the Library or any derivative work under
+-copyright law: that is to say, a work containing the Library or a
+-portion of it, either verbatim or with modifications and/or translated
+-straightforwardly into another language.  (Hereinafter, translation is
+-included without limitation in the term "modification".)
+-
+-  "Source code" for a work means the preferred form of the work for
+-making modifications to it.  For a library, complete source code means
+-all the source code for all modules it contains, plus any associated
+-interface definition files, plus the scripts used to control
+-compilation and installation of the library.
+-
+-  Activities other than copying, distribution and modification are not
+-covered by this License; they are outside its scope.  The act of
+-running a program using the Library is not restricted, and output from
+-such a program is covered only if its contents constitute a work based
+-on the Library (independent of the use of the Library in a tool for
+-writing it).  Whether that is true depends on what the Library does
+-and what the program that uses the Library does.
+-
+-  1. You may copy and distribute verbatim copies of the Library's
+-complete source code as you receive it, in any medium, provided that
+-you conspicuously and appropriately publish on each copy an
+-appropriate copyright notice and disclaimer of warranty; keep intact
+-all the notices that refer to this License and to the absence of any
+-warranty; and distribute a copy of this License along with the
+-Library.
+-
+-  You may charge a fee for the physical act of transferring a copy,
+-and you may at your option offer warranty protection in exchange for a
+-fee.
+-
+-  2. You may modify your copy or copies of the Library or any portion
+-of it, thus forming a work based on the Library, and copy and
+-distribute such modifications or work under the terms of Section 1
+-above, provided that you also meet all of these conditions:
+-
+-    a) The modified work must itself be a software library.
+-
+-    b) You must cause the files modified to carry prominent notices
+-    stating that you changed the files and the date of any change.
+-
+-    c) You must cause the whole of the work to be licensed at no
+-    charge to all third parties under the terms of this License.
+-
+-    d) If a facility in the modified Library refers to a function or a
+-    table of data to be supplied by an application program that uses
+-    the facility, other than as an argument passed when the facility
+-    is invoked, then you must make a good faith effort to ensure that,
+-    in the event an application does not supply such function or
+-    table, the facility still operates, and performs whatever part of
+-    its purpose remains meaningful.
+-
+-    (For example, a function in a library to compute square roots has
+-    a purpose that is entirely well-defined independent of the
+-    application.  Therefore, Subsection 2d requires that any
+-    application-supplied function or table used by this function must
+-    be optional: if the application does not supply it, the square
+-    root function must still compute square roots.)
+-
+-These requirements apply to the modified work as a whole.  If
+-identifiable sections of that work are not derived from the Library,
+-and can be reasonably considered independent and separate works in
+-themselves, then this License, and its terms, do not apply to those
+-sections when you distribute them as separate works.  But when you
+-distribute the same sections as part of a whole which is a work based
+-on the Library, the distribution of the whole must be on the terms of
+-this License, whose permissions for other licensees extend to the
+-entire whole, and thus to each and every part regardless of who wrote
+-it.
+-
+-Thus, it is not the intent of this section to claim rights or contest
+-your rights to work written entirely by you; rather, the intent is to
+-exercise the right to control the distribution of derivative or
+-collective works based on the Library.
+-
+-In addition, mere aggregation of another work not based on the Library
+-with the Library (or with a work based on the Library) on a volume of
+-a storage or distribution medium does not bring the other work under
+-the scope of this License.
+-
+-  3. You may opt to apply the terms of the ordinary GNU General Public
+-License instead of this License to a given copy of the Library.  To do
+-this, you must alter all the notices that refer to this License, so
+-that they refer to the ordinary GNU General Public License, version 2,
+-instead of to this License.  (If a newer version than version 2 of the
+-ordinary GNU General Public License has appeared, then you can specify
+-that version instead if you wish.)  Do not make any other change in
+-these notices.
+-
+-  Once this change is made in a given copy, it is irreversible for
+-that copy, so the ordinary GNU General Public License applies to all
+-subsequent copies and derivative works made from that copy.
+-
+-  This option is useful when you wish to copy part of the code of
+-the Library into a program that is not a library.
+-
+-  4. You may copy and distribute the Library (or a portion or
+-derivative of it, under Section 2) in object code or executable form
+-under the terms of Sections 1 and 2 above provided that you accompany
+-it with the complete corresponding machine-readable source code, which
+-must be distributed under the terms of Sections 1 and 2 above on a
+-medium customarily used for software interchange.
+-
+-  If distribution of object code is made by offering access to copy
+-from a designated place, then offering equivalent access to copy the
+-source code from the same place satisfies the requirement to
+-distribute the source code, even though third parties are not
+-compelled to copy the source along with the object code.
+-
+-  5. A program that contains no derivative of any portion of the
+-Library, but is designed to work with the Library by being compiled or
+-linked with it, is called a "work that uses the Library".  Such a
+-work, in isolation, is not a derivative work of the Library, and
+-therefore falls outside the scope of this License.
+-
+-  However, linking a "work that uses the Library" with the Library
+-creates an executable that is a derivative of the Library (because it
+-contains portions of the Library), rather than a "work that uses the
+-library".  The executable is therefore covered by this License.
+-Section 6 states terms for distribution of such executables.
+-
+-  When a "work that uses the Library" uses material from a header file
+-that is part of the Library, the object code for the work may be a
+-derivative work of the Library even though the source code is not.
+-Whether this is true is especially significant if the work can be
+-linked without the Library, or if the work is itself a library.  The
+-threshold for this to be true is not precisely defined by law.
+-
+-  If such an object file uses only numerical parameters, data
+-structure layouts and accessors, and small macros and small inline
+-functions (ten lines or less in length), then the use of the object
+-file is unrestricted, regardless of whether it is legally a derivative
+-work.  (Executables containing this object code plus portions of the
+-Library will still fall under Section 6.)
+-
+-  Otherwise, if the work is a derivative of the Library, you may
+-distribute the object code for the work under the terms of Section 6.
+-Any executables containing that work also fall under Section 6,
+-whether or not they are linked directly with the Library itself.
+-
+-  6. As an exception to the Sections above, you may also combine or
+-link a "work that uses the Library" with the Library to produce a
+-work containing portions of the Library, and distribute that work
+-under terms of your choice, provided that the terms permit
+-modification of the work for the customer's own use and reverse
+-engineering for debugging such modifications.
+-
+-  You must give prominent notice with each copy of the work that the
+-Library is used in it and that the Library and its use are covered by
+-this License.  You must supply a copy of this License.  If the work
+-during execution displays copyright notices, you must include the
+-copyright notice for the Library among them, as well as a reference
+-directing the user to the copy of this License.  Also, you must do one
+-of these things:
+-
+-    a) Accompany the work with the complete corresponding
+-    machine-readable source code for the Library including whatever
+-    changes were used in the work (which must be distributed under
+-    Sections 1 and 2 above); and, if the work is an executable linked
+-    with the Library, with the complete machine-readable "work that
+-    uses the Library", as object code and/or source code, so that the
+-    user can modify the Library and then relink to produce a modified
+-    executable containing the modified Library.  (It is understood
+-    that the user who changes the contents of definitions files in the
+-    Library will not necessarily be able to recompile the application
+-    to use the modified definitions.)
+-
+-    b) Use a suitable shared library mechanism for linking with the
+-    Library.  A suitable mechanism is one that (1) uses at run time a
+-    copy of the library already present on the user's computer system,
+-    rather than copying library functions into the executable, and (2)
+-    will operate properly with a modified version of the library, if
+-    the user installs one, as long as the modified version is
+-    interface-compatible with the version that the work was made with.
+-
+-    c) Accompany the work with a written offer, valid for at least
+-    three years, to give the same user the materials specified in
+-    Subsection 6a, above, for a charge no more than the cost of
+-    performing this distribution.
+-
+-    d) If distribution of the work is made by offering access to copy
+-    from a designated place, offer equivalent access to copy the above
+-    specified materials from the same place.
+-
+-    e) Verify that the user has already received a copy of these
+-    materials or that you have already sent this user a copy.
+-
+-  For an executable, the required form of the "work that uses the
+-Library" must include any data and utility programs needed for
+-reproducing the executable from it.  However, as a special exception,
+-the materials to be distributed need not include anything that is
+-normally distributed (in either source or binary form) with the major
+-components (compiler, kernel, and so on) of the operating system on
+-which the executable runs, unless that component itself accompanies
+-the executable.
+-
+-  It may happen that this requirement contradicts the license
+-restrictions of other proprietary libraries that do not normally
+-accompany the operating system.  Such a contradiction means you cannot
+-use both them and the Library together in an executable that you
+-distribute.
+-
+-  7. You may place library facilities that are a work based on the
+-Library side-by-side in a single library together with other library
+-facilities not covered by this License, and distribute such a combined
+-library, provided that the separate distribution of the work based on
+-the Library and of the other library facilities is otherwise
+-permitted, and provided that you do these two things:
+-
+-    a) Accompany the combined library with a copy of the same work
+-    based on the Library, uncombined with any other library
+-    facilities.  This must be distributed under the terms of the
+-    Sections above.
+-
+-    b) Give prominent notice with the combined library of the fact
+-    that part of it is a work based on the Library, and explaining
+-    where to find the accompanying uncombined form of the same work.
+-
+-  8. You may not copy, modify, sublicense, link with, or distribute
+-the Library except as expressly provided under this License.  Any
+-attempt otherwise to copy, modify, sublicense, link with, or
+-distribute the Library is void, and will automatically terminate your
+-rights under this License.  However, parties who have received copies,
+-or rights, from you under this License will not have their licenses
+-terminated so long as such parties remain in full compliance.
+-
+-  9. You are not required to accept this License, since you have not
+-signed it.  However, nothing else grants you permission to modify or
+-distribute the Library or its derivative works.  These actions are
+-prohibited by law if you do not accept this License.  Therefore, by
+-modifying or distributing the Library (or any work based on the
+-Library), you indicate your acceptance of this License to do so, and
+-all its terms and conditions for copying, distributing or modifying
+-the Library or works based on it.
+-
+-  10. Each time you redistribute the Library (or any work based on the
+-Library), the recipient automatically receives a license from the
+-original licensor to copy, distribute, link with or modify the Library
+-subject to these terms and conditions.  You may not impose any further
+-restrictions on the recipients' exercise of the rights granted herein.
+-You are not responsible for enforcing compliance by third parties with
+-this License.
+-
+-  11. If, as a consequence of a court judgment or allegation of patent
+-infringement or for any other reason (not limited to patent issues),
+-conditions are imposed on you (whether by court order, agreement or
+-otherwise) that contradict the conditions of this License, they do not
+-excuse you from the conditions of this License.  If you cannot
+-distribute so as to satisfy simultaneously your obligations under this
+-License and any other pertinent obligations, then as a consequence you
+-may not distribute the Library at all.  For example, if a patent
+-license would not permit royalty-free redistribution of the Library by
+-all those who receive copies directly or indirectly through you, then
+-the only way you could satisfy both it and this License would be to
+-refrain entirely from distribution of the Library.
+-
+-If any portion of this section is held invalid or unenforceable under
+-any particular circumstance, the balance of the section is intended to
+-apply, and the section as a whole is intended to apply in other
+-circumstances.
+-
+-It is not the purpose of this section to induce you to infringe any
+-patents or other property right claims or to contest validity of any
+-such claims; this section has the sole purpose of protecting the
+-integrity of the free software distribution system which is
+-implemented by public license practices.  Many people have made
+-generous contributions to the wide range of software distributed
+-through that system in reliance on consistent application of that
+-system; it is up to the author/donor to decide if he or she is willing
+-to distribute software through any other system and a licensee cannot
+-impose that choice.
+-
+-This section is intended to make thoroughly clear what is believed to
+-be a consequence of the rest of this License.
+-
+-  12. If the distribution and/or use of the Library is restricted in
+-certain countries either by patents or by copyrighted interfaces, the
+-original copyright holder who places the Library under this License
+-may add an explicit geographical distribution limitation excluding those
+-countries, so that distribution is permitted only in or among
+-countries not thus excluded.  In such case, this License incorporates
+-the limitation as if written in the body of this License.
+-
+-  13. The Free Software Foundation may publish revised and/or new
+-versions of the Lesser General Public License from time to time.
+-Such new versions will be similar in spirit to the present version,
+-but may differ in detail to address new problems or concerns.
+-
+-Each version is given a distinguishing version number.  If the Library
+-specifies a version number of this License which applies to it and
+-"any later version", you have the option of following the terms and
+-conditions either of that version or of any later version published by
+-the Free Software Foundation.  If the Library does not specify a
+-license version number, you may choose any version ever published by
+-the Free Software Foundation.
+-
+-  14. If you wish to incorporate parts of the Library into other free
+-programs whose distribution conditions are incompatible with these,
+-write to the author to ask for permission.  For software which is
+-copyrighted by the Free Software Foundation, write to the Free
+-Software Foundation; we sometimes make exceptions for this.  Our
+-decision will be guided by the two goals of preserving the free status
+-of all derivatives of our free software and of promoting the sharing
+-and reuse of software generally.
+-
+-                            NO WARRANTY
+-
+-  15. BECAUSE THE LIBRARY IS LICENSED FREE OF CHARGE, THERE IS NO
+-WARRANTY FOR THE LIBRARY, TO THE EXTENT PERMITTED BY APPLICABLE LAW.
+-EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR
+-OTHER PARTIES PROVIDE THE LIBRARY "AS IS" WITHOUT WARRANTY OF ANY
+-KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE
+-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+-PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE
+-LIBRARY IS WITH YOU.  SHOULD THE LIBRARY PROVE DEFECTIVE, YOU ASSUME
+-THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+-
+-  16. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN
+-WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY
+-AND/OR REDISTRIBUTE THE LIBRARY AS PERMITTED ABOVE, BE LIABLE TO YOU
+-FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR
+-CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE
+-LIBRARY (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+-RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+-FAILURE OF THE LIBRARY TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+-SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+-DAMAGES.
+-
+-                     END OF TERMS AND CONDITIONS
+-
+-
+-           How to Apply These Terms to Your New Libraries
+-
+-  If you develop a new library, and you want it to be of the greatest
+-possible use to the public, we recommend making it free software that
+-everyone can redistribute and change.  You can do so by permitting
+-redistribution under these terms (or, alternatively, under the terms of the
+-ordinary General Public License).
+-
+-  To apply these terms, attach the following notices to the library.  It is
+-safest to attach them to the start of each source file to most effectively
+-convey the exclusion of warranty; and each file should have at least the
+-"copyright" line and a pointer to where the full notice is found.
+-
+-    <one line to give the library's name and a brief idea of what it does.>
+-    Copyright (C) <year>  <name of author>
+-
+-    This library is free software; you can redistribute it and/or
+-    modify it under the terms of the GNU Lesser General Public
+-    License as published by the Free Software Foundation; either
+-    version 2.1 of the License, or (at your option) any later version.
+-
+-    This library is distributed in the hope that it will be useful,
+-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-    Lesser General Public License for more details.
+-
+-    You should have received a copy of the GNU Lesser General Public
+-    License along with this library; if not, write to the Free Software
+-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-
+-Also add information on how to contact you by electronic and paper mail.
+-
+-You should also get your employer (if you work as a programmer) or your
+-school, if any, to sign a "copyright disclaimer" for the library, if
+-necessary.  Here is a sample; alter the names:
+-
+-  Yoyodyne, Inc., hereby disclaims all copyright interest in the
+-  library `Frob' (a library for tweaking knobs) written by James Random Hacker.
+-
+-  <signature of Ty Coon>, 1 April 1990
+-  Ty Coon, President of Vice
+-
+-That's all there is to it!
+-
+diff --git a/LICENSE.LGPL.3.txt b/LICENSE.LGPL.3.txt
+new file mode 100644
+index 0000000..c851c6f
+--- /dev/null
++++ b/LICENSE.LGPL.3.txt
+@@ -0,0 +1,51 @@
++GNU LESSER GENERAL PUBLIC LICENSE
++Version 3, 29 June 2007
++
++Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
++
++Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.
++
++This version of the GNU Lesser General Public License incorporates the terms and conditions of version 3 of the GNU General Public License, supplemented by the additional permissions listed below.
++
++0. Additional Definitions.
++As used herein, "this License" refers to version 3 of the GNU Lesser General Public License, and the "GNU GPL" refers to version 3 of the GNU General Public License.
++
++"The Library" refers to a covered work governed by this License, other than an Application or a Combined Work as defined below.
++
++An "Application" is any work that makes use of an interface provided by the Library, but which is not otherwise based on the Library. Defining a subclass of a class defined by the Library is deemed a mode of using an interface provided by the Library.
++
++A "Combined Work" is a work produced by combining or linking an Application with the Library. The particular version of the Library with which the Combined Work was made is also called the "Linked Version".
++
++The "Minimal Corresponding Source" for a Combined Work means the Corresponding Source for the Combined Work, excluding any source code for portions of the Combined Work that, considered in isolation, are based on the Application, and not on the Linked Version.
++
++The "Corresponding Application Code" for a Combined Work means the object code and/or source code for the Application, including any data and utility programs needed for reproducing the Combined Work from the Application, but excluding the System Libraries of the Combined Work.
++
++1. Exception to Section 3 of the GNU GPL.
++You may convey a covered work under sections 3 and 4 of this License without being bound by section 3 of the GNU GPL.
++2. Conveying Modified Versions.
++If you modify a copy of the Library, and, in your modifications, a facility refers to a function or data to be supplied by an Application that uses the facility (other than as an argument passed when the facility is invoked), then you may convey a copy of the modified version:
++a) under this License, provided that you make a good faith effort to ensure that, in the event an Application does not supply the function or data, the facility still operates, and performs whatever part of its purpose remains meaningful, or
++b) under the GNU GPL, with none of the additional permissions of this License applicable to that copy.
++3. Object Code Incorporating Material from Library Header Files.
++The object code form of an Application may incorporate material from a header file that is part of the Library. You may convey such object code under terms of your choice, provided that, if the incorporated material is not limited to numerical parameters, data structure layouts and accessors, or small macros, inline functions and templates (ten or fewer lines in length), you do both of the following:
++a) Give prominent notice with each copy of the object code that the Library is used in it and that the Library and its use are covered by this License.
++b) Accompany the object code with a copy of the GNU GPL and this license document.
++4. Combined Works.
++You may convey a Combined Work under terms of your choice that, taken together, effectively do not restrict modification of the portions of the Library contained in the Combined Work and reverse engineering for debugging such modifications, if you also do each of the following:
++a) Give prominent notice with each copy of the Combined Work that the Library is used in it and that the Library and its use are covered by this License.
++b) Accompany the Combined Work with a copy of the GNU GPL and this license document.
++c) For a Combined Work that displays copyright notices during execution, include the copyright notice for the Library among these notices, as well as a reference directing the user to the copies of the GNU GPL and this license document.
++d) Do one of the following:
++0) Convey the Minimal Corresponding Source under the terms of this License, and the Corresponding Application Code in a form suitable for, and under terms that permit, the user to recombine or relink the Application with a modified version of the Linked Version to produce a modified Combined Work, in the manner specified by section 6 of the GNU GPL for conveying Corresponding Source.
++1) Use a suitable shared library mechanism for linking with the Library. A suitable mechanism is one that (a) uses at run time a copy of the Library already present on the user's computer system, and (b) will operate properly with a modified version of the Library that is interface-compatible with the Linked Version.
++e) Provide Installation Information, but only if you would otherwise be required to provide such information under section 6 of the GNU GPL, and only to the extent that such information is necessary to install and execute a modified version of the Combined Work produced by recombining or relinking the Application with a modified version of the Linked Version. (If you use option 4d0, the Installation Information must accompany the Minimal Corresponding Source and Corresponding Application Code. If you use option 4d1, you must provide the Installation Information in the manner specified by section 6 of the GNU GPL for conveying Corresponding Source.)
++5. Combined Libraries.
++You may place library facilities that are a work based on the Library side by side in a single library together with other library facilities that are not Applications and are not covered by this License, and convey such a combined library under terms of your choice, if you do both of the following:
++a) Accompany the combined library with a copy of the same work based on the Library, uncombined with any other library facilities, conveyed under the terms of this License.
++b) Give prominent notice with the combined library that part of it is a work based on the Library, and explaining where to find the accompanying uncombined form of the same work.
++6. Revised Versions of the GNU Lesser General Public License.
++The Free Software Foundation may publish revised and/or new versions of the GNU Lesser General Public License from time to time. Such new versions will be similar in spirit to the present version, but may differ in detail to address new problems or concerns.
++
++Each version is given a distinguishing version number. If the Library as you received it specifies that a certain numbered version of the GNU Lesser General Public License "or any later version" applies to it, you have the option of following the terms and conditions either of that published version or of any later version published by the Free Software Foundation. If the Library as you received it does not specify a version number of the GNU Lesser General Public License, you may choose any version of the GNU Lesser General Public License ever published by the Free Software Foundation.
++
++If the Library as you received it specifies that a proxy can decide whether future versions of the GNU Lesser General Public License shall apply, that proxy's public statement of acceptance of any version is permanent authorization for you to choose that version for the Library.
+\ No newline at end of file
+diff --git a/Makefile b/Makefile
+new file mode 100644
+index 0000000..e6de683
+--- /dev/null
++++ b/Makefile
+@@ -0,0 +1,48 @@
++##################################################
++default: build
++
++.PHONY: default
++
++##################################################
++check:
++	cabal new-build -fno-code -O0 all
++
++.PHONY: check
++
++##################################################
++repl:
++	cabal new-repl HaXml
++
++.PHONY: repl
++
++##################################################
++clean:
++	rm -rf "dist/" "dist-newstyle/"
++	rm -f *.project.local .ghc.environment.*
++
++.PHONY: clean
++
++##################################################
++build: cabal-compile
++
++.PHONY: build
++
++##################################################
++cabal-compile:
++	cabal new-build all
++
++.PHONY: cabal-compile
++
++##################################################
++stack-compile:
++	stack --nix build
++
++.PHONY: stack-compile
++
++##################################################
++sdist: build
++	cabal sdist
++
++.PHONY: sdist
++
++##################################################
+\ No newline at end of file
+diff --git a/cabal.project b/cabal.project
+new file mode 100644
+index 0000000..3a5785a
+--- /dev/null
++++ b/cabal.project
+@@ -0,0 +1,16 @@
++--------------------------------------------------
++
++packages:
++         ./
++
++--------------------------------------------------
++
++optional-packages:
++                  ../polyparse/
++
++--------------------------------------------------
++
++-- allow-newer:
++--   polyparse:base
++
++--------------------------------------------------
+\ No newline at end of file
+diff --git a/src/Text/XML/HaXml/ByteStringPP.hs b/src/Text/XML/HaXml/ByteStringPP.hs
+index c782575..6ba73aa 100644
+--- a/src/Text/XML/HaXml/ByteStringPP.hs
++++ b/src/Text/XML/HaXml/ByteStringPP.hs
+@@ -20,7 +20,7 @@ module Text.XML.HaXml.ByteStringPP
+   ,   cp
+   ) where
+ 
+-import Prelude hiding (maybe,either,elem,concat)
++import Prelude hiding (maybe,either,elem,concat,(<>))
+ import Data.Maybe hiding (maybe)
+ import Data.List (intersperse)
+ --import Data.ByteString.Lazy hiding (pack,map,head,any,singleton,intersperse,join)
+diff --git a/src/Text/XML/HaXml/Combinators.hs b/src/Text/XML/HaXml/Combinators.hs
+index f4b80f8..279241d 100644
+--- a/src/Text/XML/HaXml/Combinators.hs
++++ b/src/Text/XML/HaXml/Combinators.hs
+@@ -56,7 +56,7 @@ import Text.XML.HaXml.Namespaces
+ import Data.Maybe (fromMaybe)
+ 
+ infixl 6 `with`, `without`
+-infixr 5 `o`, `oo`, `union`, `andThen`		-- , `orelse`
++infixr 5 `o`, `oo`, `union`, `andThen`        -- , `orelse`
+ infixl 5 />, </, |>|
+ infixr 4 `when`, `guards`
+ infixr 3 ?>, :>
+@@ -184,7 +184,7 @@ f `o` g = concatMap f . g
+ -- rather than one filter using the result of the other.
+ --   (Has a more general type than just CFilter.)
+ union :: (a->[b]) -> (a->[b]) -> (a->[b])
+-union = lift (++)		-- in Haskell 98:   union = lift List.union
++union = lift (++)        -- in Haskell 98:   union = lift List.union
+   where
+     lift :: (a->b->d) -> (c->a) -> (c->b) -> c -> d
+     lift f g h = \x-> f (g x) (h x)
+@@ -201,7 +201,7 @@ cat fs = foldr1 union fs
+ --   works over the same data as the first, but also uses the
+ --   first's result.
+ andThen :: (a->c) -> (c->a->b) -> (a->b)
+-andThen f g = \x-> g (f x) x			-- lift g f id
++andThen f g = \x-> g (f x) x            -- lift g f id
+ 
+ -- | Process children using specified filters.
+ childrenBy :: CFilter i -> CFilter i 
+@@ -264,7 +264,7 @@ when   :: CFilter i -> CFilter i -> CFilter i
+ --   otherwise the content is discarded.
+ guards :: CFilter i -> CFilter i -> CFilter i
+ f `when` g       = g ?> f :> keep
+-g `guards` f     = g ?> f :> none	-- = f `o` (keep `with` g)
++g `guards` f     = g ?> f :> none    -- = f `o` (keep `with` g)
+ 
+ -- | Process CHildren In Place.  The filter is applied to any children
+ --   of an element content, and the element rebuilt around the results.
+diff --git a/src/Text/XML/HaXml/DtdToHaskell/Instance.hs b/src/Text/XML/HaXml/DtdToHaskell/Instance.hs
+index 0d7f9e8..836ea62 100644
+--- a/src/Text/XML/HaXml/DtdToHaskell/Instance.hs
++++ b/src/Text/XML/HaXml/DtdToHaskell/Instance.hs
+@@ -5,7 +5,8 @@ module Text.XML.HaXml.DtdToHaskell.Instance
+ import Data.List (intersperse)
+ 
+ import Text.XML.HaXml.DtdToHaskell.TypeDef
+-import Text.PrettyPrint.HughesPJ
++import           Text.PrettyPrint.HughesPJ hiding ((<>))
++import qualified Text.PrettyPrint.HughesPJ as PP
+ 
+ -- | Convert typedef to appropriate instance declaration, either @XmlContent@,
+ --   @XmlAttributes@, or @XmlAttrType@.
+@@ -18,20 +19,20 @@ mkInstance (DataDef _ n fs []) =
+         topatval = if null fs then ppHName n else topat
+     in
+     text "instance HTypeable" <+> ppHName n <+> text "where" $$
+-    nest 4 ( text "toHType x = Defined \"" <> ppXName n <> text "\" [] []" )
++    nest 4 ( text "toHType x = Defined \"" PP.<> ppXName n PP.<> text "\" [] []" )
+     $$
+     text "instance XmlContent" <+> ppHName n <+> text "where" $$
+     nest 4 (
+              text "toContents" <+> topatval <+> text "=" $$
+-             nest 4 (text "[CElem (Elem (N \"" <> ppXName n <> text "\")"
++             nest 4 (text "[CElem (Elem (N \"" PP.<> ppXName n PP.<> text "\")"
+                           <+> toattr <+> text "[]) ()]")
+            $$
+              text "parseContents = do" $$
+              nest 4 (text "{ (Elem _ as []) <- element [\""
+-                             <> ppXName n <> text "\"]" $$
++                             PP.<> ppXName n PP.<> text "\"]" $$
+                      text "; return" <+> frretval $$
+-                     text "} `adjustErr` (\"in <" <> ppXName n
+-                                                  <> text ">, \"++)"
++                     text "} `adjustErr` (\"in <" PP.<> ppXName n
++                                                  PP.<> text ">, \"++)"
+                     )
+            )
+     $$
+@@ -43,22 +44,22 @@ mkInstance (DataDef False n fs [(n0,sts)]) =
+         (frpat, frattr, topat, toattr) = attrpats fs
+     in
+     text "instance HTypeable" <+> ppHName n <+> text "where" $$
+-    nest 4 ( text "toHType x = Defined \"" <> ppXName n <> text "\" [] []" )
++    nest 4 ( text "toHType x = Defined \"" PP.<> ppXName n PP.<> text "\" [] []" )
+     $$
+     text "instance XmlContent" <+> ppHName n <+> text "where" $$
+     nest 4 (
+              text "toContents" <+> parens (mkCpat n0 topat vs) <+> text "=" $$
+-             nest 4 (text "[CElem (Elem (N \"" <> ppXName n <> text "\")"
++             nest 4 (text "[CElem (Elem (N \"" PP.<> ppXName n PP.<> text "\")"
+                           <+> toattr <+> parens (mkToElem sts vs)
+-                          <> text ") ()]")
++                          PP.<> text ") ()]")
+            $$
+              text "parseContents = do" $$
+              nest 4 (text "{ e@(Elem _"<+> frpat <+> text "_) <- element [\""
+-                             <> ppXName n <> text "\"]"
++                             PP.<> ppXName n PP.<> text "\"]"
+                      $$ text "; interior e $"
+                            <+> (mkParseConstr frattr (n0,sts))
+-                     $$ text "} `adjustErr` (\"in <" <> ppXName n
+-                                                     <> text ">, \"++)")
++                     $$ text "} `adjustErr` (\"in <" PP.<> ppXName n
++                                                     PP.<> text ">, \"++)")
+            )
+     $$
+     mkInstanceAttrs Extended n fs
+@@ -69,7 +70,7 @@ mkInstance (DataDef True n [] [(n0,sts)]) =
+     let vs = nameSupply sts
+     in
+     text "instance HTypeable" <+> ppHName n <+> text "where" $$
+-    nest 4 ( text "toHType x = Defined \"" <> ppXName n <> text "\" [] []" )
++    nest 4 ( text "toHType x = Defined \"" PP.<> ppXName n PP.<> text "\" [] []" )
+     $$
+     text "instance XmlContent" <+> ppHName n <+> text "where" $$
+     nest 4 ( text "toContents" <+> parens (mkCpat n0 empty vs)
+@@ -86,19 +87,19 @@ mkInstance (DataDef False n fs cs) =
+         _ = if null fs then False else True
+     in
+     text "instance HTypeable" <+> ppHName n <+> text "where" $$
+-    nest 4 ( text "toHType x = Defined \"" <> ppXName n <> text "\" [] []" )
++    nest 4 ( text "toHType x = Defined \"" PP.<> ppXName n PP.<> text "\" [] []" )
+     $$
+     text "instance XmlContent" <+> ppHName n <+> text "where" $$
+     nest 4 ( vcat (map (mkToMult n topat toattr) cs)
+            $$ text "parseContents = do "
+            $$ nest 4 (text "{ e@(Elem _"<+> frpat <+> text "_) <- element [\""
+-                                                  <> ppXName n <> text "\"]"
++                                                  PP.<> ppXName n PP.<> text "\"]"
+                      $$ text "; interior e $ oneOf"
+                      $$ nest 4 ( text "[" <+> mkParseConstr frattr (head cs)
+                                $$ vcat (map (\c-> text "," <+> mkParseConstr frattr c)
+                                             (tail cs))
+-                               $$ text "] `adjustErr` (\"in <" <> ppXName n
+-                                                             <> text ">, \"++)"
++                               $$ text "] `adjustErr` (\"in <" PP.<> ppXName n
++                                                             PP.<> text ">, \"++)"
+                                )
+                      $$ text "}"
+                      )
+@@ -113,7 +114,7 @@ mkInstance (DataDef True n fs cs) =
+         mixattrs = if null fs then False else True
+     in
+     text "instance HTypeable" <+> ppHName n <+> text "where" $$
+-    nest 4 ( text "toHType x = Defined \"" <> ppXName n <> text "\" [] []" )
++    nest 4 ( text "toHType x = Defined \"" PP.<> ppXName n PP.<> text "\" [] []" )
+     $$
+     text "instance XmlContent" <+> ppHName n <+> text "where" $$
+     nest 4 ( vcat (map (mkToAux mixattrs) cs)
+@@ -121,8 +122,8 @@ mkInstance (DataDef True n fs cs) =
+            $$ nest 4 ( text "[" <+> mkParseConstr frattr (head cs)
+                      $$ vcat (map (\c-> text "," <+> mkParseConstr frattr c)
+                                   (tail cs))
+-                     $$ text "] `adjustErr` (\"in <" <> ppXName n
+-                                                     <> text ">, \"++)"
++                     $$ text "] `adjustErr` (\"in <" PP.<> ppXName n
++                                                     PP.<> text ">, \"++)"
+                      )
+            )
+     $$
+@@ -177,7 +178,7 @@ attrpats fs =
+ --     cvs = let ns = nameSupply2 vs
+ --           in zip ns (text "c0": init ns)
+ --     frElem _ (st,v,(cvi,cvo)) inner =
+---         parens (text "\\" <> parens (v<>comma<>cvi) <> text "->" $$
++--         parens (text "\\" PP.<> parens (v PP.<>comma PP.<> cvi) <> text "->" $$
+ --                 nest 2 inner) $$
+ --         parens (
+ --           case st of
+@@ -186,26 +187,26 @@ attrpats fs =
+ --             (List String)   -> text "many fromText" <+> cvo
+ --             (List _)        -> text "many fromElem" <+> cvo
+ --             (List1 s)       -> text "definite fromElem"
+---                                <+> text "\"" <> text (show s)<> text "+\""
+---                                <+> text "\"" <> ppXName n <> text "\""
++--                                <+> text "\"" PP.<> text (show s)PP.<> text "+\""
++--                                <+> text "\"" PP.<> ppXName n PP.<> text "\""
+ --                                <+> cvo
+ --             (Tuple ss)  -> text "definite fromElem"
+---                            <+> text "\"(" <> hcat (intersperse (text ",")
++--                            <+> text "\"(" PP.<> hcat (intersperse (text ",")
+ --                                                            (map (text.show) ss))
+---                                           <> text ")\""
+---                            <+> text "\"" <> ppXName n <> text "\""
++--                                           PP.<> text ")\""
++--                            <+> text "\"" PP.<> ppXName n PP.<> text "\""
+ --                            <+> cvo
+ --             (OneOf _)  -> text "definite fromElem"
+ --                            <+> text "\"OneOf\""
+---                            <+> text "\"" <> ppXName n <> text "\""
++--                            <+> text "\"" PP.<> ppXName n PP.<> text "\""
+ --                            <+> cvo
+---             (String)    -> text "definite fromText" <+> text "\"text\" \"" <>
+---                                                  ppXName n <> text "\"" <+> cvo
+---             (Any)       -> text "definite fromElem" <+> text "\"ANY\" \"" <>
+---                                                  ppXName n <> text "\"" <+> cvo
++--             (String)    -> text "definite fromText" <+> text "\"text\" \"" PP.<>
++--                                                  ppXName n PP.<> text "\"" <+> cvo
++--             (Any)       -> text "definite fromElem" <+> text "\"ANY\" \"" PP.<>
++--                                                  ppXName n PP.<> text "\"" <+> cvo
+ --             (Defined m) -> text "definite fromElem" <+>
+---                                  text "\"<" <> ppXName m <> text ">\" \"" <>
+---                                                  ppXName m <> text "\"" <+> cvo
++--                                  text "\"<" PP.<> ppXName m PP.<> text ">\" \"" PP.<>
++--                                                  ppXName m PP.<> text "\"" <+> cvo
+ --             (Defaultable _ _)  -> text "nyi_fromElem_Defaultable" <+> cvo
+ --           )
+ 
+@@ -218,7 +219,7 @@ mkParseContents n sts vs inner =
+     cvs = let ns = nameSupply2 vs
+           in zip ns (text "c0": init ns)
+     frElem n (st,v,(cvi,cvo)) inner =
+-        parens (text "\\" <> parens (v<>comma<>cvi) <> text "->" $$
++        parens (text "\\" PP.<> parens (v PP.<>comma PP.<>cvi) PP.<> text "->" $$
+                 nest 2 inner) $$
+         parens (
+           )
+@@ -284,12 +285,12 @@ mkTranslate es =
+     vcat (map trans es) $$
+     text "translate _ = Nothing"
+   where
+-    trans n = text "translate \"" <> ppXName n <> text "\" =" <+>
++    trans n = text "translate \"" PP.<> ppXName n PP.<> text "\" =" <+>
+               text "Just" <+> ppHName n
+ 
+ mkToAttr :: Name -> Doc
+ mkToAttr n = text "toAttrFrTyp n" <+> ppHName n <+> text "=" <+>
+-             text "Just (N n, str2attr" <+> doubleQuotes (ppXName n) <> text ")"
++             text "Just (N n, str2attr" <+> doubleQuotes (ppXName n) PP.<> text ")"
+ 
+ mkFrFld :: Name -> (Name,StructType) -> Doc
+ mkFrFld tag (n,st) =
+@@ -326,7 +327,7 @@ mkToFld (n,st) =
+ --         let vs  = nameSupply sts in
+ --         nest 4 (text "case" <+> blah sts vs <+> text "of" $$
+ --                 succpat sts vs <+> text "-> (Just" <+>
+---                                    parens (mkCpat n attrs vs) <> text ", rest)"
++--                                    parens (mkCpat n attrs vs) PP.<> text ", rest)"
+ --                 $$
+ --                 failpat sts <+> text "->" $$ nest 4 innr
+ --                )
+@@ -336,7 +337,7 @@ mkToFld (n,st) =
+ --         let ns = nameSupply2 vs
+ --             cvs = zip ns (text "c0": init ns)
+ --             blahblah (st,v,(cvi,cvo)) innr =
+---                 parens (text "\\" <> parens (v<>comma<>cvi) <> text "->" $$
++--                 parens (text "\\" PP.<> parens (v PP.<>comma PP.<>cvi) PP.<> text "->" $$
+ --                         nest 2 innr) $$
+ --                 blahblahblah st cvo
+ --         in
+@@ -392,6 +393,6 @@ mkToMult tag attrpat attrexp (n,sts) =
+     let vs = nameSupply sts
+     in
+     text "toContents" <+> parens (mkCpat n attrpat vs) <+> text "="
+-    $$ nest 4 (text "[CElem (Elem (N \"" <> ppXName tag <> text "\")"<+> attrexp
++    $$ nest 4 (text "[CElem (Elem (N \"" PP.<> ppXName tag PP.<> text "\")"<+> attrexp
+               <+> parens (mkToElem sts vs) <+> text ") ()]")
+ 
+diff --git a/src/Text/XML/HaXml/DtdToHaskell/TypeDef.hs b/src/Text/XML/HaXml/DtdToHaskell/TypeDef.hs
+index 6fa3da3..163e48e 100644
+--- a/src/Text/XML/HaXml/DtdToHaskell/TypeDef.hs
++++ b/src/Text/XML/HaXml/DtdToHaskell/TypeDef.hs
+@@ -20,7 +20,8 @@ module Text.XML.HaXml.DtdToHaskell.TypeDef
+ 
+ import Data.Char (isLower, isUpper, toLower, toUpper, isDigit)
+ import Data.List (intersperse)
+-import Text.PrettyPrint.HughesPJ
++import Text.PrettyPrint.HughesPJ hiding ((<>))
++import qualified Text.PrettyPrint.HughesPJ as PP
+ 
+ 
+ ---- Internal representation for typedefs ----
+@@ -45,8 +46,8 @@ data StructType =
+     | Tuple [StructType]
+     | OneOf [StructType]
+     | Any                               -- ^ XML's contentspec allows ANY
+-    | StringMixed			-- ^ mixed (#PCDATA | ... )*
+-    | String				-- ^ string only (#PCDATA)
++    | StringMixed                       -- ^ mixed (#PCDATA | ... )*
++    | String                            -- ^ string only (#PCDATA)
+     | Defined Name
+     deriving Eq
+ 
+@@ -76,11 +77,11 @@ ppTypeDef :: TypeDef -> Doc
+ --      no attrs, no constructors
+ ppTypeDef (DataDef _ n [] []) =
+     let nme = ppHName n in
+-    text "data" <+> nme <+> text "=" <+> nme <+> text "\t\t" <> derives
++    text "data" <+> nme <+> text "=" <+> nme <+> text "\t\t" PP.<> derives
+ 
+ --      no attrs, single constructor
+ ppTypeDef (DataDef _ n [] [c@(_,[_])]) =
+-    text "newtype" <+> ppHName n <+> text "=" <+> ppC c <+> text "\t\t" <> derives
++    text "newtype" <+> ppHName n <+> text "=" <+> ppC c <+> text "\t\t" PP.<> derives
+ 
+ --      no attrs, multiple constrs
+ ppTypeDef (DataDef _ n [] cs) =
+@@ -120,10 +121,10 @@ ppTypeDef (EnumDef n es) =
+ ppST :: StructType -> Doc
+ ppST (Defaultable st _)  = parens (text "Defaultable" <+> ppST st)
+ ppST (Maybe st)  = parens (text "Maybe" <+> ppST st)
+-ppST (List st)   = text "[" <> ppST st <> text "]"
++ppST (List st)   = text "[" PP.<> ppST st PP.<> text "]"
+ ppST (List1 st)  = parens (text "List1" <+> ppST st)
+ ppST (Tuple sts) = parens (commaList (map ppST sts))
+-ppST (OneOf sts) = parens (text "OneOf" <> text (show (length sts)) <+>
++ppST (OneOf sts) = parens (text "OneOf" PP.<> text (show (length sts)) <+>
+                            hsep (map ppST sts))
+ ppST  StringMixed= text "String"
+ ppST  String     = text "String"
+@@ -150,7 +151,7 @@ ppXName :: Name -> Doc
+ ppXName (Name s _) = text s
+ -- | Pretty print Haskell attributes name.
+ ppAName :: Name -> Doc
+-ppAName (Name _ s) = text s <> text "_Attrs"
++ppAName (Name _ s) = text s PP.<> text "_Attrs"
+ 
+ derives :: Doc
+ derives = text "deriving" <+> parens (commaList (map text ["Eq","Show"]))
+diff --git a/src/Text/XML/HaXml/Html/Parse.hs b/src/Text/XML/HaXml/Html/Parse.hs
+index a7f0bbf..ce0c659 100644
+--- a/src/Text/XML/HaXml/Html/Parse.hs
++++ b/src/Text/XML/HaXml/Html/Parse.hs
+@@ -329,17 +329,17 @@ element ctx =
+               return ([], Elem (N "null") [] []))
+       else if e `elem` selfclosingtags then
+          -- complete the parse straightaway.
+-         ( do tok TokEndClose	-- self-closing <tag /> 
++         ( do tok TokEndClose    -- self-closing <tag /> 
+               debug (e++"[+]")
+               return ([], Elem (N e) avs [])) `onFail`
+-     --  ( do tok TokAnyClose	-- sequence <tag></tag>	(**not HTML?**)
++     --  ( do tok TokAnyClose    -- sequence <tag></tag>    (**not HTML?**)
+      --       debug (e++"[+")
+      --       n <- bracket (tok TokEndOpen) (commit $ tok TokAnyClose) qname
+      --       debug "]"
+      --       if e == (map toLower n :: Name) 
+      --         then return ([], Elem e avs [])      
+      --         else return (error "no nesting in empty tag")) `onFail`
+-         ( do tok TokAnyClose	-- <tag> with no close (e.g. <IMG>)
++         ( do tok TokAnyClose    -- <tag> with no close (e.g. <IMG>)
+               debug (e++"[+]")
+               return ([], Elem (N e) avs []))
+       else
+@@ -715,12 +715,12 @@ attvalue =
+ systemliteral :: HParser SystemLiteral
+ systemliteral = do
+     s <- bracket (tok TokQuote) (commit $ tok TokQuote) freetext
+-    return (SystemLiteral s)		-- note: need to fold &...; escapes
++    return (SystemLiteral s)        -- note: need to fold &...; escapes
+ 
+ pubidliteral :: HParser PubidLiteral
+ pubidliteral = do
+     s <- bracket (tok TokQuote) (commit $ tok TokQuote) freetext
+-    return (PubidLiteral s)		-- note: need to fold &...; escapes
++    return (PubidLiteral s)    -- note: need to fold &...; escapes
+ 
+ chardata :: HParser CharData
+ chardata = freetext -- >>= return . CharData
+diff --git a/src/Text/XML/HaXml/Html/ParseLazy.hs b/src/Text/XML/HaXml/Html/ParseLazy.hs
+index 927a750..1093cdb 100644
+--- a/src/Text/XML/HaXml/Html/ParseLazy.hs
++++ b/src/Text/XML/HaXml/Html/ParseLazy.hs
+@@ -328,17 +328,17 @@ element (N ctx) =
+               return ([], Elem (N "null") [] []))
+       else if e `elem` selfclosingtags then
+          -- complete the parse straightaway.
+-         ( do tok TokEndClose	-- self-closing <tag />
++         ( do tok TokEndClose    -- self-closing <tag />
+               debug (e++"[+]")
+               return ([], Elem (N e) avs [])) `onFail`
+-     --  ( do tok TokAnyClose	-- sequence <tag></tag>	(**not HTML?**)
++     --  ( do tok TokAnyClose    -- sequence <tag></tag>    (**not HTML?**)
+      --       debug (e++"[+")
+      --       n <- bracket (tok TokEndOpen) (commit $ tok TokAnyClose) qname
+      --       debug "]"
+      --       if e == (map toLower n :: Name)
+      --         then return ([], Elem e avs [])
+      --         else return (error "no nesting in empty tag")) `onFail`
+-         ( do tok TokAnyClose	-- <tag> with no close (e.g. <IMG>)
++         ( do tok TokAnyClose    -- <tag> with no close (e.g. <IMG>)
+               debug (e++"[+]")
+               return ([], Elem (N e) avs []))
+       else
+@@ -716,12 +716,12 @@ attvalue =
+ systemliteral :: HParser SystemLiteral
+ systemliteral = do
+     s <- bracket (tok TokQuote) (commit $ tok TokQuote) freetext
+-    return (SystemLiteral s)		-- note: need to fold &...; escapes
++    return (SystemLiteral s)        -- note: need to fold &...; escapes
+ 
+ pubidliteral :: HParser PubidLiteral
+ pubidliteral = do
+     s <- bracket (tok TokQuote) (commit $ tok TokQuote) freetext
+-    return (PubidLiteral s)		-- note: need to fold &...; escapes
++    return (PubidLiteral s)        -- note: need to fold &...; escapes
+ 
+ chardata :: HParser CharData
+ chardata = freetext -- >>= return . CharData
+diff --git a/src/Text/XML/HaXml/Html/Pretty.hs b/src/Text/XML/HaXml/Html/Pretty.hs
+index f918f28..f0cd68a 100644
+--- a/src/Text/XML/HaXml/Html/Pretty.hs
++++ b/src/Text/XML/HaXml/Html/Pretty.hs
+@@ -12,7 +12,8 @@ import Prelude hiding (maybe,either)
+ import Data.Maybe hiding (maybe)
+ import Data.List (intersperse)
+ import Data.Char (isSpace)
+-import Text.PrettyPrint.HughesPJ
++import           Text.PrettyPrint.HughesPJ hiding ((<>))
++import qualified Text.PrettyPrint.HughesPJ as PP
+ import Text.XML.HaXml.Types
+ import Text.XML.HaXml.Namespaces
+ 
+@@ -24,7 +25,7 @@ maybe :: (a->Doc) -> Maybe a -> Doc
+ maybe _f Nothing  = empty
+ maybe  f (Just x) = f x
+ 
+---peref p   = text "%" <> text p <> text ";"
++--peref p   = text "%" PP.<> text p PP.<> text ";"
+ 
+ ----
+ 
+@@ -50,16 +51,16 @@ prolog (Prolog x m1 dtd m2)= maybe xmldecl x $$
+                              vcat (map misc m1) $$
+                              maybe doctypedecl dtd $$
+                              vcat (map misc m2)
+-xmldecl (XMLDecl v e sd)   = text "<?xml version='" <> text v <> text "'" <+>
++xmldecl (XMLDecl v e sd)   = text "<?xml version='" PP.<> text v PP.<> text "'" <+>
+                              maybe encodingdecl e <+>
+                              maybe sddecl sd <+>
+                              text "?>"
+ misc (Comment s)           = text "<!--" <+> text s <+> text "-->"
+-misc (PI (n,s))            = text "<?" <> text n <+> text s <+> text "?>"
++misc (PI (n,s))            = text "<?" PP.<> text n <+> text s <+> text "?>"
+ sddecl sd   | sd           = text "standalone='yes'"
+             | otherwise    = text "standalone='no'"
+ doctypedecl (DTD n eid ds) = if null ds then 
+-                                  hd <> text ">"
++                                  hd PP.<> text ">"
+                              else hd <+> text " [" $$
+                                   vcat (map markupdecl ds) $$ text "]>"
+                            where hd = text "<!DOCTYPE" <+> qname n <+>
+@@ -77,17 +78,17 @@ markupdecl (MarkupMisc m)  = misc m
+ --extsubsetdecl (ExtConditionalSect c) = conditionalsect c
+ -- --extsubsetdecl (ExtPEReference p e)   = peref p
+ 
+-element (Elem n as []) = text "<" <> qname n <+>
+-                         fsep (map attribute as) <> text "/>"
++element (Elem n as []) = text "<" PP.<> qname n <+>
++                         fsep (map attribute as) PP.<> text "/>"
+ element e@(Elem n as cs)
+---  | any isText cs    = text "<" <> qname n <+> fsep (map attribute as) <>
+---                       text ">" <> hcat (map content cs) <>
+---                       text "</" <> qname n <> text ">"
+-    | isText (head cs) = text "<" <> qname n <+> fsep (map attribute as) <>
+-                         text ">" <> hcat (map content cs) <>
+-                         text "</" <> qname n <> text ">"
++--  | any isText cs    = text "<" PP.<> qname n <+> fsep (map attribute as) PP.<>
++--                       text ">" PP.<> hcat (map content cs) PP.<>
++--                       text "</" PP.<> qname n PP.<> text ">"
++    | isText (head cs) = text "<" PP.<> qname n <+> fsep (map attribute as) PP.<>
++                         text ">" PP.<> hcat (map content cs) PP.<>
++                         text "</" PP.<> qname n PP.<> text ">"
+     | otherwise        = let (d,c) = carryelem e empty
+-                         in d <> c
++                         in d PP.<> c
+ 
+ isText :: Content i -> Bool
+ isText (CString _ _ _) = True
+@@ -96,22 +97,22 @@ isText _               = False
+ 
+ carryelem :: Element i -> Doc -> (Doc, Doc)
+ carryelem (Elem n as []) c
+-                       = ( c <>
+-                           text "<" <> qname n <+> fsep (map attribute as)
++                       = ( c PP.<>
++                           text "<" PP.<> qname n <+> fsep (map attribute as)
+                          , text "/>")
+ --carryelem e@(Elem n as cs) c
+-----  | any isText cs    =  ( c <> element e, empty)
++----  | any isText cs    =  ( c PP.<> element e, empty)
+ --    | otherwise        =  let (cs',d') = carryscan carrycontent cs (text ">")
+ --                          in
+---                          ( c <>
+---                            text "<" <> qname n <+> fsep (map attribute as) $$
+---                            nest 2 (vcat cs') <> -- $$
+---                            c' <> text "</" <> qname n
++--                          ( c PP.<>
++--                            text "<" PP.<> qname n <+> fsep (map attribute as) $$
++--                            nest 2 (vcat cs') PP.<> -- $$
++--                            c' PP.<> text "</" PP.<> qname n
+ --                          , text ">")
+ --carrycontent (CElem e) c   = carryelem e c
+---carrycontent (CString _ s) c = (c <> chardata s, empty)
+---carrycontent (CRef r) c    = (c <> reference r, empty)
+---carrycontent (CMisc m) c   = (c <> misc m, empty)
++--carrycontent (CString _ s) c = (c PP.<> chardata s, empty)
++--carrycontent (CRef r) c    = (c PP.<> reference r, empty)
++--carrycontent (CMisc m) c   = (c PP.<> misc m, empty)
+ --
+ --carryscan :: (a->c->(b,c)) -> [a] -> c -> ([b],c)
+ --carryscan f []     c = ([],c)
+@@ -121,75 +122,75 @@ carryelem (Elem n as []) c
+ 
+ carryelem (Elem n as cs) c
+   | isText (head cs) =
+-        ( start <>
+-          text ">" <> hcat (map content cs) <> text "</" <> qname n
++        ( start PP.<>
++          text ">" PP.<> hcat (map content cs) PP.<> text "</" PP.<> qname n
+         , text ">")
+   | otherwise =
+         let (d,c') = foldl carrycontent (start, text ">") cs in
+-        ( d <> c' <> text "</" <> qname n
++        ( d PP.<> c' PP.<> text "</" PP.<> qname n
+         , text ">")
+-  where start = c <> text "<" <> qname n <+> fsep (map attribute as)
++  where start = c PP.<> text "<" PP.<> qname n <+> fsep (map attribute as)
+ 
+ carrycontent :: (Doc, Doc) -> Content i -> (Doc, Doc)
+ carrycontent (d,c) (CElem e _)     = let (d',c') = carryelem e c in
+                                      (d $$ nest 2 d',       c')
+-carrycontent (d,c) (CString _ s _) = (d <> c <> chardata s, empty)
+-carrycontent (d,c) (CRef r _)      = (d <> c <> reference r,empty)
+-carrycontent (d,c) (CMisc m _)     = (d $$ c <> misc m,     empty)
++carrycontent (d,c) (CString _ s _) = (d PP.<> c PP.<> chardata s, empty)
++carrycontent (d,c) (CRef r _)      = (d PP.<> c PP.<> reference r,empty)
++carrycontent (d,c) (CMisc m _)     = (d $$ c PP.<> misc m,     empty)
+ 
+ 
+-attribute (n,v)          = qname n <> text "=" <> attvalue v
++attribute (n,v)          = qname n PP.<> text "=" PP.<> attvalue v
+ content (CElem e _)      = element e
+ content (CString _ s _)  = chardata s
+ content (CRef r _)       = reference r
+ content (CMisc m _)      = misc m
+ 
+-elementdecl	:: ElementDecl -> Doc
+-contentspec	:: ContentSpec -> Doc
+-cp		:: CP -> Doc
+-modifier	:: Modifier -> Doc
+-mixed		:: Mixed -> Doc
+-attlistdecl	:: AttListDecl -> Doc
+-attdef		:: AttDef -> Doc
+-atttype		:: AttType -> Doc
+-tokenizedtype	:: TokenizedType -> Doc
+-enumeratedtype	:: EnumeratedType -> Doc
+-notationtype	:: [String] -> Doc
+-enumeration	:: [String] -> Doc
+-defaultdecl	:: DefaultDecl -> Doc
+-reference	:: Reference -> Doc
+-entityref	:: String -> Doc
+-charref		:: (Show a) => a -> Doc
+-entitydecl	:: EntityDecl -> Doc
+-gedecl		:: GEDecl -> Doc
+-pedecl		:: PEDecl -> Doc
+-entitydef	:: EntityDef -> Doc
+-pedef		:: PEDef -> Doc
+-externalid	:: ExternalID -> Doc
+-ndatadecl	:: NDataDecl -> Doc
+-notationdecl	:: NotationDecl -> Doc
+-publicid	:: PublicID -> Doc
+-encodingdecl	:: EncodingDecl -> Doc
+-nmtoken		:: String -> Doc
+-attvalue	:: AttValue -> Doc
+-entityvalue	:: EntityValue -> Doc
+-ev		:: EV -> Doc
+-pubidliteral	:: PubidLiteral -> Doc
+-systemliteral	:: SystemLiteral -> Doc
+-chardata	:: [Char] -> Doc
++elementdecl    :: ElementDecl -> Doc
++contentspec    :: ContentSpec -> Doc
++cp             :: CP -> Doc
++modifier       :: Modifier -> Doc
++mixed          :: Mixed -> Doc
++attlistdecl    :: AttListDecl -> Doc
++attdef         :: AttDef -> Doc
++atttype        :: AttType -> Doc
++tokenizedtype  :: TokenizedType -> Doc
++enumeratedtype :: EnumeratedType -> Doc
++notationtype   :: [String] -> Doc
++enumeration    :: [String] -> Doc
++defaultdecl    :: DefaultDecl -> Doc
++reference      :: Reference -> Doc
++entityref      :: String -> Doc
++charref        :: (Show a) => a -> Doc
++entitydecl     :: EntityDecl -> Doc
++gedecl         :: GEDecl -> Doc
++pedecl         :: PEDecl -> Doc
++entitydef      :: EntityDef -> Doc
++pedef          :: PEDef -> Doc
++externalid     :: ExternalID -> Doc
++ndatadecl      :: NDataDecl -> Doc
++notationdecl   :: NotationDecl -> Doc
++publicid       :: PublicID -> Doc
++encodingdecl   :: EncodingDecl -> Doc
++nmtoken        :: String -> Doc
++attvalue       :: AttValue -> Doc
++entityvalue    :: EntityValue -> Doc
++ev             :: EV -> Doc
++pubidliteral   :: PubidLiteral -> Doc
++systemliteral  :: SystemLiteral -> Doc
++chardata       :: [Char] -> Doc
+ 
+ 
+ elementdecl (ElementDecl n cs) = text "<!ELEMENT" <+> qname n <+>
+-                                 contentspec cs <> text ">"
++                                 contentspec cs PP.<> text ">"
+ contentspec EMPTY              = text "EMPTY"
+ contentspec ANY                = text "ANY"
+ contentspec (Mixed m)          = mixed m
+ contentspec (ContentSpec c)    = cp c
+ --contentspec (ContentPE p cs)   = peref p
+-cp (TagName n m)       = qname n <> modifier m
+-cp (Choice cs m)       = parens (hcat (intersperse (text "|") (map cp cs))) <>
++cp (TagName n m)       = qname n PP.<> modifier m
++cp (Choice cs m)       = parens (hcat (intersperse (text "|") (map cp cs))) PP.<>
+                            modifier m
+-cp (Seq cs m)          = parens (hcat (intersperse (text ",") (map cp cs))) <>
++cp (Seq cs m)          = parens (hcat (intersperse (text ",") (map cp cs))) PP.<>
+                            modifier m
+ --cp (CPPE p c)          = peref p
+ modifier None          = empty
+@@ -198,11 +199,11 @@ modifier Star          = text "*"
+ modifier Plus          = text "+"
+ mixed  PCDATA          = text "(#PCDATA)"
+ mixed (PCDATAplus ns)  = text "(#PCDATA |" <+>
+-                         hcat (intersperse (text "|") (map qname ns)) <>
++                         hcat (intersperse (text "|") (map qname ns)) PP.<>
+                          text ")*"
+ 
+ attlistdecl (AttListDecl n ds) = text "<!ATTLIST" <+> qname n <+>
+-                                 fsep (map attdef ds) <> text ">"
++                                 fsep (map attdef ds) PP.<> text ">"
+ attdef (AttDef n t d)          = qname n <+> atttype t <+> defaultdecl d
+ atttype  StringType            = text "CDATA"
+ atttype (TokenizedType t)      = tokenizedtype t
+@@ -234,13 +235,13 @@ defaultdecl (DefaultTo a f)    = maybe (const (text "#FIXED")) f <+> attvalue a
+ --                                                   text "]]>" <+> ignore i
+ reference (RefEntity er)       = entityref er
+ reference (RefChar cr)         = charref cr
+-entityref n                    = text "&" <> text n <> text ";"
+-charref c                      = text "&#" <> text (show c) <> text ";"
++entityref n                    = text "&" PP.<> text n PP.<> text ";"
++charref c                      = text "&#" PP.<> text (show c) PP.<> text ";"
+ entitydecl (EntityGEDecl d)    = gedecl d
+ entitydecl (EntityPEDecl d)    = pedecl d
+-gedecl (GEDecl n ed)           = text "<!ENTITY" <+> text n <+> entitydef ed <>
++gedecl (GEDecl n ed)           = text "<!ENTITY" <+> text n <+> entitydef ed PP.<>
+                                  text ">"
+-pedecl (PEDecl n pd)           = text "<!ENTITY %" <> text n <+> pedef pd <>
++pedecl (PEDecl n pd)           = text "<!ENTITY %" PP.<> text n <+> pedef pd PP.<>
+                                  text ">"
+ entitydef (DefEntityValue ev)  = entityvalue ev
+ entitydef (DefExternalID i nd) = externalid i <+> maybe ndatadecl nd
+@@ -251,27 +252,27 @@ externalid (PUBLIC i sl)       = text "PUBLIC" <+> pubidliteral i <+>
+                                  systemliteral sl
+ ndatadecl (NDATA n)            = text "NDATA" <+> text n
+ --textdecl (TextDecl vi ed)      = text "<?xml" <+> maybe text vi <+>
+---                                 encodingdecl ed <> text "?>"
++--                                 encodingdecl ed PP.<> text "?>"
+ --extparsedent (ExtParsedEnt t c)= maybe textdecl t <+> content c
+ --extpe (ExtPE t esd)            = maybe textdecl t <+>
+ --                                 vcat (map extsubsetdecl esd)
+ notationdecl (NOTATION n e)    = text "<!NOTATION" <+> text n <+>
+-                                 either externalid publicid e <>
++                                 either externalid publicid e PP.<>
+                                  text ">"
+ publicid (PUBLICID p)          = text "PUBLICID" <+> pubidliteral p
+-encodingdecl (EncodingDecl s)  = text "encoding='" <> text s <> text "'"
++encodingdecl (EncodingDecl s)  = text "encoding='" PP.<> text s PP.<> text "'"
+ nmtoken s                      = text s
+-attvalue (AttValue esr)        = text "\"" <>
+-                                 hcat (map (either text reference) esr) <>
++attvalue (AttValue esr)        = text "\"" PP.<>
++                                 hcat (map (either text reference) esr) PP.<>
+                                  text "\""
+-entityvalue (EntityValue evs)  = text "'" <> hcat (map ev evs) <> text "'"
++entityvalue (EntityValue evs)  = text "'" PP.<> hcat (map ev evs) PP.<> text "'"
+ ev (EVString s)                = text s
+ --ev (EVPERef p e)               = peref p
+ ev (EVRef r)                   = reference r
+-pubidliteral (PubidLiteral s)  = text "'" <> text s <> text "'"
+-systemliteral (SystemLiteral s)= text "'" <> text s <> text "'"
++pubidliteral (PubidLiteral s)  = text "'" PP.<> text s PP.<> text "'"
++systemliteral (SystemLiteral s)= text "'" PP.<> text s PP.<> text "'"
+ chardata s                     = if all isSpace s then empty else text s
+---cdsect c                       = text "<![CDATA[" <> chardata c <> text "]]>"
++--cdsect c                       = text "<![CDATA[" PP.<> chardata c PP.<> text "]]>"
+ 
+ qname n                        = text (printableName n)
+ 
+diff --git a/src/Text/XML/HaXml/Lex.hs b/src/Text/XML/HaXml/Lex.hs
+index 2b801b6..2d5933d 100644
+--- a/src/Text/XML/HaXml/Lex.hs
++++ b/src/Text/XML/HaXml/Lex.hs
+@@ -38,38 +38,38 @@ type Token = (Posn, TokenT)
+ 
+ -- | The basic token type.
+ data TokenT =
+-      TokCommentOpen		-- ^   \<!--
+-    | TokCommentClose		-- ^   -->
+-    | TokPIOpen			-- ^   \<?
+-    | TokPIClose		-- ^   ?>
+-    | TokSectionOpen		-- ^   \<![
+-    | TokSectionClose		-- ^   ]]>
+-    | TokSection Section	-- ^   CDATA INCLUDE IGNORE etc
+-    | TokSpecialOpen		-- ^   \<!
+-    | TokSpecial Special	-- ^   DOCTYPE ELEMENT ATTLIST etc
+-    | TokEndOpen		-- ^   \<\/
+-    | TokEndClose		-- ^   \/>
+-    | TokAnyOpen		-- ^   \<
+-    | TokAnyClose		-- ^   >
+-    | TokSqOpen			-- ^   \[
+-    | TokSqClose		-- ^   \]
+-    | TokEqual			-- ^   =
+-    | TokQuery			-- ^   ?
+-    | TokStar			-- ^   \*
+-    | TokPlus			-- ^   +
+-    | TokAmp			-- ^   &
+-    | TokSemi			-- ^   ;
+-    | TokHash			-- ^   #
+-    | TokBraOpen		-- ^   (
+-    | TokBraClose		-- ^   )
+-    | TokPipe			-- ^   |
+-    | TokPercent		-- ^   %
+-    | TokComma			-- ^   ,
+-    | TokQuote			-- ^   \'\' or \"\"
+-    | TokName      String	-- ^   begins with letter, no spaces
+-    | TokFreeText  String	-- ^   any character data
+-    | TokNull			-- ^   fake token
+-    | TokError     String	-- ^   lexical error
++      TokCommentOpen      -- ^   \<!--
++    | TokCommentClose     -- ^   -->
++    | TokPIOpen           -- ^   \<?
++    | TokPIClose          -- ^   ?>
++    | TokSectionOpen      -- ^   \<![
++    | TokSectionClose     -- ^   ]]>
++    | TokSection Section  -- ^   CDATA INCLUDE IGNORE etc
++    | TokSpecialOpen      -- ^   \<!
++    | TokSpecial Special  -- ^   DOCTYPE ELEMENT ATTLIST etc
++    | TokEndOpen          -- ^   \<\/
++    | TokEndClose         -- ^   \/>
++    | TokAnyOpen          -- ^   \<
++    | TokAnyClose         -- ^   >
++    | TokSqOpen           -- ^   \[
++    | TokSqClose          -- ^   \]
++    | TokEqual            -- ^   =
++    | TokQuery            -- ^   ?
++    | TokStar             -- ^   \*
++    | TokPlus             -- ^   +
++    | TokAmp              -- ^   &
++    | TokSemi             -- ^   ;
++    | TokHash             -- ^   #
++    | TokBraOpen          -- ^   (
++    | TokBraClose         -- ^   )
++    | TokPipe             -- ^   |
++    | TokPercent          -- ^   %
++    | TokComma            -- ^   ,
++    | TokQuote            -- ^   \'\' or \"\"
++    | TokName      String -- ^   begins with letter, no spaces
++    | TokFreeText  String -- ^   any character data
++    | TokNull             -- ^   fake token
++    | TokError     String -- ^   lexical error
+     deriving (Eq)
+ 
+ data Special =
+@@ -86,38 +86,38 @@ data Section =
+     deriving (Eq,Show)
+ 
+ instance Show TokenT where
+-  showsPrec _p TokCommentOpen		= showString     "<!--"
+-  showsPrec _p TokCommentClose		= showString     "-->"
+-  showsPrec _p TokPIOpen		= showString     "<?"
+-  showsPrec _p TokPIClose		= showString     "?>"
+-  showsPrec _p TokSectionOpen		= showString     "<!["
+-  showsPrec _p TokSectionClose		= showString     "]]>"
+-  showsPrec  p (TokSection s)		= showsPrec p s
+-  showsPrec _p TokSpecialOpen		= showString     "<!"
+-  showsPrec  p (TokSpecial s)		= showsPrec p s
+-  showsPrec _p TokEndOpen		= showString     "</"
+-  showsPrec _p TokEndClose		= showString     "/>"
+-  showsPrec _p TokAnyOpen		= showString     "<"
+-  showsPrec _p TokAnyClose		= showString     ">"
+-  showsPrec _p TokSqOpen		= showString     "["
+-  showsPrec _p TokSqClose		= showString     "]"
+-  showsPrec _p TokEqual			= showString     "="
+-  showsPrec _p TokQuery			= showString     "?"
+-  showsPrec _p TokStar			= showString     "*"
+-  showsPrec _p TokPlus			= showString     "+"
+-  showsPrec _p TokAmp			= showString     "&"
+-  showsPrec _p TokSemi			= showString     ";"
+-  showsPrec _p TokHash			= showString     "#"
+-  showsPrec _p TokBraOpen		= showString     "("
+-  showsPrec _p TokBraClose		= showString     ")"
+-  showsPrec _p TokPipe			= showString     "|"
+-  showsPrec _p TokPercent		= showString     "%"
+-  showsPrec _p TokComma			= showString     ","
+-  showsPrec _p TokQuote			= showString     "' or \""
+-  showsPrec _p (TokName      s)		= showString     s
+-  showsPrec _p (TokFreeText  s)		= showString     s
+-  showsPrec _p TokNull			= showString     "(null)"
+-  showsPrec _p (TokError     s)		= showString     s
++  showsPrec _p TokCommentOpen   = showString     "<!--"
++  showsPrec _p TokCommentClose  = showString     "-->"
++  showsPrec _p TokPIOpen        = showString     "<?"
++  showsPrec _p TokPIClose       = showString     "?>"
++  showsPrec _p TokSectionOpen   = showString     "<!["
++  showsPrec _p TokSectionClose  = showString     "]]>"
++  showsPrec  p (TokSection s)   = showsPrec p s
++  showsPrec _p TokSpecialOpen   = showString     "<!"
++  showsPrec  p (TokSpecial s)   = showsPrec p s
++  showsPrec _p TokEndOpen       = showString     "</"
++  showsPrec _p TokEndClose      = showString     "/>"
++  showsPrec _p TokAnyOpen       = showString     "<"
++  showsPrec _p TokAnyClose      = showString     ">"
++  showsPrec _p TokSqOpen        = showString     "["
++  showsPrec _p TokSqClose       = showString     "]"
++  showsPrec _p TokEqual         = showString     "="
++  showsPrec _p TokQuery         = showString     "?"
++  showsPrec _p TokStar          = showString     "*"
++  showsPrec _p TokPlus          = showString     "+"
++  showsPrec _p TokAmp           = showString     "&"
++  showsPrec _p TokSemi          = showString     ";"
++  showsPrec _p TokHash          = showString     "#"
++  showsPrec _p TokBraOpen       = showString     "("
++  showsPrec _p TokBraClose      = showString     ")"
++  showsPrec _p TokPipe          = showString     "|"
++  showsPrec _p TokPercent       = showString     "%"
++  showsPrec _p TokComma         = showString     ","
++  showsPrec _p TokQuote         = showString     "' or \""
++  showsPrec _p (TokName      s) = showString     s
++  showsPrec _p (TokFreeText  s) = showString     s
++  showsPrec _p TokNull          = showString     "(null)"
++  showsPrec _p (TokError     s) = showString     s
+ 
+ --trim, revtrim :: String -> String
+ --trim    = f . f         where f = reverse . dropWhile isSpace
+diff --git a/src/Text/XML/HaXml/Parse.hs b/src/Text/XML/HaXml/Parse.hs
+index 502e0e7..f232d5d 100644
+--- a/src/Text/XML/HaXml/Parse.hs
++++ b/src/Text/XML/HaXml/Parse.hs
+@@ -105,7 +105,7 @@ xmlParse' name  = fst3 . runParser (toEOF document) emptySTs . xmlLex name
+ dtdParse' name  = fst3 . runParser justDTD  emptySTs . xmlLex name
+ 
+ toEOF :: XParser a -> XParser a
+-toEOF = id	-- there are other possible implementations...
++toEOF = id    -- there are other possible implementations...
+ 
+ -- | To parse a partial document, e.g. from an XML-based stream protocol,
+ --   where you may later want to get more document elements from the same
+diff --git a/src/Text/XML/HaXml/ParseLazy.hs b/src/Text/XML/HaXml/ParseLazy.hs
+index 621bf03..b7e5c7d 100644
+--- a/src/Text/XML/HaXml/ParseLazy.hs
++++ b/src/Text/XML/HaXml/ParseLazy.hs
+@@ -109,7 +109,7 @@ xmlParse  name  = fst3 . runParser (toEOF document) emptySTs . xmlLex name
+ dtdParse  name  = fst3 . runParser justDTD  emptySTs . xmlLex name
+ 
+ toEOF :: XParser a -> XParser a
+-toEOF = id	-- there are other possible implementations...
++toEOF = id    -- there are other possible implementations...
+ 
+ -- | To parse a partial document, e.g. from an XML-based stream protocol,
+ --   where you may later want to get more document elements from the same
+diff --git a/src/Text/XML/HaXml/Pretty.hs b/src/Text/XML/HaXml/Pretty.hs
+index 409a359..6728546 100644
+--- a/src/Text/XML/HaXml/Pretty.hs
++++ b/src/Text/XML/HaXml/Pretty.hs
+@@ -25,7 +25,8 @@ import Prelude hiding (maybe,either)
+ import Data.Maybe hiding (maybe)
+ import Data.List (intersperse)
+ --import Char (isSpace)
+-import Text.PrettyPrint.HughesPJ
++import           Text.PrettyPrint.HughesPJ hiding ((<>))
++import qualified Text.PrettyPrint.HughesPJ as PP
+ import Text.XML.HaXml.Types
+ import Text.XML.HaXml.Namespaces
+ 
+@@ -37,7 +38,7 @@ maybe :: (t -> Doc) -> Maybe t -> Doc
+ maybe _ Nothing  = empty
+ maybe f (Just x) = f x
+ 
+---peref p   = text "%" <> text p <> text ";"
++--peref p   = text "%" PP.<> text p PP.<> text ";"
+ 
+ ----
+ 
+@@ -64,16 +65,16 @@ prolog (Prolog x m1 dtd m2)= maybe xmldecl x $$
+                              vcat (map misc m1) $$
+                              maybe doctypedecl dtd $$
+                              vcat (map misc m2)
+-xmldecl (XMLDecl v e sd)   = text "<?xml version='" <> text v <> text "'" <+>
++xmldecl (XMLDecl v e sd)   = text "<?xml version='" PP.<> text v PP.<> text "'" <+>
+                              maybe encodingdecl e <+>
+                              maybe sddecl sd <+>
+                              text "?>"
+-misc (Comment s)           = text "<!--" <> text s <> text "-->"
+-misc (PI (n,s))            = text "<?" <> text n <+> text s <> text "?>"
++misc (Comment s)           = text "<!--" PP.<> text s PP.<> text "-->"
++misc (PI (n,s))            = text "<?" PP.<> text n <+> text s PP.<> text "?>"
+ sddecl sd   | sd           = text "standalone='yes'"
+             | otherwise    = text "standalone='no'"
+ doctypedecl (DTD n eid ds) = if null ds then
+-                                  hd <> text ">"
++                                  hd PP.<> text ">"
+                              else hd <+> text " [" $$
+                                   vcat (map markupdecl ds) $$ text "]>"
+                            where hd = text "<!DOCTYPE" <+> qname n <+>
+@@ -91,14 +92,14 @@ markupdecl (MarkupMisc m)  = misc m
+ --extsubsetdecl (ExtConditionalSect c) = conditionalsect c
+ -- -- extsubsetdecl (ExtPEReference p e)   = peref p
+ 
+-element (Elem n as []) = text "<" <> qname n <+>
+-                         fsep (map attribute as) <> text "/>"
++element (Elem n as []) = text "<" PP.<> qname n <+>
++                         fsep (map attribute as) PP.<> text "/>"
+ element e@(Elem n as cs)
+-    | all isText cs    = text "<" <> qname n <+> fsep (map attribute as) <>
+-                         text ">" <> hcat (map content cs) <>
+-                         text "</" <> qname n <> text ">"
++    | all isText cs    = text "<" PP.<> qname n <+> fsep (map attribute as) PP.<>
++                         text ">" PP.<> hcat (map content cs) PP.<>
++                         text "</" PP.<> qname n PP.<> text ">"
+     | otherwise        = let (d,c) = carryelem e empty
+-                         in d <> c
++                         in d PP.<> c
+ 
+ isText :: Content t -> Bool
+ isText (CString _ _ _) = True
+@@ -109,31 +110,31 @@ carryelem    ::  Element t  -> Doc -> (Doc, Doc)
+ carrycontent ::  Content t  -> Doc -> (Doc, Doc)
+ spancontent  :: [Content a] -> Doc -> ([Doc],Doc)
+ 
+-carryelem (Elem n as []) c = ( c <>
+-                               text "<" <> qname n <+> fsep (map attribute as)
++carryelem (Elem n as []) c = ( c PP.<>
++                               text "<" PP.<> qname n <+> fsep (map attribute as)
+                              , text "/>")
+ carryelem (Elem n as cs) c =  let (cs0,d0) = spancontent cs (text ">") in
+-                              ( c <>
+-                                text "<"<>qname n <+> fsep (map attribute as) $$
+-                                nest 2 (vcat cs0) <>
+-                                d0 <> text "</" <> qname n
++                              ( c PP.<>
++                                text "<" PP.<>qname n <+> fsep (map attribute as) $$
++                                nest 2 (vcat cs0) PP.<>
++                                d0 PP.<> text "</" PP.<> qname n
+                               , text ">")
+ 
+ carrycontent (CElem e _) c         = carryelem e c
+-carrycontent (CString False s _) c = (c <> chardata s, empty)
+-carrycontent (CString True  s _) c = (c <> cdsect s, empty)
+-carrycontent (CRef r _) c          = (c <> reference r, empty)
+-carrycontent (CMisc m _) c         = (c <> misc m, empty)
++carrycontent (CString False s _) c = (c PP.<> chardata s, empty)
++carrycontent (CString True  s _) c = (c PP.<> cdsect s, empty)
++carrycontent (CRef r _) c          = (c PP.<> reference r, empty)
++carrycontent (CMisc m _) c         = (c PP.<> misc m, empty)
+ 
+ spancontent []     c = ([],c)
+ spancontent (a:as) c | isText a  = let (ts,rest) = span isText (a:as)
+-                                       formatted = c <> hcat (map content ts)
++                                       formatted = c PP.<> hcat (map content ts)
+                                    in  spancontent rest formatted
+                      | otherwise = let (b, c0) = carrycontent a c
+                                        (bs,c1) = spancontent as c0
+                                    in  (b:bs, c1)
+ 
+-attribute (n,v)             = qname n <> text "=" <> attvalue v
++attribute (n,v)             = qname n PP.<> text "=" PP.<> attvalue v
+ content (CElem e _)         = element e
+ content (CString False s _) = chardata s
+ content (CString True s _)  = cdsect s
+@@ -142,17 +143,17 @@ content (CMisc m _)         = misc m
+ 
+ elementdecl :: ElementDecl -> Doc
+ elementdecl (ElementDecl n cs) = text "<!ELEMENT" <+> qname n <+>
+-                                 contentspec cs <> text ">"
++                                 contentspec cs PP.<> text ">"
+ contentspec :: ContentSpec -> Doc
+ contentspec EMPTY              = text "EMPTY"
+ contentspec ANY                = text "ANY"
+ contentspec (Mixed m)          = mixed m
+ contentspec (ContentSpec c)    = cp c
+ --contentspec (ContentPE p cs)   = peref p
+-cp (TagName n m)       = parens (qname n) <> modifier m
+-cp (Choice cs m)       = parens (hcat (intersperse (text "|") (map cp cs))) <>
++cp (TagName n m)       = parens (qname n) PP.<> modifier m
++cp (Choice cs m)       = parens (hcat (intersperse (text "|") (map cp cs))) PP.<>
+                            modifier m
+-cp (Seq cs m)          = parens (hcat (intersperse (text ",") (map cp cs))) <>
++cp (Seq cs m)          = parens (hcat (intersperse (text ",") (map cp cs))) PP.<>
+                            modifier m
+ --cp (CPPE p c)          = peref p
+ modifier :: Modifier -> Doc
+@@ -163,12 +164,12 @@ modifier Plus          = text "+"
+ mixed :: Mixed -> Doc
+ mixed  PCDATA          = text "(#PCDATA)"
+ mixed (PCDATAplus ns)  = text "(#PCDATA |" <+>
+-                         hcat (intersperse (text "|") (map qname ns)) <>
++                         hcat (intersperse (text "|") (map qname ns)) PP.<>
+                          text ")*"
+ 
+ attlistdecl :: AttListDecl -> Doc
+ attlistdecl (AttListDecl n ds) = text "<!ATTLIST" <+> qname n <+>
+-                                 fsep (map attdef ds) <> text ">"
++                                 fsep (map attdef ds) PP.<> text ">"
+ attdef :: AttDef -> Doc
+ attdef (AttDef n t d)          = qname n <+> atttype t <+> defaultdecl d
+ atttype :: AttType -> Doc
+@@ -209,17 +210,17 @@ reference :: Reference -> Doc
+ reference (RefEntity er)       = entityref er
+ reference (RefChar cr)         = charref cr
+ entityref :: String -> Doc
+-entityref n                    = text "&" <> text n <> text ";"
++entityref n                    = text "&" PP.<> text n PP.<> text ";"
+ charref :: (Show a) => a -> Doc
+-charref c                      = text "&#" <> text (show c) <> text ";"
++charref c                      = text "&#" PP.<> text (show c) PP.<> text ";"
+ entitydecl :: EntityDecl -> Doc
+ entitydecl (EntityGEDecl d)    = gedecl d
+ entitydecl (EntityPEDecl d)    = pedecl d
+ gedecl :: GEDecl -> Doc
+-gedecl (GEDecl n ed)           = text "<!ENTITY" <+> text n <+> entitydef ed <>
++gedecl (GEDecl n ed)           = text "<!ENTITY" <+> text n <+> entitydef ed PP.<>
+                                  text ">"
+ pedecl :: PEDecl -> Doc
+-pedecl (PEDecl n pd)           = text "<!ENTITY %" <+> text n <+> pedef pd <>
++pedecl (PEDecl n pd)           = text "<!ENTITY %" <+> text n <+> pedef pd PP.<>
+                                  text ">"
+ entitydef :: EntityDef -> Doc
+ entitydef (DefEntityValue ew)  = entityvalue ew
+@@ -240,38 +241,38 @@ ndatadecl (NDATA n)            = text "NDATA" <+> text n
+ --                                 vcat (map extsubsetdecl esd)
+ notationdecl :: NotationDecl -> Doc
+ notationdecl (NOTATION n e)    = text "<!NOTATION" <+> text n <+>
+-                                 either externalid publicid e <>
++                                 either externalid publicid e PP.<>
+                                  text ">"
+ publicid :: PublicID -> Doc
+ publicid (PUBLICID p)          = text "PUBLIC" <+> pubidliteral p
+ encodingdecl :: EncodingDecl -> Doc
+-encodingdecl (EncodingDecl s)  = text "encoding='" <> text s <> text "'"
++encodingdecl (EncodingDecl s)  = text "encoding='" PP.<> text s PP.<> text "'"
+ nmtoken :: String -> Doc
+ nmtoken s                      = text s
+ attvalue :: AttValue -> Doc
+-attvalue (AttValue esr)        = text "\"" <>
+-                                 hcat (map (either text reference) esr) <>
++attvalue (AttValue esr)        = text "\"" PP.<>
++                                 hcat (map (either text reference) esr) PP.<>
+                                  text "\""
+ entityvalue :: EntityValue -> Doc
+ entityvalue (EntityValue evs)
+-  | containsDoubleQuote evs    = text "'"  <> hcat (map ev evs) <> text "'"
+-  | otherwise                  = text "\"" <> hcat (map ev evs) <> text "\""
++  | containsDoubleQuote evs    = text "'"  PP.<> hcat (map ev evs) PP.<> text "'"
++  | otherwise                  = text "\"" PP.<> hcat (map ev evs) PP.<> text "\""
+ ev :: EV -> Doc
+ ev (EVString s)                = text s
+ --ev (EVPERef p e)               = peref p
+ ev (EVRef r)                   = reference r
+ pubidliteral :: PubidLiteral -> Doc
+ pubidliteral (PubidLiteral s)
+-    | '"' `elem` s             = text "'" <> text s <> text "'"
+-    | otherwise                = text "\"" <> text s <> text "\""
++    | '"' `elem` s             = text "'" PP.<> text s PP.<> text "'"
++    | otherwise                = text "\"" PP.<> text s PP.<> text "\""
+ systemliteral :: SystemLiteral -> Doc
+ systemliteral (SystemLiteral s)
+-    | '"' `elem` s             = text "'" <> text s <> text "'"
+-    | otherwise                = text "\"" <> text s <> text "\""
++    | '"' `elem` s             = text "'" PP.<> text s PP.<> text "'"
++    | otherwise                = text "\"" PP.<> text s PP.<> text "\""
+ chardata :: String -> Doc
+ chardata s                     = {-if all isSpace s then empty else-} text s
+ cdsect :: String -> Doc
+-cdsect c                       = text "<![CDATA[" <> chardata c <> text "]]>"
++cdsect c                       = text "<![CDATA[" PP.<> chardata c PP.<> text "]]>"
+ 
+ qname n                        = text (printableName n)
+ 
+diff --git a/src/Text/XML/HaXml/SAX.hs b/src/Text/XML/HaXml/SAX.hs
+index f8819df..24e3f1e 100644
+--- a/src/Text/XML/HaXml/SAX.hs
++++ b/src/Text/XML/HaXml/SAX.hs
+@@ -5,9 +5,9 @@
+ --   streams for communication.
+ 
+ module Text.XML.HaXml.SAX
+-	( SaxElement(..)
+-	, saxParse
+-	) where
++    ( SaxElement(..)
++    , saxParse
++    ) where
+ 
+ import Text.XML.HaXml.Types
+ import Text.XML.HaXml.Parse
+@@ -15,34 +15,34 @@ import Text.XML.HaXml.Lex
+ import Text.ParserCombinators.Poly.State
+ 
+ data SaxElement
+-	= SaxDocTypeDecl DocTypeDecl
+-		-- ^ A doctype declaration occured(\<!DOCTYPE\>)
+-	| SaxProcessingInstruction ProcessingInstruction
+-		-- ^ A processing instruction occured (\<??\>)
+-	| SaxComment String		-- ^ A comment occured (\<!-- --\>)
+-	| SaxElementOpen Name [Attribute] -- ^ An element was opened (\<\>)
+-	| SaxElementClose Name		-- ^ An element was closed (\<\/\>)
+-	| SaxElementTag Name [Attribute]
+-		-- ^ An element without content occured (\<\/\>)
+-	| SaxCharData CharData		-- ^ Some string data occured
+-	| SaxReference Reference	-- ^ A reference occured
++    = SaxDocTypeDecl DocTypeDecl
++                                      -- ^ A doctype declaration occured(\<!DOCTYPE\>)
++    | SaxProcessingInstruction ProcessingInstruction
++                                      -- ^ A processing instruction occured (\<??\>)
++    | SaxComment String               -- ^ A comment occured (\<!-- --\>)
++    | SaxElementOpen Name [Attribute] -- ^ An element was opened (\<\>)
++    | SaxElementClose Name            -- ^ An element was closed (\<\/\>)
++    | SaxElementTag Name [Attribute]
++                                      -- ^ An element without content occured (\<\/\>)
++    | SaxCharData CharData            -- ^ Some string data occured
++    | SaxReference Reference          -- ^ A reference occured
+ 
+ -- | @saxParse file content@ takes a filename and the string content of that
+ --   file and generates a stream of @SaxElement@s. If an error occurs, the
+ --   parsing stops and a string is returned using the @Maybe@ type.
+ saxParse :: String -- ^ The filename
+-	 -> String -- ^ The content of the file
+-	 -> ([SaxElement],Maybe String)
+-		-- ^ A tuple of the parsed elements and @Nothing@, if no
+-		--   error occured, or @Just@ @String@ if an error occured.
++     -> String -- ^ The content of the file
++     -> ([SaxElement],Maybe String)
++        -- ^ A tuple of the parsed elements and @Nothing@, if no
++        --   error occured, or @Just@ @String@ if an error occured.
+ saxParse file cntnt = parseStream sax emptySTs
+                                     (xmlLex file cntnt)
+ 
+ parseStream :: Parser s t a -> s -> [t] -> ([a], Maybe String)
+ parseStream _ _ [] = ([],Nothing)
+ parseStream p state toks = case runParser p state toks of
+-	(Left err, _, _) -> ([],Just err)
+-	(Right res, nstate, rest) -> (res:moreres, err)
++    (Left err, _, _) -> ([],Just err)
++    (Right res, nstate, rest) -> (res:moreres, err)
+             where (moreres,err) = parseStream p nstate rest
+ 
+ sax :: XParser SaxElement
+@@ -54,25 +54,25 @@ sax = oneOf [ saxelementopen
+             , saxreference
+             , saxchardata
+             ]
+-	`adjustErr` (++("\nLooking for a SAX event:\n"
++    `adjustErr` (++("\nLooking for a SAX event:\n"
+                ++"  elem-open, elem-close, PI, comment, DTD, ref, or chardata"))
+ 
+ saxelementopen :: XParser SaxElement
+ saxelementopen = do
+-	tok TokAnyOpen
+-	(ElemTag (N n) as) <- elemtag  -- no QN ever generated during parsing
+-	(( do tok TokEndClose
+-	      return (SaxElementTag n as)) `onFail`
+-	 ( do tok TokAnyClose
+-	      return (SaxElementOpen n as))
+-	 `onFail` fail "missing > or /> in element tag")
++    tok TokAnyOpen
++    (ElemTag (N n) as) <- elemtag  -- no QN ever generated during parsing
++    (( do tok TokEndClose
++          return (SaxElementTag n as)) `onFail`
++     ( do tok TokAnyClose
++          return (SaxElementOpen n as))
++     `onFail` fail "missing > or /> in element tag")
+ 
+ saxelementclose :: XParser SaxElement
+ saxelementclose = do
+-	tok TokEndOpen
+-	n <- name
+-	tok TokAnyClose
+-	return (SaxElementClose n)
++    tok TokEndOpen
++    n <- name
++    tok TokAnyClose
++    return (SaxElementClose n)
+ 
+ saxcomment :: XParser SaxElement
+ saxcomment = comment >>= return . SaxComment
+diff --git a/src/Text/XML/HaXml/Schema/Environment.hs b/src/Text/XML/HaXml/Schema/Environment.hs
+index 9d0653d..e1b2641 100644
+--- a/src/Text/XML/HaXml/Schema/Environment.hs
++++ b/src/Text/XML/HaXml/Schema/Environment.hs
+@@ -85,7 +85,7 @@ mkEnvironment fp s init = foldl' item (addNS init (schema_namespaces s))
+     -- think about qualification, w.r.t targetNamespace, elementFormDefault, etc
+     item env (Include _ _)       = env
+     item env (Import _ _ _)      = env
+-    item env (Redefine _ _)      = env	-- revisit this
++    item env (Redefine _ _)      = env -- revisit this
+     item env (Annotation _)      = env
+     item env (Simple st)         = simple env st
+     item env (Complex ct)        = complex env ct
+diff --git a/src/Text/XML/HaXml/Schema/PrettyHaskell.hs b/src/Text/XML/HaXml/Schema/PrettyHaskell.hs
+index 2dbfcba..a491c9e 100644
+--- a/src/Text/XML/HaXml/Schema/PrettyHaskell.hs
++++ b/src/Text/XML/HaXml/Schema/PrettyHaskell.hs
+@@ -23,7 +23,7 @@ import Data.Char (toLower)
+ -- | Vertically pretty-print a list of things, with open and close brackets,
+ --   and separators.
+ ppvList :: String -> String -> String -> (a->Doc) -> [a] -> Doc
+-ppvList open sep close pp []     = text open <> text close
++ppvList open sep close pp []     = text open PP.<> text close
+ ppvList open sep close pp (x:xs) = text open <+> pp x
+                                    $$ vcat (map (\y-> text sep <+> pp y) xs)
+                                    $$ text close
+@@ -77,7 +77,7 @@ ppHName (HName x) = text x
+ -- | Pretty-print an XML-style name.
+ ppXName :: XName -> Doc
+ ppXName (XName (N x))     = text x
+-ppXName (XName (QN ns x)) = text (nsPrefix ns) <> text ":" <> text x
++ppXName (XName (QN ns x)) = text (nsPrefix ns) PP.<> text ":" PP.<> text x
+ 
+ -- | Some different ways of using a Haskell identifier.
+ ppModId, ppConId, ppVarId, ppUnqConId, ppUnqVarId, ppFwdConId
+@@ -90,7 +90,7 @@ ppUnqVarId nx = ppHName . unqvarid nx
+ ppFwdConId nx = ppHName . fwdconid nx
+ 
+ ppJoinConId, ppFieldId :: NameConverter -> XName -> XName -> Doc
+-ppJoinConId nx p q = ppHName (conid nx p) <> text "_" <> ppHName (conid nx q)
++ppJoinConId nx p q = ppHName (conid nx p) PP.<> text "_" PP.<> ppHName (conid nx q)
+ ppFieldId   nx     = \t-> ppHName . fieldid nx t
+ 
+ -- | Convert a whole document from HaskellTypeModel to Haskell source text.
+@@ -136,36 +136,36 @@ ppModule nx m =
+     ppFwdElem (_,   Nothing)  = empty
+     ppFwdElem (name,Just mod) = text "import {-# SOURCE #-}" <+> ppModId nx mod
+                                 <+> text "("
+-                                    <+> (text "element" <> ppUnqConId nx name)
+-                                    <> (text ", elementToXML" <> ppUnqConId nx name)
++                                    <+> (text "element" PP.<> ppUnqConId nx name)
++                                    PP.<> (text ", elementToXML" PP.<> ppUnqConId nx name)
+                                 <+> text ")"
+ 
+ 
+ -- | Generate a fragmentary parser for an attribute.
+ ppAttr :: Attribute -> Int -> Doc
+-ppAttr a n = (text "a"<>text (show n)) <+> text "<-"
++ppAttr a n = (text "a"PP.<>text (show n)) <+> text "<-"
+                                        <+> (if attr_required a then empty
+                                                  else text "optional $")
+                                        <+> text "getAttribute \""
+-                                       <> ppXName (attr_name a)
+-                                       <> text "\" e pos"
++                                       PP.<> ppXName (attr_name a)
++                                       PP.<> text "\" e pos"
+ 
+ -- | Generate a fragmentary toXML for an attribute.
+ toXmlAttr :: Attribute -> Doc
+ toXmlAttr a = (if attr_required a then id
+                                   else (\d-> text "maybe []" <+> parens d))
+-              (text "toXMLAttribute \"" <> ppXName (attr_name a) <> text "\"")
++              (text "toXMLAttribute \"" PP.<> ppXName (attr_name a) PP.<> text "\"")
+ 
+ -- | Generate a fragmentary parser for an element.
+ ppElem :: NameConverter -> Element -> Doc
+ ppElem nx e@Element{}
+     | elem_byRef e    = ppElemModifier (elem_modifier e)
+                                        (text "element"
+-                                        <> ppUnqConId nx (elem_name e))
++                                        PP.<> ppUnqConId nx (elem_name e))
+     | otherwise       = ppElemModifier (elem_modifier e)
+                                        (text "parseSchemaType \""
+-                                        <> ppXName (elem_name e)
+-                                        <> text "\"")
++                                        PP.<> ppXName (elem_name e)
++                                        PP.<> text "\"")
+ ppElem nx e@AnyElem{} = ppElemModifier (elem_modifier e)
+                           (text "parseAnyElement")
+ ppElem nx e@Text{}    = text "parseText"
+@@ -175,12 +175,12 @@ ppElem nx e@OneOf{}   = ppElemModifier (liftedElemModifier e)
+                                                     (zip (elem_oneOf e) [1..n]))
+   where
+     n = length (elem_oneOf e)
+-    ppOneOf n (e,i) = text "(\"" <> hsep (map (ppElemTypeName nx id)
++    ppOneOf n (e,i) = text "(\"" PP.<> hsep (map (ppElemTypeName nx id)
+                                          . cleanChoices $ e)
+-                      <> text "\","
++                      PP.<> text "\","
+                       <+> text "fmap" <+> text (ordinal i ++"Of"++show n)
+                           <+> parens (ppSeqElem . cleanChoices $ e)
+-                      <> text ")"
++                      PP.<> text ")"
+     ordinal i | i <= 20   = ordinals!!i
+               | otherwise = "Choice" ++ show i
+     ordinals = ["Zero","One","Two","Three","Four","Five","Six","Seven","Eight"
+@@ -197,24 +197,24 @@ toXmlElem :: NameConverter -> Element -> Doc
+ toXmlElem nx e@Element{}
+     | elem_byRef e    = xmlElemModifier (elem_modifier e)
+                                         (text "elementToXML"
+-                                        <> ppUnqConId nx (elem_name e))
++                                        PP.<> ppUnqConId nx (elem_name e))
+     | otherwise       = xmlElemModifier (elem_modifier e)
+                                         (text "schemaTypeToXML \""
+-                                        <> ppXName (elem_name e)
+-                                        <> text "\"")
++                                        PP.<> ppXName (elem_name e)
++                                        PP.<> text "\"")
+ toXmlElem nx e@AnyElem{} = xmlElemModifier (elem_modifier e)
+                                            (text "toXMLAnyElement")
+ toXmlElem nx e@Text{}    = text "toXMLText"
+ toXmlElem nx e@OneOf{}   = xmlElemModifier (liftedElemModifier e)
+-                           (text "foldOneOf" <> text (show n)
++                           (text "foldOneOf" PP.<> text (show n)
+                            <+> ppvList "" "" "" xmlOneOf (elem_oneOf e))
+   where
+     n = length (elem_oneOf e)
+     xmlOneOf e = parens (xmlSeqElem . cleanChoices $ e)
+     xmlSeqElem []  = PP.empty
+     xmlSeqElem [e] = toXmlElem nx e
+-    xmlSeqElem es  = text "\\ (" <> hcat (intersperse (text ",") vars)
+-                     <> text ") -> concat"
++    xmlSeqElem es  = text "\\ (" PP.<> hcat (intersperse (text ",") vars)
++                     PP.<> text ") -> concat"
+                      <+> ppvList "[" "," "]" (\(e,v)-> toXmlElem nx e <+> v)
+                                              (zip es vars)
+         where vars = map (text.(:[])) . take (length es) $ ['a'..'z']
+@@ -239,13 +239,13 @@ ppHighLevelDecl nx (RestrictSimpleType t s r comm) =
+                       <+> text "deriving (Eq,Show)"
+     $$ text "instance Restricts" <+> ppUnqConId nx t <+> ppConId nx s
+                       <+> text "where"
+-        $$ nest 4 (text "restricts (" <> ppUnqConId nx t <+> text "x) = x")
++        $$ nest 4 (text "restricts (" PP.<> ppUnqConId nx t <+> text "x) = x")
+     $$ text "instance SchemaType" <+> ppUnqConId nx t <+> text "where"
+         $$ nest 4 (text "parseSchemaType s = do" 
+                   $$ nest 4 (text "e <- element [s]"
+                            $$ text "commit $ interior e $ parseSimpleType")
+                   )
+-        $$ nest 4 (text "schemaTypeToXML s ("<> ppUnqConId nx t <+> text "x) = " 
++        $$ nest 4 (text "schemaTypeToXML s ("PP.<> ppUnqConId nx t <+> text "x) = " 
+                   $$ nest 4 (text "toXMLElement s [] [toXMLText (simpleTypeText x)]")
+                   )
+     $$ text "instance SimpleType" <+> ppUnqConId nx t <+> text "where"
+@@ -255,17 +255,17 @@ ppHighLevelDecl nx (RestrictSimpleType t s r comm) =
+                    $$ text "-- XXX should enforce the restrictions somehow?"
+                    $$ text "-- The restrictions are:"
+                    $$ vcat (map ((text "--     " <+>) . ppRestrict) r))
+-        $$ nest 4 (text "simpleTypeText (" <> ppUnqConId nx t
++        $$ nest 4 (text "simpleTypeText (" PP.<> ppUnqConId nx t
+                                           <+> text "x) = simpleTypeText x")
+   where
+     ppRestrict (RangeR occ comm)     = text "(RangeR"
+-                                         <+> ppOccurs occ <>  text ")"
++                                         <+> ppOccurs occ PP.<>  text ")"
+     ppRestrict (Pattern regexp comm) = text ("(Pattern "++regexp++")")
+     ppRestrict (Enumeration items)   = text "(Enumeration"
+                                          <+> hsep (map (text . fst) items)
+-                                         <>  text ")"
++                                         PP.<>  text ")"
+     ppRestrict (StrLength occ comm)  = text "(StrLength"
+-                                         <+> ppOccurs occ <>  text ")"
++                                         <+> ppOccurs occ PP.<>  text ")"
+     ppOccurs = parens . text . show
+ 
+ ppHighLevelDecl nx (ExtendSimpleType t s as comm) =
+@@ -290,7 +290,7 @@ ppHighLevelDecl nx (ExtendSimpleType t s as comm) =
+                                                      <+> attrsValue as)
+                             )
+                   )
+-        $$ nest 4 (text "schemaTypeToXML s ("<> ppUnqConId nx t
++        $$ nest 4 (text "schemaTypeToXML s ("PP.<> ppUnqConId nx t
+                                              <+> text "bt at) ="
+                   $$ nest 4 (text "addXMLAttributes"
+                              <+> ppvList "[" "," "]"
+@@ -302,7 +302,7 @@ ppHighLevelDecl nx (ExtendSimpleType t s as comm) =
+                   )
+     $$ text "instance Extension" <+> ppUnqConId nx t <+> ppConId nx s
+                                  <+> text "where"
+-        $$ nest 4 (text "supertype (" <> ppUnqConId nx t <> text " s _) = s")
++        $$ nest 4 (text "supertype (" PP.<> ppUnqConId nx t PP.<> text " s _) = s")
+   where
+     t_attrs = let (XName (N t_base)) = t in XName (N (t_base++"Attributes"))
+ 
+@@ -341,13 +341,13 @@ ppHighLevelDecl nx (EnumSimpleType t is comm) =
+                         <+> ppvList "" "`onFail`" "" parseItem is
+                    $$ vcat (map enumText is))
+   where
+-    item (i,c) = (ppUnqConId nx t <> text "_" <> ppConId nx i)
++    item (i,c) = (ppUnqConId nx t PP.<> text "_" PP.<> ppConId nx i)
+                  $$ ppComment After c
+-    parseItem (i,_) = text "do literal \"" <> ppXName i <> text "\"; return"
+-                           <+> (ppUnqConId nx t <> text "_" <> ppConId nx i)
++    parseItem (i,_) = text "do literal \"" PP.<> ppXName i PP.<> text "\"; return"
++                           <+> (ppUnqConId nx t PP.<> text "_" PP.<> ppConId nx i)
+     enumText  (i,_) = text "simpleTypeText"
+-                           <+> (ppUnqConId nx t <> text "_" <> ppConId nx i)
+-                           <+> text "= \"" <> ppXName i <> text "\""
++                           <+> (ppUnqConId nx t PP.<> text "_" PP.<> ppConId nx i)
++                           <+> text "= \"" PP.<> ppXName i PP.<> text "\""
+ 
+ ppHighLevelDecl nx (ElementsAttrs t es as comm) =
+     ppComment Before comm
+@@ -366,7 +366,7 @@ ppHighLevelDecl nx (ElementsAttrs t es as comm) =
+                                   )
+                             )
+                   )
+-        $$ nest 4 (text "schemaTypeToXML s x@"<> ppUnqConId nx t <> text "{} ="
++        $$ nest 4 (text "schemaTypeToXML s x@"PP.<> ppUnqConId nx t PP.<> text "{} ="
+                   $$ nest 4 (text "toXMLElement s"
+                              <+> ppvList "[" "," "]"
+                                          (\a-> toXmlAttr a <+> text "$"
+@@ -397,7 +397,7 @@ ppHighLevelDecl nx (ElementsAttrsAbstract t [] comm) =
+         $$ nest 4 (text "schemaTypeToXML s _ = toXMLElement s [] []")
+   where
+     errmsg = text "\"Parse failed when expecting an extension type of"
+-             <+> ppXName t <> text ":\\n  No extension types are known.\""
++             <+> ppXName t PP.<> text ":\\n  No extension types are known.\""
+ ppHighLevelDecl nx (ElementsAttrsAbstract t insts comm) =
+     ppComment Before comm
+     $$ text "data" <+> ppUnqConId nx t
+@@ -422,91 +422,91 @@ ppHighLevelDecl nx (ElementsAttrsAbstract t insts comm) =
+ --                                fwd name <+> text "q," <+>
+ --                                text "SchemaType q) =>" <+>
+ --                                con name <+>
+---                                text "("<>fwd name<>text"->q)" <+> fwd name
++--                                text "("PP.<>fwd namePP.<>text"->q)" <+> fwd name
+     ppParse (name,Nothing) = text "(fmap" <+> con name <+>
+                              text "$ parseSchemaType s)"
+     ppParse (name,Just _)  = ppParse (name,Nothing)
+ --  ppParse (name,Just _)  = text "(return" <+> con name <+>
+ --                           text "`apply` (fmap const $ parseSchemaType s)" <+>
+---                           text "`apply` return" <+> fwd name <> text ")"
++--                           text "`apply` return" <+> fwd name PP.<> text ")"
+ --  ppFwdDecl (name,Just mod)
+ --         = text "-- | Proxy:" <+> ppConId nx name
+ --               <+> text "declared later in" <+> ppModId nx mod
+ --           $$ text "data" <+> fwd name <+> text "=" <+> fwd name
+     errmsg = text "\"Parse failed when expecting an extension type of"
+-             <+> ppXName t <> text ",\\n\\\n\\  namely one of:\\n\\\n\\"
+-             <> hcat (intersperse (text ",")
++             <+> ppXName t PP.<> text ",\\n\\\n\\  namely one of:\\n\\\n\\"
++             PP.<> hcat (intersperse (text ",")
+                                   (map (ppXName . fst) insts))
+-             <> text "\""
++             PP.<> text "\""
+ --  fwd name = ppFwdConId nx name
+     con name = ppJoinConId nx t name
+     -- This is probably an unportable hack, but because an abstract type never
+     -- has an element in its own name, we need to guess at the name of the
+     -- possible subtype elements that could substitute for it.
+     toXML (name,_) = text "schemaTypeToXML _s ("
+-                     <> con name <+> text "x) = schemaTypeToXML \""
+-                     <> ppXName (initLower name) <> text "\" x"
++                     PP.<> con name <+> text "x) = schemaTypeToXML \""
++                     PP.<> ppXName (initLower name) PP.<> text "\" x"
+     initLower (XName (N (c:cs))) = XName $ N (toLower c:cs)
+     initLower (XName (QN ns (c:cs))) = XName $ QN ns (toLower c:cs)
+ 
+ ppHighLevelDecl nx (ElementOfType e@Element{}) =
+     ppComment Before (elem_comment e)
+-    $$ (text "element" <> ppUnqConId nx (elem_name e)) <+> text "::"
++    $$ (text "element" PP.<> ppUnqConId nx (elem_name e)) <+> text "::"
+         <+> text "XMLParser" <+> ppConId nx (elem_type e)
+-    $$ (text "element" <> ppUnqConId nx (elem_name e)) <+> text "="
+-        <+> (text "parseSchemaType \"" <> ppXName (elem_name e)  <> text "\"")
+-    $$ (text "elementToXML" <> ppUnqConId nx (elem_name e)) <+> text "::"
++    $$ (text "element" PP.<> ppUnqConId nx (elem_name e)) <+> text "="
++        <+> (text "parseSchemaType \"" PP.<> ppXName (elem_name e)  PP.<> text "\"")
++    $$ (text "elementToXML" PP.<> ppUnqConId nx (elem_name e)) <+> text "::"
+         <+> ppConId nx (elem_type e) <+> text "-> [Content ()]"
+-    $$ (text "elementToXML" <> ppUnqConId nx (elem_name e)) <+> text "="
+-        <+> (text "schemaTypeToXML \"" <> ppXName (elem_name e)  <> text "\"")
++    $$ (text "elementToXML" PP.<> ppUnqConId nx (elem_name e)) <+> text "="
++        <+> (text "schemaTypeToXML \"" PP.<> ppXName (elem_name e)  PP.<> text "\"")
+ 
+ ppHighLevelDecl nx e@(ElementAbstractOfType n t [] comm) =
+     ppComment Before comm
+     $$ text "--  (There are no elements in any substitution group for this element.)"
+-    $$ (text "element" <> ppUnqConId nx n) <+> text "::"
++    $$ (text "element" PP.<> ppUnqConId nx n) <+> text "::"
+         <+> text "XMLParser" <+> ppConId nx t
+-    $$ (text "element" <> ppUnqConId nx n) <+> text "="
++    $$ (text "element" PP.<> ppUnqConId nx n) <+> text "="
+         <+> text "fail" <+> errmsg
+-    $$ (text "elementToXML" <> ppUnqConId nx n) <+> text "::"
++    $$ (text "elementToXML" PP.<> ppUnqConId nx n) <+> text "::"
+         <+> ppConId nx t <+> text "-> [Content ()]"
+-    $$ (text "elementToXML" <> ppUnqConId nx n) <+> text "="
+-        <+> (text "schemaTypeToXML \"" <> ppXName n <> text "\"")
++    $$ (text "elementToXML" PP.<> ppUnqConId nx n) <+> text "="
++        <+> (text "schemaTypeToXML \"" PP.<> ppXName n PP.<> text "\"")
+   where
+     errmsg = text "\"Parse failed when expecting an element in the substitution group for\\n\\\n\\    <"
+-             <> ppXName n <> text ">,\\n\\\n\\  There are no substitutable elements.\""
++             PP.<> ppXName n PP.<> text ">,\\n\\\n\\  There are no substitutable elements.\""
+ ppHighLevelDecl nx e@(ElementAbstractOfType n t substgrp comm)
+ --  | any notInScope substgrp
+---              = (text "-- element" <> ppUnqConId nx n) <+> text "::"
++--              = (text "-- element" PP.<> ppUnqConId nx n) <+> text "::"
+ --                    <+> text "XMLParser" <+> ppConId nx t
+ --              $$ text "--     declared in Instances module"
+     | otherwise = ppComment Before comm
+-                $$ (text "element" <> ppUnqConId nx n) <+> text "::"
++                $$ (text "element" PP.<> ppUnqConId nx n) <+> text "::"
+                     <+> text "XMLParser" <+> ppConId nx t
+-                $$ (text "element" <> ppUnqConId nx n) <+> text "="
++                $$ (text "element" PP.<> ppUnqConId nx n) <+> text "="
+                    <+> vcat (intersperse (text "`onFail`") (map ppOne substgrp)
+                              ++ [text "`onFail` fail" <+> errmsg])
+-                $$ (text "elementToXML" <> ppUnqConId nx n) <+> text "::"
++                $$ (text "elementToXML" PP.<> ppUnqConId nx n) <+> text "::"
+                     <+> ppConId nx t <+> text "-> [Content ()]"
+-                $$ (text "elementToXML" <> ppUnqConId nx n) <+> text "="
+-                    <+> (text "schemaTypeToXML \"" <> ppXName n <> text "\"")
++                $$ (text "elementToXML" PP.<> ppUnqConId nx n) <+> text "="
++                    <+> (text "schemaTypeToXML \"" PP.<> ppXName n PP.<> text "\"")
+             --  $$ vcat (map elementToXML substgrp)
+ --  | otherwise = ppElementAbstractOfType nx e
+   where
+     notInScope (_,Just _)  = True
+     notInScope (_,Nothing) = False
+     ppOne (c,Nothing) = text "fmap" <+> text "supertype" -- ppJoinConId nx t c
+-                        <+> (text "element" <> ppConId nx c)
++                        <+> (text "element" PP.<> ppConId nx c)
+     ppOne (c,Just _)  = text "fmap" <+> text "supertype" -- ppJoinConId nx t c
+-                        <+> (text "element" <> ppConId nx c)
++                        <+> (text "element" PP.<> ppConId nx c)
+                         <+> text "-- FIXME: element is forward-declared"
+     errmsg = text "\"Parse failed when expecting an element in the substitution group for\\n\\\n\\    <"
+-             <> ppXName n <> text ">,\\n\\\n\\  namely one of:\\n\\\n\\<"
+-             <> hcat (intersperse (text ">, <")
++             PP.<> ppXName n PP.<> text ">,\\n\\\n\\  namely one of:\\n\\\n\\<"
++             PP.<> hcat (intersperse (text ">, <")
+                                   (map (ppXName . fst) substgrp))
+-             <> text ">\""
+---  elementToXML (c,_) = (text "elementToXML" <> ppUnqConId nx n)
+---                       <+> text "(" <> ppJoinConId nx t c
+---                       <+> text " x) = elementToXML" <> ppUnqConId nx c
++             PP.<> text ">\""
++--  elementToXML (c,_) = (text "elementToXML" PP.<> ppUnqConId nx n)
++--                       <+> text "(" PP.<> ppJoinConId nx t c
++--                       <+> text " x) = elementToXML" PP.<> ppUnqConId nx c
+ --                       <+> text "x"
+ 
+ 
+@@ -516,7 +516,7 @@ ppHighLevelDecl nx (Choice t es comm) =
+         <+> nest 4 ( ppvList "=" "|" "" choices (zip es [1..])
+                    $$ text "deriving (Eq,Show)" )
+   where
+-    choices (e,n) = (ppUnqConId nx t <> text (show n))
++    choices (e,n) = (ppUnqConId nx t PP.<> text (show n))
+                     <+> ppConId nx (elem_type e)
+ 
+ -- Comment out the Group for now.  Groups get inlined into the ComplexType
+@@ -540,12 +540,12 @@ ppHighLevelDecl nx (RestrictComplexType t s comm) =
+     $$ text "-- (parsing restrictions currently unimplemented)"
+     $$ text "instance Restricts" <+> ppUnqConId nx t <+> ppConId nx s
+                                  <+> text "where"
+-        $$ nest 4 (text "restricts (" <> ppUnqConId nx t <+> text "x) = x")
++        $$ nest 4 (text "restricts (" PP.<> ppUnqConId nx t <+> text "x) = x")
+     $$ text "instance SchemaType" <+> ppUnqConId nx t <+> text "where"
+         $$ nest 4 (text "parseSchemaType = fmap " <+> ppUnqConId nx t <+>
+                    text ". parseSchemaType")
+-		-- XXX should enforce the restriction.
+-        $$ nest 4 (text "schemaTypeToXML s (" <> ppUnqConId nx t <+> text "x)")
++                   -- XXX should enforce the restriction.
++        $$ nest 4 (text "schemaTypeToXML s (" PP.<> ppUnqConId nx t <+> text "x)")
+                    <+> text "= schemaTypeToXML s x"
+ 
+ {-
+@@ -558,8 +558,8 @@ ppHighLevelDecl nx (ExtendComplexType t s es as _ comm)
+                                     <+> text "deriving (Eq,Show)"
+     $$ text "instance Extension" <+> ppConId nx t <+> ppConId nx s
+                                  <+> ppAuxConId nx t <+> text "where"
+-        $$ nest 4 (text "supertype (" <> ppConId nx t <> text " s e) = s"
+-                   $$ text "extension (" <> ppConId nx t <> text " s e) = e")
++        $$ nest 4 (text "supertype (" PP.<> ppConId nx t PP.<> text " s e) = s"
++                   $$ text "extension (" PP.<> ppConId nx t PP.<> text " s e) = e")
+ -}
+ 
+ ppHighLevelDecl nx (ExtendComplexType t s oes oas es as
+@@ -607,12 +607,12 @@ ppHighLevelInstances nx (ElementsAttrsAbstract t insts comm) =
+                              text "$ parseSchemaType s)"
+     ppParse (name,Just _)  = text "(return" <+> con name <+>
+                              text "`apply` (fmap const $ parseSchemaType s)" <+>
+-                             text "`apply` return" <+> fwd name <> text ")"
++                             text "`apply` return" <+> fwd name PP.<> text ")"
+     errmsg = text "\"Parse failed when expecting an extension type of"
+-             <+> ppXName t <> text ",\\n\\\n\\  namely one of:\\n\\\n\\"
+-             <> hcat (intersperse (text ",")
++             <+> ppXName t PP.<> text ",\\n\\\n\\  namely one of:\\n\\\n\\"
++             PP.<> hcat (intersperse (text ",")
+                                   (map (ppXName . fst) insts))
+-             <> text "\""
++             PP.<> text "\""
+     fwd name = ppFwdConId nx name
+     con name = ppJoinConId nx t name
+ 
+@@ -643,22 +643,22 @@ ppHighLevelInstances nx (ExtendComplexTypeAbstract t s insts
+ 
+ ppElementAbstractOfType nx (ElementAbstractOfType n t substgrp comm) =
+     ppComment Before comm
+-    $$ (text "element" <> ppUnqConId nx n) <+> text "::"
++    $$ (text "element" PP.<> ppUnqConId nx n) <+> text "::"
+         <+> text "XMLParser" <+> ppConId nx t
+-    $$ (text "element" <> ppUnqConId nx n) <+> text "="
++    $$ (text "element" PP.<> ppUnqConId nx n) <+> text "="
+        <+> vcat (intersperse (text "`onFail`") (map ppOne substgrp)
+                  ++ [text "`onFail` fail" <+> errmsg])
+   where
+     ppOne (c,Nothing) = text "fmap" <+> text "supertype" -- ppJoinConId nx t c
+-                        <+> (text "element" <> ppConId nx c)
++                        <+> (text "element" PP.<> ppConId nx c)
+     ppOne (c,Just _)  = text "fmap" <+> text "supertype" -- ppJoinConId nx t c
+-                        <+> (text "element" <> ppConId nx c)
++                        <+> (text "element" PP.<> ppConId nx c)
+                         <+> text "-- FIXME: element is forward-declared"
+     errmsg = text "\"Parse failed when expecting an element in the substitution group for\\n\\\n\\    <"
+-             <> ppXName n <> text ">,\\n\\\n\\  namely one of:\\n\\\n\\<"
+-             <> hcat (intersperse (text ">, <")
++             PP.<> ppXName n PP.<> text ">,\\n\\\n\\  namely one of:\\n\\\n\\<"
++             PP.<> hcat (intersperse (text ">, <")
+                                   (map (ppXName . fst) substgrp))
+-             <> text ">\""
++             PP.<> text ">\""
+ 
+ ----------------------------------------------------------------------------- -}
+ 
+@@ -678,8 +678,8 @@ ppExtension nx t s fwdReqd abstractSuper oes oas es as =
+                                  --    else text "v")
+                                       text "v")
+            else
+-           nest 4 (text "supertype (" <> ppType t (oes++es) (oas++as)
+-                                      <> text ") ="
++           nest 4 (text "supertype (" PP.<> ppType t (oes++es) (oas++as)
++                                      PP.<> text ") ="
+                                       $$ nest 11 (ppType s oes oas) ))
+ --  $$ (if isJust fwdReqd then
+ --     -- text "data" <+> fwd t <+> text "=" <+> fwd t $$  -- already defined
+@@ -705,11 +705,11 @@ ppSuperExtension nx super (grandSuper:_) (t,Nothing) =
+     $$ nest 4 (text "supertype = (supertype ::"
+                                            <+> ppUnqConId nx super
+                                            <+> text "->"
+-                                           <+> ppConId nx grandSuper <> text ")"
++                                           <+> ppConId nx grandSuper PP.<> text ")"
+               $$ nest 12 (text ". (supertype ::"
+                                            <+> ppUnqConId nx t
+                                            <+> text "->"
+-                                           <+> ppConId nx super <> text ")"))
++                                           <+> ppConId nx super PP.<> text ")"))
+ -}
+ ppSuperExtension nx super grandSupers (t,Just mod) =  -- fwddecl
+     text "-- Note that" <+> ppUnqConId nx t
+@@ -726,7 +726,7 @@ ppSuperExtension nx super grandSupers (t,Nothing) =
+                       (ppvList "=" "." "" coerce (zip (tail gss++[t]) gss)))
+     coerce (a,b) = text "(supertype ::" <+> ppUnqConId nx a
+                                         <+> text "->"
+-                                        <+> ppConId nx b <> text ")"
++                                        <+> ppConId nx b PP.<> text ")"
+ 
+ -- | Generate named fields from elements and attributes.
+ ppFields :: NameConverter -> XName -> [Element] -> [Attribute] -> Doc
+@@ -764,14 +764,14 @@ ppElemTypeName nx brack e@Element{} =
+     ppTypeModifier (elem_modifier e) brack $ ppConId nx (elem_type e)
+ ppElemTypeName nx brack e@OneOf{}   = 
+     brack $ ppTypeModifier (liftedElemModifier e) parens $
+-    text "OneOf" <> text (show (length (elem_oneOf e)))
++    text "OneOf" PP.<> text (show (length (elem_oneOf e)))
+      <+> hsep (map (ppSeq . cleanChoices) (elem_oneOf e))
+   where
+     ppSeq []  = text "()"
+     ppSeq [e] = ppElemTypeName nx parens e
+-    ppSeq es  = text "(" <> hcat (intersperse (text ",")
++    ppSeq es  = text "(" PP.<> hcat (intersperse (text ",")
+                                      (map (ppElemTypeName nx parens) es))
+-                         <> text ")"
++                         PP.<> text ")"
+ ppElemTypeName nx brack e@AnyElem{} =
+     brack $ ppTypeModifier (elem_modifier e) id $
+     text "AnyElement"
+@@ -792,7 +792,7 @@ ppTypeModifier Single   _ d  = d
+ ppTypeModifier Optional k d  = k $ text "Maybe" <+> k d
+ ppTypeModifier (Range (Occurs Nothing Nothing))  _ d = d
+ ppTypeModifier (Range (Occurs (Just 0) Nothing)) k d = k $ text "Maybe" <+> k d
+-ppTypeModifier (Range (Occurs _ _))              _ d = text "[" <> d <> text "]"
++ppTypeModifier (Range (Occurs _ _))              _ d = text "[" PP.<> d PP.<> text "]"
+ 
+ -- | Generate a parser for a list or Maybe value.
+ ppElemModifier :: Modifier -> Doc -> Doc
+diff --git a/src/Text/XML/HaXml/Schema/PrettyHsBoot.hs b/src/Text/XML/HaXml/Schema/PrettyHsBoot.hs
+index 0808c9c..caf3020 100644
+--- a/src/Text/XML/HaXml/Schema/PrettyHsBoot.hs
++++ b/src/Text/XML/HaXml/Schema/PrettyHsBoot.hs
+@@ -22,7 +22,7 @@ import Data.Maybe (isJust,fromJust,catMaybes)
+ -- | Vertically pretty-print a list of things, with open and close brackets,
+ --   and separators.
+ ppvList :: String -> String -> String -> (a->Doc) -> [a] -> Doc
+-ppvList open sep close pp []     = text open <> text close
++ppvList open sep close pp []     = text open PP.<> text close
+ ppvList open sep close pp (x:xs) = text open <+> pp x
+                                    $$ vcat (map (\y-> text sep <+> pp y) xs)
+                                    $$ text close
+@@ -47,7 +47,7 @@ ppHName (HName x) = text x
+ -- | Pretty-print an XML-style name.
+ ppXName :: XName -> Doc
+ ppXName (XName (N x))     = text x
+-ppXName (XName (QN ns x)) = text (nsPrefix ns) <> text ":" <> text x
++ppXName (XName (QN ns x)) = text (nsPrefix ns) PP.<> text ":" PP.<> text x
+ 
+ -- | Some different ways of using a Haskell identifier.
+ ppModId, ppConId, ppVarId, ppUnqConId, ppUnqVarId, ppFwdConId
+@@ -60,7 +60,7 @@ ppUnqVarId nx = ppHName . unqvarid nx
+ ppFwdConId nx = ppHName . fwdconid nx
+ 
+ ppJoinConId, ppFieldId :: NameConverter -> XName -> XName -> Doc
+-ppJoinConId nx p q = ppHName (conid nx p) <> text "_" <> ppHName (conid nx q)
++ppJoinConId nx p q = ppHName (conid nx p) PP.<> text "_" PP.<> ppHName (conid nx q)
+ ppFieldId   nx     = \t-> ppHName . fieldid nx t
+ 
+ -- | Convert a whole document from HaskellTypeModel to Haskell source text.
+@@ -88,19 +88,19 @@ ppModule nx m =
+ 
+ -- | Generate a fragmentary parser for an attribute.
+ ppAttr :: Attribute -> Int -> Doc
+-ppAttr a n = (text "a"<>text (show n)) <+> text "<- getAttribute \""
+-                                       <> ppXName (attr_name a)
+-                                       <> text "\" e pos"
++ppAttr a n = (text "a"PP.<>text (show n)) <+> text "<- getAttribute \""
++                                       PP.<> ppXName (attr_name a)
++                                       PP.<> text "\" e pos"
+ -- | Generate a fragmentary parser for an element.
+ ppElem :: NameConverter -> Element -> Doc
+ ppElem nx e@Element{}
+     | elem_byRef e    = ppElemModifier (elem_modifier e)
+                                        (text "element"
+-                                        <> ppUnqConId nx (elem_name e))
++                                        PP.<> ppUnqConId nx (elem_name e))
+     | otherwise       = ppElemModifier (elem_modifier e)
+                                        (text "parseSchemaType \""
+-                                        <> ppXName (elem_name e)
+-                                        <> text "\"")
++                                        PP.<> ppXName (elem_name e)
++                                        PP.<> text "\"")
+ ppElem nx e@AnyElem{} = ppElemModifier (elem_modifier e)
+                           (text "parseAnyElement")
+ ppElem nx e@Text{}    = text "parseText"
+@@ -191,17 +191,17 @@ ppHighLevelDecl nx (ElementsAttrsAbstract t insts comm) =
+ 
+ ppHighLevelDecl nx (ElementOfType e@Element{}) =
+     ppComment Before (elem_comment e)
+-    $$ (text "element" <> ppUnqConId nx (elem_name e)) <+> text "::"
++    $$ (text "element" PP.<> ppUnqConId nx (elem_name e)) <+> text "::"
+         <+> text "XMLParser" <+> ppConId nx (elem_type e)
+-    $$ (text "elementToXML" <> ppUnqConId nx (elem_name e)) <+> text "::"
++    $$ (text "elementToXML" PP.<> ppUnqConId nx (elem_name e)) <+> text "::"
+         <+> ppConId nx (elem_type e) <+> text "-> [Content ()]"
+ 
+ 
+ ppHighLevelDecl nx e@(ElementAbstractOfType n t substgrp comm)
+     | any notInScope substgrp
+-                = (text "element" <> ppUnqConId nx n) <+> text "::"
++                = (text "element" PP.<> ppUnqConId nx n) <+> text "::"
+                       <+> text "XMLParser" <+> ppConId nx t
+-                $$ (text "elementToXML" <> ppUnqConId nx n) <+> text "::"
++                $$ (text "elementToXML" PP.<> ppUnqConId nx n) <+> text "::"
+                     <+> ppConId nx t <+> text "-> [Content ()]"
+     | otherwise = ppElementAbstractOfType nx e
+   where
+@@ -245,8 +245,8 @@ ppHighLevelDecl nx (ExtendComplexType t s es as _ comm)
+                                     <+> ppFields nx t es as
+     $$ text "instance Extension" <+> ppConId nx t <+> ppConId nx s
+                                  <+> ppAuxConId nx t <+> text "where"
+-        $$ nest 4 (text "supertype (" <> ppConId nx t <> text " s e) = s"
+-                   $$ text "extension (" <> ppConId nx t <> text " s e) = e")
++        $$ nest 4 (text "supertype (" PP.<> ppConId nx t PP.<> text " s e) = s"
++                   $$ text "extension (" PP.<> ppConId nx t PP.<> text " s e) = e")
+ -}
+ 
+ ppHighLevelDecl nx (ExtendComplexType t s oes oas es as
+@@ -312,7 +312,7 @@ ppHighLevelInstances nx (ExtendComplexTypeAbstract t s insts
+ 
+ ppElementAbstractOfType nx (ElementAbstractOfType n t substgrp comm) =
+     ppComment Before comm
+-    $$ (text "element" <> ppUnqConId nx n) <+> text "::"
++    $$ (text "element" PP.<> ppUnqConId nx n) <+> text "::"
+         <+> text "XMLParser" <+> ppConId nx t
+ 
+ --------------------------------------------------------------------------------
+@@ -334,11 +334,11 @@ ppSuperExtension nx super (grandSuper:_) (t,Nothing) =
+     $$ nest 4 (text "supertype = (supertype ::"
+                                            <+> ppUnqConId nx super
+                                            <+> text "->"
+-                                           <+> ppConId nx grandSuper <> text ")"
++                                           <+> ppConId nx grandSuper PP.<> text ")"
+               $$ nest 12 (text ". (supertype ::"
+                                            <+> ppUnqConId nx t
+                                            <+> text "->"
+-                                           <+> ppConId nx super <> text ")"))
++                                           <+> ppConId nx super PP.<> text ")"))
+ -}
+ ppSuperExtension nx super (grandSuper:_) (t,Just mod) =  -- fwddecl
+     -- FIXME: generate comment for all of the grandSupers.
+@@ -379,14 +379,14 @@ ppElemTypeName nx brack e@Element{} =
+     ppTypeModifier (elem_modifier e) brack $ ppConId nx (elem_type e)
+ ppElemTypeName nx brack e@OneOf{}   = 
+     brack $ ppTypeModifier (elem_modifier e) parens $
+-    text "OneOf" <> text (show (length (elem_oneOf e)))
++    text "OneOf" PP.<> text (show (length (elem_oneOf e)))
+      <+> hsep (map ppSeq (elem_oneOf e))
+   where
+     ppSeq []  = text "()"
+     ppSeq [e] = ppElemTypeName nx parens e
+-    ppSeq es  = text "(" <> hcat (intersperse (text ",")
++    ppSeq es  = text "(" PP.<> hcat (intersperse (text ",")
+                                      (map (ppElemTypeName nx parens) es))
+-                         <> text ")"
++                         PP.<> text ")"
+ ppElemTypeName nx brack e@AnyElem{} =
+     brack $ ppTypeModifier (elem_modifier e) id $
+     text "AnyElement"
+@@ -405,7 +405,7 @@ ppTypeModifier Single   _ d  = d
+ ppTypeModifier Optional k d  = k $ text "Maybe" <+> k d
+ ppTypeModifier (Range (Occurs Nothing Nothing))  _ d = d
+ ppTypeModifier (Range (Occurs (Just 0) Nothing)) k d = k $ text "Maybe" <+> k d
+-ppTypeModifier (Range (Occurs _ _))              _ d = text "[" <> d <> text "]"
++ppTypeModifier (Range (Occurs _ _))              _ d = text "[" PP.<> d PP.<> text "]"
+ 
+ -- | Generate a parser for a list or Maybe value.
+ ppElemModifier Single    doc = doc
+diff --git a/src/Text/XML/HaXml/Schema/PrimitiveTypes.hs b/src/Text/XML/HaXml/Schema/PrimitiveTypes.hs
+index 1bbab38..8948787 100644
+--- a/src/Text/XML/HaXml/Schema/PrimitiveTypes.hs
++++ b/src/Text/XML/HaXml/Schema/PrimitiveTypes.hs
+@@ -129,13 +129,13 @@ instance SimpleType NOTATION where
+ 
+ instance SimpleType Decimal where
+     acceptingParser = fmap Decimal parse
+-    simpleTypeText (Decimal s) = show s	-- XXX FIXME: showGFloat?
++    simpleTypeText (Decimal s) = show s    -- XXX FIXME: showGFloat?
+ instance SimpleType Float where
+     acceptingParser  = parse
+-    simpleTypeText x = show x		-- XXX FIXME: showGFloat?
++    simpleTypeText x = show x        -- XXX FIXME: showGFloat?
+ instance SimpleType Double where
+     acceptingParser  = parse
+-    simpleTypeText x = show x		-- XXX FIXME: showGFloat?
++    simpleTypeText x = show x        -- XXX FIXME: showGFloat?
+ 
+ instance SimpleType Duration where
+     acceptingParser = return Duration `apply` (do isNext '-'; return False
+@@ -194,7 +194,7 @@ instance SimpleType GMonth where
+ 
+ -- * Derived builtin types
+ 
+-newtype NormalizedString = Normalized String	deriving (Eq,Show)
++newtype NormalizedString = Normalized String    deriving (Eq,Show)
+ newtype Token    = Token    String              deriving (Eq,Show)
+ newtype Language = Language String              deriving (Eq,Show)
+ newtype Name     = Name     String              deriving (Eq,Show)
+diff --git a/src/Text/XML/HaXml/Schema/TypeConversion.hs b/src/Text/XML/HaXml/Schema/TypeConversion.hs
+index b46222f..5334a0f 100644
+--- a/src/Text/XML/HaXml/Schema/TypeConversion.hs
++++ b/src/Text/XML/HaXml/Schema/TypeConversion.hs
+@@ -15,7 +15,16 @@ import qualified Data.Map as Map
+ import Data.Map (Map)
+ import Data.List (foldl')
+ import Data.Maybe (fromMaybe,fromJust,isNothing,isJust)
+-import Data.Monoid
++
++----------------------------------------
++
++import Data.Monoid    (Monoid(..))
++
++#if MIN_VERSION_base(4,9,0)
++import Data.Semigroup (Semigroup(..))
++#endif
++
++--------------------------------------------------------------------------------
+ 
+ -- | Transform a Schema by lifting all locally-defined anonymous types to
+ --   the top-level, naming them, and planting a referend at their original
+@@ -538,16 +547,45 @@ consolidate (Occurs min max) (UnorderedMinLength,_,n) =
+ consolidate (Occurs min max) (UnorderedMaxLength,_,n) =
+              Occurs min (Just (read n))
+ 
++--------------------------------------------------------------------------------
++
+ instance Monoid Occurs where
+-    mempty = Occurs Nothing Nothing
+-    (Occurs Nothing  Nothing)  `mappend` o  = o
+-    (Occurs (Just z) Nothing)  `mappend` (Occurs min max)
+-                                        = Occurs (Just $ maybe z (*z) min) max
+-    (Occurs Nothing  (Just x)) `mappend` (Occurs min max)
+-                                        = Occurs min (Just $ maybe x (*x) max)
+-    (Occurs (Just z) (Just x)) `mappend` (Occurs min max)
+-                                        = Occurs (Just $ maybe z (*z) min)
+-                                                 (Just $ maybe x (*x) max)
++
++  mempty = Occurs Nothing Nothing
++
++#if MIN_VERSION_base(4,9,0)
++  mappend = (<>)
++
++----------------------------------------
++
++instance Semigroup Occurs where
++
++  (<>) = mergeOccurs
++
++----------------------------------------
++
++#else
++  mappend = mergeOccurs
++
++----------------------------------------
++
++#endif
++
++mergeOccurs :: Occurs -> Occurs -> Occurs
++
++mergeOccurs (Occurs Nothing  Nothing)   o  = o
++
++mergeOccurs (Occurs (Just z) Nothing)   (Occurs min max)
++  = Occurs (Just $ maybe z (*z) min) max
++
++mergeOccurs (Occurs Nothing  (Just x))  (Occurs min max)
++  = Occurs min (Just $ maybe x (*x) max)
++
++mergeOccurs (Occurs (Just z) (Just x))  (Occurs min max)
++  = Occurs (Just $ maybe z (*z) min)
++           (Just $ maybe x (*x) max)
++
++--------------------------------------------------------------------------------
+ 
+ -- | Push another Occurs value inside an existing Modifier.
+ combineOccursModifier :: Occurs -> Modifier -> Modifier
+diff --git a/src/Text/XML/HaXml/Schema/XSDTypeModel.hs b/src/Text/XML/HaXml/Schema/XSDTypeModel.hs
+index 578dc7a..bd08db6 100644
+--- a/src/Text/XML/HaXml/Schema/XSDTypeModel.hs
++++ b/src/Text/XML/HaXml/Schema/XSDTypeModel.hs
+@@ -2,9 +2,18 @@ module Text.XML.HaXml.Schema.XSDTypeModel
+   ( module Text.XML.HaXml.Schema.XSDTypeModel
+   ) where
+ 
+-import Data.Monoid hiding (Any)
+ import Text.XML.HaXml.Types      (Name,Namespace,QName)
+ 
++----------------------------------------
++
++import Data.Monoid    (Monoid(..))
++
++#if MIN_VERSION_base(4,9,0)
++import Data.Semigroup (Semigroup(..))
++#endif
++
++--------------------------------------------------------------------------------
++
+ data Schema        = Schema
+                    --  { schema_annotation           :: Annotation
+                        { schema_elementFormDefault   :: QForm
+@@ -279,8 +288,8 @@ data Constraint    = Unique Selector [Field]
+                    | Key    Selector [Field]
+                    | KeyRef Selector [Field]
+                      deriving (Eq,Show)
+-type Selector      = String	-- XPath query for scope of constraint
+-type Field         = String	-- XPath query for entity being constrained
++type Selector      = String    -- XPath query for scope of constraint
++type Field         = String    -- XPath query for entity being constrained
+ -}
+ 
+ -- check all of the following.
+@@ -291,17 +300,57 @@ type Regexp        = String
+ type URI           = String
+ type TypeName      = String
+ 
++--------------------------------------------------------------------------------
++
+ instance Monoid Annotation where
+   mempty = NoAnnotation "Monoid.mempty <Annotation>"
+-  (Documentation d) `mappend` (Documentation e) = Documentation (d++"\n"++e)
+-  _                 `mappend` (Documentation e) = Documentation e
+-  ann               `mappend` _                 = ann          
++
++#if defined(MIN_VERSION_base) && MIN_VERSION_base(4,9,0)
++  mappend = (<>)
++
++----------------------------------------
++
++instance Semigroup Annotation where
++  (<>) = mergeAnnotation
++
++----------------------------------------
++
++#else
++  mappend = mergeAnnotation
++
++----------------------------------------
++#endif
++
++mergeAnnotation :: Annotation -> Annotation -> Annotation
++(Documentation d) `mergeAnnotation` (Documentation e) = Documentation (d++"\n"++e)
++_                 `mergeAnnotation` (Documentation e) = Documentation e
++ann               `mergeAnnotation` _                 = ann
++
++--------------------------------------------------------------------------------
+ 
+ -- This instance is pretty unsatisfactory, and is useful only for
+ -- building environments involving recursive modules.  The /mappend/
+ -- method is left-biased, and the /mempty/ value contains lots of
+ -- undefined values.
++
+ instance Monoid Schema where
+-  mempty        = Schema{ schema_items=[] }
+-  s `mappend` t = s{ schema_items = schema_items s ++ schema_items t }
++  mempty = Schema{ schema_items=[] }
++
++#if defined(MIN_VERSION_base) && MIN_VERSION_base(4,9,0)
++  mappend = (<>)
++
++----------------------------------------
++
++instance Semigroup Schema where
++  (<>) = mergeSchema
++
++#else
++  mappend = mergeSchema
++
++----------------------------------------
++#endif
++
++mergeSchema :: Schema -> Schema -> Schema
++s `mergeSchema` t = s{ schema_items = schema_items s ++ schema_items t }
+ 
++--------------------------------------------------------------------------------
+\ No newline at end of file
+diff --git a/src/Text/XML/HaXml/ShowXmlLazy.hs b/src/Text/XML/HaXml/ShowXmlLazy.hs
+index f8898fe..b819e4c 100644
+--- a/src/Text/XML/HaXml/ShowXmlLazy.hs
++++ b/src/Text/XML/HaXml/ShowXmlLazy.hs
+@@ -5,7 +5,7 @@ import Text.XML.HaXml.Namespaces
+ import Text.XML.HaXml.TypeMapping -- (toHType, toDTD, Tuple(), Defined, showHType)
+ 
+ import qualified Text.XML.HaXml.XmlContent as X
+-import Prelude hiding (maybe,either)
++import Prelude hiding (maybe,either,(<>))
+ import Data.Maybe hiding (maybe)
+ import Data.List
+ 
+diff --git a/src/Text/XML/HaXml/TypeMapping.hs b/src/Text/XML/HaXml/TypeMapping.hs
+index 18d8763..2304f2c 100644
+--- a/src/Text/XML/HaXml/TypeMapping.hs
++++ b/src/Text/XML/HaXml/TypeMapping.hs
+@@ -1,13 +1,13 @@
+ module Text.XML.HaXml.TypeMapping
+   (
+   -- * A class to get an explicit type representation for any value
+-    HTypeable(..)	-- sole method, toHType
++    HTypeable(..)     -- sole method, toHType
+   -- * Explicit representation of Haskell datatype information
+-  , HType(..)		-- instance of Eq, Show
+-  , Constr(..)		-- instance of Eq, Show
++  , HType(..)         -- instance of Eq, Show
++  , Constr(..)        -- instance of Eq, Show
+   -- * Helper functions to extract type info as strings
+-  , showHType		-- :: HType -> ShowS
+-  , showConstr		-- :: Int -> HType -> String
++  , showHType         -- :: HType -> ShowS
++  , showConstr        -- :: Int -> HType -> String
+   -- * Conversion from Haskell datatype to DTD
+   , toDTD
+   ) where
+@@ -38,9 +38,9 @@ data HType =
+     | Prim String String        -- ^ separate Haskell name and XML name
+     | String
+     | Defined String [HType] [Constr]
+-	-- ^ A user-defined type has a name, a sequence of type variables,
+-	--   and a set of constructors.  (The variables might already be
+-	--   instantiated to actual types.)
++    -- ^ A user-defined type has a name, a sequence of type variables,
++    --   and a set of constructors.  (The variables might already be
++    --   instantiated to actual types.)
+     deriving (Show)
+ 
+ instance Eq HType where
+@@ -49,7 +49,7 @@ instance Eq HType where
+     (Tuple xs) == (Tuple ys) =  xs==ys
+     (Prim x _) == (Prim y _) =  x==y
+     String     == String     =  True
+-    (Defined n _xs _) == (Defined m _ys _)  =  n==m 	-- && xs==ys
++    (Defined n _xs _) == (Defined m _ys _)  =  n==m     -- && xs==ys
+     _          == _          =  False
+ 
+ -- | A concrete representation of any user-defined Haskell constructor.
+diff --git a/src/Text/XML/HaXml/Validate.hs b/src/Text/XML/HaXml/Validate.hs
+index cbbfb7b..4dda0b9 100644
+--- a/src/Text/XML/HaXml/Validate.hs
++++ b/src/Text/XML/HaXml/Validate.hs
+@@ -36,11 +36,11 @@ lookupFM fm k = lookup k fm
+ 
+ -- gather appropriate information out of the DTD
+ data SimpleDTD = SimpleDTD
+-    { elements   :: FiniteMap QName ContentSpec	-- content model of elem
++    { elements   :: FiniteMap QName ContentSpec    -- content model of elem
+     , attributes :: FiniteMap (QName,QName) AttType -- type of (elem,attr)
+-    , required   :: FiniteMap QName [QName]	-- required attributes of elem
+-    , ids        :: [(QName,QName)]	-- all (element,attr) with ID type
+-    , idrefs     :: [(QName,QName)]	-- all (element,attr) with IDREF type
++    , required   :: FiniteMap QName [QName]    -- required attributes of elem
++    , ids        :: [(QName,QName)]    -- all (element,attr) with ID type
++    , idrefs     :: [(QName,QName)]    -- all (element,attr) with IDREF type
+     }
+ 
+ simplifyDTD :: DocTypeDecl -> SimpleDTD
+@@ -67,7 +67,7 @@ simplifyDTD (DTD _ _ decls) =
+                      , AttList (AttListDecl name attdefs) <- decls
+                      , elem == name
+                      , AttDef attr (TokenizedType ID) _ <- attdefs ]
+-      , idrefs     = []	-- not implemented
++      , idrefs     = []    -- not implemented
+       }
+ 
+ -- simple auxiliary to avoid lots of if-then-else with empty else clauses.
+@@ -191,7 +191,7 @@ partialValidate dtd' elem = valid elem ++ checkIDs elem
+     checkCP elm cp@(Choice cps None) ns =
+         let next = choice elm ns cps in
+         if null next then (cpError elm cp, ns)
+-        else ([], head next)	-- choose the first alternative with no errors
++        else ([], head next)    -- choose the first alternative with no errors
+     checkCP _      (Choice _   Query) [] = ([],[])
+     checkCP elm    (Choice cps Query) ns =
+         let next = choice elm ns cps in
+diff --git a/src/Text/XML/HaXml/Xtract/Combinators.hs b/src/Text/XML/HaXml/Xtract/Combinators.hs
+index 14f7e6d..717ccf0 100644
+--- a/src/Text/XML/HaXml/Xtract/Combinators.hs
++++ b/src/Text/XML/HaXml/Xtract/Combinators.hs
+@@ -67,8 +67,8 @@ f `without` g = \xml-> filter     (null.g xml) . f xml
+ 
+ -- | lifted unit and zero.
+ keep, none :: DFilter i
+-keep = \_xml  sub-> [sub]	-- local C.keep
+-none = \_xml _sub-> []	-- local C.none
++keep = \_xml  sub-> [sub]    -- local C.keep
++none = \_xml _sub-> []    -- local C.none
+ 
+ children, elm, txt :: DFilter i
+ children = local C.children
+diff --git a/src/Text/XML/HaXml/Xtract/Lex.hs b/src/Text/XML/HaXml/Xtract/Lex.hs
+index 327675f..808a730 100644
+--- a/src/Text/XML/HaXml/Xtract/Lex.hs
++++ b/src/Text/XML/HaXml/Xtract/Lex.hs
+@@ -18,7 +18,7 @@ import Data.Char
+ 
+ type Token = Either String (Posn, TokenT)
+ 
+-data Posn = Pn Int		-- char index only
++data Posn = Pn Int        -- char index only
+         deriving Eq
+ 
+ instance Show Posn where
+@@ -26,8 +26,8 @@ instance Show Posn where
+ 
+ data TokenT =
+       Symbol String
+-    | TokString String		--     begins with letter
+-    | TokNum Integer		--     begins with digit
++    | TokString String        --     begins with letter
++    | TokNum Integer        --     begins with digit
+     deriving Eq
+ 
+ instance Show TokenT where
+diff --git a/src/Text/XML/HaXml/Xtract/Parse.hs b/src/Text/XML/HaXml/Xtract/Parse.hs
+index 5e559d2..dbe8957 100644
+--- a/src/Text/XML/HaXml/Xtract/Parse.hs
++++ b/src/Text/XML/HaXml/Xtract/Parse.hs
+@@ -79,67 +79,67 @@ pam fs x = [ f x | f <- fs ]
+ 
+ 
+ {--- original Xtract grammar ----
+-      query     = string			tagname
+-                | string *			tagname prefix
+-                | * string			tagname suffix
+-                | *				any element
+-                | -				chardata
++      query     = string            tagname
++                | string *            tagname prefix
++                | * string            tagname suffix
++                | *                any element
++                | -                chardata
+                 | ( query )
+-                | query / query			parent/child relationship
+-                | query // query		deep inside
+-                | query + query			union of queries
++                | query / query            parent/child relationship
++                | query // query        deep inside
++                | query + query            union of queries
+                 | query [predicate]
+                 | query [positions]
+ 
+-      predicate = quattr			has attribute
+-                | quattr op ' string '		attribute has value
+-                | quattr op " string "		attribute has value
+-                | quattr op  quattr		attribute value comparison (lexical)
+-                | quattr nop integer  		attribute has value (numerical)
+-                | quattr nop quattr		attribute value comparison (numerical)
+-                | ( predicate )			bracketting
+-                | predicate & predicate		logical and
+-                | predicate | predicate		logical or
+-                | ~ predicate			logical not
+-
+-      attribute = @ string			has attribute
+-                | query / @ string		child has attribute
+-                | -				has textual content
+-                | query / -			child has textual content
++      predicate = quattr            has attribute
++                | quattr op ' string '        attribute has value
++                | quattr op " string "        attribute has value
++                | quattr op  quattr        attribute value comparison (lexical)
++                | quattr nop integer          attribute has value (numerical)
++                | quattr nop quattr        attribute value comparison (numerical)
++                | ( predicate )            bracketting
++                | predicate & predicate        logical and
++                | predicate | predicate        logical or
++                | ~ predicate            logical not
++
++      attribute = @ string            has attribute
++                | query / @ string        child has attribute
++                | -                has textual content
++                | query / -            child has textual content
+ 
+       quattr    = query
+                 | attribute
+ 
+-      op        =  =				equal to
+-                |  !=				not equal to
+-                |  <				less than
+-                |  <=				less than or equal to
+-                |  >				greater than
+-                |  >=				greater than or equal to
++      op        =  =                equal to
++                |  !=                not equal to
++                |  <                less than
++                |  <=                less than or equal to
++                |  >                greater than
++                |  >=                greater than or equal to
+ 
+-      nop       =  .=.				equal to
+-                |  .!=.				not equal to
+-                |  .<.				less than
+-                |  .<=.				less than or equal to
+-                |  .>.				greater than
+-                |  .>=.				greater than or equal to
++      nop       =  .=.                equal to
++                |  .!=.                not equal to
++                |  .<.                less than
++                |  .<=.                less than or equal to
++                |  .>.                greater than
++                |  .>=.                greater than or equal to
+ 
+-      positions = position {, positions}	multiple positions
+-                | position - position		ranges
++      positions = position {, positions}    multiple positions
++                | position - position        ranges
+ 
+-      position  = integer			numbering is from 0 upwards
+-                | $				last
++      position  = integer            numbering is from 0 upwards
++                | $                last
+ 
+ 
+ ---- transformed grammar (removing left recursion)
+-      aquery = ./ tquery	-- current context
+-             | tquery		-- also current context
+-             | / tquery		-- root context
+-             | // tquery	-- deep context from root
++      aquery = ./ tquery    -- current context
++             | tquery        -- also current context
++             | / tquery        -- root context
++             | // tquery    -- deep context from root
+ 
+       tquery = ( tquery ) xquery
+              | tag xquery
+-             | -		-- fixes original grammar ("-/*" is incorrect)
++             | -        -- fixes original grammar ("-/*" is incorrect)
+       
+       tag    = string *
+              | string
+@@ -148,7 +148,7 @@ pam fs x = [ f x | f <- fs ]
+       
+       xquery = / tquery
+              | // tquery
+-             | / @ string	-- new: print attribute value
++             | / @ string    -- new: print attribute value
+              | + tquery
+              | [ tpredicate ] xquery
+              | [ positions ] xquery
+@@ -228,7 +228,7 @@ tquery (qf:cxt) = oneOf
+     [ do q <- bracket (tquery (qf:qf:cxt))
+          xquery cxt q
+     , do q <- xtag
+-         xquery cxt (qf ((unescape .).q))	-- glue inners texts together
++         xquery cxt (qf ((unescape .).q))    -- glue inners texts together
+     , do symbol "-"
+          return (qf (local C.txt))
+     ]
+@@ -263,7 +263,7 @@ xquery cxt q1 = oneOf
+          q2 <- tquery cxt
+          return (D.cat [q1,q2])
+     , do symbol "["
+-         is <- iindex	-- now extended to multiple indexes
++         is <- iindex    -- now extended to multiple indexes
+          symbol "]"
+          xquery cxt (\xml-> concat . pam is . q1 xml)
+     , do symbol "["
+@@ -327,7 +327,7 @@ vattribute (q,a,iffn) = oneOf
+        return ((iffn (\s1->if cmp s1 s2 then D.keep else D.none) D.none)
+                `D.o` q)
+   , do cmp <- op
+-       (q2,iffn2) <- wattribute	-- q2 unused?  is this a mistake?
++       (q2,iffn2) <- wattribute    -- q2 unused?  is this a mistake?
+        return ((iffn (\s1-> iffn2 (\s2-> if cmp s1 s2 then D.keep else D.none)
+                                   D.none)
+                      D.none) `D.o` q)
+@@ -336,7 +336,7 @@ vattribute (q,a,iffn) = oneOf
+        return ((iffn (\s->if cmp (read s) n then D.keep else D.none) D.none)
+                `D.o` q)
+   , do cmp <- nop
+-       (q2,iffn2) <- wattribute	-- q2 unused?  is this a mistake?
++       (q2,iffn2) <- wattribute    -- q2 unused?  is this a mistake?
+        return ((iffn (\s1-> iffn2 (\s2-> if cmp (read s1) (read s2) then D.keep
+                                                                     else D.none)
+                                   D.none)
+diff --git a/src/tools/FpMLToHaskell.hs b/src/tools/FpMLToHaskell.hs
+index 328645c..5229b2c 100644
+--- a/src/tools/FpMLToHaskell.hs
++++ b/src/tools/FpMLToHaskell.hs
+@@ -37,7 +37,7 @@ import Text.XML.HaXml.Schema.PrettyHaskell
+ import qualified Text.XML.HaXml.Schema.PrettyHsBoot     as HsBoot
+ import qualified Text.XML.HaXml.Schema.HaskellTypeModel as Haskell
+ import Text.ParserCombinators.Poly
+-import Text.PrettyPrint.HughesPJ (render,vcat)
++import Text.PrettyPrint.HughesPJ (render)
+ 
+ fst3 :: (a,b,c) -> a
+ fst3 (a,_,_) = a
+@@ -67,14 +67,14 @@ argDirsToFiles = do
+             exitFailure
+  where
+   reslash = map (\c-> case c of '.'->'/'; _->c)
+-  dirOf   = concat . intersperse "/" . init . wordsBy '.'
+-  wordsBy c s = let (a,b) = span (/=c) s in
+-                if null b then [a] else a: wordsBy c (tail b)
++  dirOf   = concat . intersperse "/" . init . wordsBy' '.'
++  wordsBy' c s = let (a,b) = span (/=c) s in
++                if null b then [a] else a: wordsBy' c (tail b)
+ 
+ main ::IO ()
+ main = do
+     (dir,files) <- argDirsToFiles
+-    deps <- flip mapM files (\ (inf,outf)-> do
++    deps <- flip mapM files (\ (inf,_outf)-> do
+         hPutStrLn stdout $ "Reading "++inf
+         thiscontent <- readFileUTF8 (dir++"/"++inf)
+         let d@Document{} = resolveAllNames qualify
+@@ -171,36 +171,36 @@ bootf x = case reverse x of
+ -- | Calculate dependency ordering of modules, least dependent first.
+ --   Cyclic groups may occur, suitably placed in the ordering.
+ ordered :: (Eq a, Eq b) => (b->a) -> (b->[a]) -> (a->Maybe b) -> [b] -> [[b]]
+-ordered name deps env list =
+-    let cycles    = cyclicDeps name deps env list
++ordered toName deps env list =
++    let cycles    = cyclicDeps toName deps env list
+         noncyclic = map (:[]) $ list \\ concat cycles
+         workqueue = noncyclic++cycles
+-    in traverse [] workqueue
++    in traverse' [] workqueue
+   where
+-    traverse acc []     = acc
+-    traverse acc (w:wq) = if all (`elem` concatMap (map name) acc)
+-                                 (concatMap deps w \\ map name w)
+-                          then traverse (acc++[w]) wq
+-                          else traverse     acc   (wq++[w])
++    traverse' acc []     = acc
++    traverse' acc (w:wq) = if all (`elem` concatMap (map toName) acc)
++                                 (concatMap deps w \\ map toName w)
++                          then traverse' (acc++[w]) wq
++                          else traverse'     acc   (wq++[w])
+ 
+ -- | Find cyclic dependencies between modules.
+ cyclicDeps :: Eq a => (b->a) -> (b->[a]) -> (a->Maybe b) -> [b] -> [[b]]
+-cyclicDeps name deps env = nubBy (setEq`on`map name)
++cyclicDeps toName deps env = nubBy (setEq`on`map toName)
+                            . (\cs-> foldl minimal cs cs)
+                            . concatMap (walk [])
+   where
+ --  walk :: [b] -> b -> [[b]]
+-    walk acc t = if name t `elem` map name acc then [acc]
++    walk acc t = if toName t `elem` map toName acc then [acc]
+                  else concatMap (walk (t:acc)) (catMaybes . map env $ deps t)
+     minimal acc c = concatMap (prune c) acc
+-    prune c c' = if map name c `isProperSubsetOf` map name c' then [] else [c']
++    prune c c' = if map toName c `isProperSubsetOf` map toName c' then [] else [c']
+     isSubsetOf a b = all (`elem`b) a
+     setEq a b            = a`isSubsetOf`b &&      b`isSubsetOf`a
+     isProperSubsetOf a b = a`isSubsetOf`b && not (b`isSubsetOf`a)
+ 
+ -- | A variation on the standard lookup function.
+ lookupWith :: Eq a => (b->a) -> a -> [b] -> Maybe b
+-lookupWith proj x [] = Nothing
++lookupWith _proj _x [] = Nothing
+ lookupWith proj x (y:ys) | proj y == x = Just y
+                          | otherwise   = lookupWith proj x ys
+ 
+diff --git a/src/tools/MkOneOf.hs b/src/tools/MkOneOf.hs
+index d994227..f72902e 100644
+--- a/src/tools/MkOneOf.hs
++++ b/src/tools/MkOneOf.hs
+@@ -89,12 +89,12 @@ variables = [ v:[] | v <- ['a'..'y']]
+ 
+ ---- simple pretty-printing ----
+ 
+-format :: Int		-- current position on page
+-       -> Int		-- maximum width of page
+-       -> Int		-- amount to indent when a newline is emitted
+-       -> String	-- text to precede first value
+-       -> String	-- text to precede subsequent values
+-       -> [String]	-- list of values to format
++format :: Int        -- current position on page
++       -> Int        -- maximum width of page
++       -> Int        -- amount to indent when a newline is emitted
++       -> String    -- text to precede first value
++       -> String    -- text to precede subsequent values
++       -> [String]    -- list of values to format
+         -> String
+ format _cur _max _ind _s0 _s1 []     = ""
+ format  cur  max  ind  s0  s1 (x:xs)
+diff --git a/src/tools/Xtract.hs b/src/tools/Xtract.hs
+index 57a6add..b8d9633 100644
+--- a/src/tools/Xtract.hs
++++ b/src/tools/Xtract.hs
+@@ -29,6 +29,7 @@ escape = xmlEscapeContent stdXmlEscaper
+ 
+ data Opts = Opts {doEscaping :: Bool, forceHtml :: Bool, printHelp :: Bool, printVersion :: Bool, beLazy :: Bool}
+ 
++defaultOptions :: Opts
+ defaultOptions = Opts {doEscaping = True, forceHtml = False, printHelp = False, printVersion = False, beLazy = False}
+ 
+ options :: [OptDescr (Opts -> Opts)]
+@@ -48,7 +49,7 @@ options = [
+ main :: IO ()
+ main = do
+   preArgs <- getArgs
+-  let (preOpts, args, errs) = getOpt Permute options preArgs
++  let (preOpts, args, _errs) = getOpt Permute options preArgs
+   let opts = foldl (flip ($)) defaultOptions preOpts
+   when (printVersion opts) $ do
+       putStrLn $ "part of HaXml-"++version

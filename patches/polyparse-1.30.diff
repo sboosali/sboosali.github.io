@@ -1,0 +1,2052 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..cb9577c
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,49 @@
++# my
++.sboo/
++ignore/ 
++temporary/
++
++# ghcid
++*.ghcid
++.ghcid.d/
++
++# Haskell
++.ghc.environment.*
++cabal.project.local
++*.o
++*.hi
++*.chi
++*.chs.h
++report.html
++.cabal-sandbox/
++cabal.sandbox.config
++cabal.config
++dist-newstyle/
++dist-*/
++dist/
++.stack-work/
++.styx/
++
++# nix
++result-*/
++result/
++
++# Emacs
++*~
++\#*
++.\#*
++\#*\#
++,*
++.*.swp
++.*.swo
++TAGS
++.projectile
++
++# Python
++*.pyc
++
++# OS X
++.DS_Store
++
++# miscellaneous
++*.save
+diff --git a/IMPLEMENTATION.md b/IMPLEMENTATION.md
+new file mode 100644
+index 0000000..99a69ac
+--- /dev/null
++++ b/IMPLEMENTATION.md
+@@ -0,0 +1,59 @@
++# Implementation of `polyparse`
++
++
++## `CHANGELOG`
++
++* Changes in `polyparse-1.20` include:
++
++    * add `MonadFail` instances;
++    * add non-`return` `pure` definitions;
++    * remove `return` and `fail` methods from `Monad`.
++
++These changes are **all** `CPP`-guarded (see below).
++
++
++## Future Compatibility
++
++`polyparse-1.20` updates the `Monad` instances for its (several) `Parser` types. Why? For compatibility with these proposals:
++
++* <https://ghc.haskell.org/trac/ghc/wiki/Proposal/MonadOfNoReturn MonadOfNoReturn>
++* <https://ghc.haskell.org/trac/ghc/wiki/Proposal/MonadFail MonadFail>
++
++
++### Future Compatibility: `MonadOfNoReturn`
++
++For `MonadOfNoReturn`, warnings (and forwards-compatibility, see below) exist from `ghc-7.10`. When these warnings become errors is **unknown**, because this transition is delayed by several incompatible packages on `Hackage`.
++
++The `MonadOfNoReturn` proposal recommends the following (paraphrasing):
++
++> Forward-compatible `Monad` instances (i.e. those which omit `return`) are valid since `ghc-7.10` (/ `base-4.8`).
++
++(introduced in `ghc-7.10` via the `-Wnoncanonical-monad-instances` flag).
++
++
++### Future Compatibility: `MonadFail`
++
++For `MonadFail`, warnings (introduced in `ghc-8.0` via the `-Wnoncanonical-monadfail-instances` flag) become **errors** in `ghc-8.6`.
++
++
++## Backwards-Compatibility
++
++`polyparse-1.20` wraps the following changes (see above) with `CPP`:
++
++* extra `import`s,
++* new `class`es,
++* omitted (`default`) methods.
++
++Then, `polyparse-1.20` guards the `CPP` itself via:
++
++* `#if`s (obviously), like `MIN_VERSION_GLASGOW_HASKELL(8,2,0,0)` and `MIN_VERSION_base(4,9,0)`;
++* and these `#if`s are beneath `#ifdefs` on `CPP` symbols, defined by newer version of `ghc` and/or `cabal`.
++
++These guards, along with the already existing manually-written instances, provide backwards-compatibility for:
++
++* older GHC versions,
++* older Cabal versions,
++* non-GHC compilers,
++* and any haskell compiler supporting `-XCPP`.
++
++
+diff --git a/cabal.project b/cabal.project
+new file mode 100644
+index 0000000..e6788b1
+--- /dev/null
++++ b/cabal.project
+@@ -0,0 +1,6 @@
++--------------------------------------------------
++
++packages:
++         ./
++
++--------------------------------------------------
+\ No newline at end of file
+diff --git a/polyparse.cabal b/polyparse.cabal
+index 3e72fe9..4883b62 100644
+--- a/polyparse.cabal
++++ b/polyparse.cabal
+@@ -1,32 +1,57 @@
++cabal-version:  >=1.10
++build-type:     Simple
++
+ name:           polyparse
+-version:        1.12
+-x-revision: 1
++version:        1.30
++--x-revision: 0
++
++----------------------------------------
++
++category:       Text, Parsing
++synopsis:       A variety of alternative parser combinator libraries.
++description:
++            A variety of alternative parser combinator libraries, including
++            the original HuttonMeijer set.  The Poly sets have features like
++            good error reporting, arbitrary token type, running state, lazy
++            parsing, and so on.  Finally, Text.Parse is a proposed
++            replacement for the standard Read class, for better
++            deserialisation of Haskell values from Strings.
++            .
++            Fork of @polyparse@.
++            .
++            (If you are the maintainer, please: [1] add an issue-tracker (see below);
++            and [2] review the emailed patch, also here <TODO>.)
++            .
++
++tested-with:
++            GHC == 7.10.3
++          , GHC == 8.0.2
++          , GHC == 8.2.2
++          , GHC == 8.4.3
++          , GHC == 8.6.1
++
+ license:        LGPL
+ license-file:   COPYRIGHT
+ copyright:      (c) 2006-2016 Malcolm Wallace
+ author:         Malcolm Wallace <Malcolm.Wallace@me.com>
+ maintainer:     author
+ homepage:       http://code.haskell.org/~malcolm/polyparse/
+-category:       Text, Parsing
+-synopsis:       A variety of alternative parser combinator libraries.
+-description:
+-        A variety of alternative parser combinator libraries, including
+-        the original HuttonMeijer set.  The Poly sets have features like
+-        good error reporting, arbitrary token type, running state, lazy
+-        parsing, and so on.  Finally, Text.Parse is a proposed
+-        replacement for the standard Read class, for better
+-        deserialisation of Haskell values from Strings.
+-build-type:     Simple
+-cabal-version:  >=1.6
++
+ extra-source-files: LICENCE-LGPL, LICENCE-commercial
+ 
++----------------------------------------
++
++bug-reports: http://github.com/sboosali/polyparse/issues
++
+ source-repository head
+   type:     darcs
+   location: http://code.haskell.org/polyparse
+ 
++----------------------------------------
++
+ library
++
+   hs-source-dirs:       src
+-  build-depends:        base < 4.12
+   exposed-modules:
+         Text.ParserCombinators.HuttonMeijer,
+         Text.ParserCombinators.HuttonMeijerWallace,
+@@ -41,9 +66,15 @@ library
+         Text.ParserCombinators.Poly.StateLazy,
+         Text.ParserCombinators.Poly.Lex,
+         Text.Parse
++  other-modules:
++         Text.ParserCombinators.Poly.Compat
++
++  build-depends:   base < 5
++
+   if impl(ghc)
+-    build-depends:      bytestring
+-    build-depends:       text
++    build-depends: bytestring
++                 , text
++
+     exposed-modules:
+         Text.ParserCombinators.Poly.ByteString
+         Text.ParserCombinators.Poly.ByteStringChar
+@@ -51,6 +82,15 @@ library
+         Text.ParserCombinators.Poly.Text
+         Text.ParserCombinators.Poly.StateText
+ --      Text.Parse.Text
++
++  default-language:   Haskell98
++  default-extensions: CPP
++
+   cpp-options:          -DVERSION="1.12"
+   nhc98-options:        -K6M
+-  extensions:           CPP
++  if impl(ghc >= 8.0)
++     ghc-options:
++        -Wnoncanonical-monad-instances
++        -Wnoncanonical-monadfail-instances
++
++--------------------------------------------------
+\ No newline at end of file
+diff --git a/src/Text/Parse.hs b/src/Text/Parse.hs
+index 8e50ecd..8219ff8 100644
+--- a/src/Text/Parse.hs
++++ b/src/Text/Parse.hs
+@@ -1,19 +1,19 @@
+ module Text.Parse
+   ( -- * The Parse class is a replacement for the standard Read class. 
+     -- $parser
+-    TextParser	-- synonym for Parser Char, i.e. string input, no state
+-  , Parse(..)	-- instances: (), (a,b), (a,b,c), Maybe a, Either a, [a],
+-		--            Int, Integer, Float, Double, Char, Bool
+-  , parseByRead	-- :: Read a => String -> TextParser a
++    TextParser    -- synonym for Parser Char, i.e. string input, no state
++  , Parse(..)    -- instances: (), (a,b), (a,b,c), Maybe a, Either a, [a],
++        --            Int, Integer, Float, Double, Char, Bool
++  , parseByRead    -- :: Read a => String -> TextParser a
+   , readByParse -- :: TextParser a -> ReadS a
+   , readsPrecByParsePrec -- :: (Int->TextParser a) -> Int -> ReadS a
+     -- ** Combinators specific to string input, lexed haskell-style
+-  , word	-- :: TextParser String
+-  , isWord	-- :: String -> TextParser ()
+-  , literal	-- :: String -> TextParser ()
+-  , optionalParens	-- :: TextParser a -> TextParser a
+-  , parens	-- :: Bool -> TextParser a -> TextParser a
+-  , field	-- :: Parse a => String -> TextParser a
++  , word    -- :: TextParser String
++  , isWord    -- :: String -> TextParser ()
++  , literal    -- :: String -> TextParser ()
++  , optionalParens    -- :: TextParser a -> TextParser a
++  , parens    -- :: Bool -> TextParser a -> TextParser a
++  , field    -- :: Parse a => String -> TextParser a
+   , constructors-- :: [(String,TextParser a)] -> TextParser a
+   , enumeration -- :: Show a => String -> [a] -> TextParser a
+     -- ** Parsers for literal numerics and characters
+@@ -65,7 +65,7 @@ class Parse a where
+     parsePrec _ = optionalParens parse
+     -- | Parsing a list of items by default accepts the [] and comma syntax,
+     --   except when the list is really a character string using \"\".
+-    parseList :: TextParser [a]	-- only to distinguish [] and ""
++    parseList :: TextParser [a]    -- only to distinguish [] and ""
+     parseList  = do { isWord "[]"; return [] }
+                    `onFail`
+                  do { isWord "["; isWord "]"; return [] }
+@@ -377,7 +377,7 @@ parseLitChar = do c <- next
+ 
+ -- Basic types
+ instance Parse Int where
+- -- parse = parseByRead "Int"	-- convert from Integer, deals with minInt
++ -- parse = parseByRead "Int"    -- convert from Integer, deals with minInt
+     parse = fmap fromInteger $
+               do many (satisfy isSpace); parseSigned parseDec
+ instance Parse Integer where
+@@ -396,7 +396,7 @@ instance Parse Char where
+  --                                           else fail "expected a char" }
+  -- parseList = bracket (isWord "\"") (satisfy (=='"'))
+  --                     (many (satisfy (/='"')))
+-	-- not totally correct for strings...
++    -- not totally correct for strings...
+     parseList = do { w <- word; if head w == '"' then return (init (tail w))
+                                 else fail "not a string" }
+ 
+diff --git a/src/Text/Parse/ByteString.hs b/src/Text/Parse/ByteString.hs
+index a8a8a9b..6528b5f 100644
+--- a/src/Text/Parse/ByteString.hs
++++ b/src/Text/Parse/ByteString.hs
+@@ -2,19 +2,19 @@ module Text.Parse.ByteString
+   ( -- * The Parse class is a replacement for the standard Read class. 
+     --   This particular instance reads from ByteString rather than String.
+     -- $parser
+-    TextParser	-- synonym for Text.ParserCombinators.Poly.ByteString
+-  , Parse(..)	-- instances: (), (a,b), (a,b,c), Maybe a, Either a, [a],
+-		--            Int, Integer, Float, Double, Char, Bool
+-  , parseByRead	-- :: Read a => String -> TextParser a
++    TextParser    -- synonym for Text.ParserCombinators.Poly.ByteString
++  , Parse(..)    -- instances: (), (a,b), (a,b,c), Maybe a, Either a, [a],
++        --            Int, Integer, Float, Double, Char, Bool
++  , parseByRead    -- :: Read a => String -> TextParser a
+   , readByParse -- :: TextParser a -> ReadS a
+   , readsPrecByParsePrec -- :: (Int->TextParser a) -> Int -> ReadS a
+     -- ** Combinators specific to bytestring input, lexed haskell-style
+-  , word	-- :: TextParser String
+-  , isWord	-- :: String -> TextParser ()
+-  , literal	-- :: String -> TextParser ()
+-  , optionalParens	-- :: TextParser a -> TextParser a
+-  , parens	-- :: Bool -> TextParser a -> TextParser a
+-  , field	-- :: Parse a => String -> TextParser a
++  , word    -- :: TextParser String
++  , isWord    -- :: String -> TextParser ()
++  , literal    -- :: String -> TextParser ()
++  , optionalParens    -- :: TextParser a -> TextParser a
++  , parens    -- :: Bool -> TextParser a -> TextParser a
++  , field    -- :: Parse a => String -> TextParser a
+   , constructors-- :: [(String,TextParser a)] -> TextParser a
+   , enumeration -- :: Show a => String -> [a] -> TextParser a
+     -- ** Parsers for literal numerics and characters
+@@ -72,7 +72,7 @@ class Parse a where
+     parsePrec _ = optionalParens parse
+     -- | Parsing a list of items by default accepts the [] and comma syntax,
+     --   except when the list is really a character string using \"\".
+-    parseList :: TextParser [a]	-- only to distinguish [] and ""
++    parseList :: TextParser [a]    -- only to distinguish [] and ""
+     parseList  = do { isWord "[]"; return [] }
+                    `onFail`
+                  do { isWord "["; isWord "]"; return [] }
+@@ -426,7 +426,7 @@ parseLitChar = do c <- next
+ 
+ -- Basic types
+ instance Parse Int where
+-    parse = fmap fromInteger $	-- convert from Integer, deals with minInt
++    parse = fmap fromInteger $    -- convert from Integer, deals with minInt
+               do manySatisfy isSpace; parseSigned parseUnsignedInteger
+ instance Parse Integer where
+     parse = do manySatisfy isSpace; parseSigned parseUnsignedInteger
+@@ -436,7 +436,7 @@ instance Parse Double where
+     parse = do manySatisfy isSpace; parseSigned parseFloat
+ instance Parse Char where
+     parse = do manySatisfy isSpace; parseLitChar'
+-	-- not totally correct for strings...
++    -- not totally correct for strings...
+     parseList = do { w <- word; if head w == '"' then return (init (tail w))
+                                 else fail "not a string" }
+ 
+diff --git a/src/Text/ParserCombinators/HuttonMeijer.hs b/src/Text/ParserCombinators/HuttonMeijer.hs
+index 7cb4b75..d044bdd 100644
+--- a/src/Text/ParserCombinators/HuttonMeijer.hs
++++ b/src/Text/ParserCombinators/HuttonMeijer.hs
+@@ -36,7 +36,8 @@ module Text.ParserCombinators.HuttonMeijer
+ 
+ import Data.Char
+ import Control.Applicative ( Applicative(pure,(<*>)), Alternative(empty,(<|>)) )
+-import Control.Monad
++
++import Text.ParserCombinators.Poly.Compat
+ 
+ infixr 5 +++
+ 
+@@ -51,19 +52,53 @@ instance Functor Parser where
+    -- map         :: (a -> b) -> (Parser a -> Parser b)
+    fmap f (P p)    = P (\inp -> [(f v, out) | (v,out) <- p inp])
+ 
++------------------------------
++#if defined(__GLASGOW_HASKELL__) && (__GLASGOW_HASKELL__ >= 800)
++------------------------------
++
++instance Applicative Parser where
++
++   pure  = pureParser
++
++   {-# INLINE pure #-}
++
++   (<*>) = ap
++
++   {-# INLINE (<*>) #-}
++
++instance Monad Parser where
++
++   (>>=) = bindParser
++
++   {-# INLINE (>>=) #-}
++
++instance MonadFail Parser where
++
++  fail = failParser
++
++  {-# INLINE fail #-}
++
++------------------------------
++#else
++------------------------------
++
+ instance Applicative Parser where
+-   pure  = return
++   pure  = pureParser
+    (<*>) = ap
+ 
+ instance Monad Parser where
+    -- return      :: a -> Parser a
+-   return v        = P (\inp -> [(v,inp)])
++   return          = pureParser
+ 
+    -- >>=         :: Parser a -> (a -> Parser b) -> Parser b
+-   (P p) >>= f     = P (\inp -> concat [papply (f v) out | (v,out) <- p inp])
++   (>>=)           = bindParser
+ 
+    -- fail        :: String -> Parser a
+-   fail _          = P (\_ -> [])
++   fail            = failParser
++
++------------------------------
++#endif
++------------------------------
+ 
+ instance Alternative Parser where
+    empty = mzero
+@@ -71,10 +106,25 @@ instance Alternative Parser where
+ 
+ instance MonadPlus Parser where
+    -- mzero       :: Parser a
+-   mzero           = P (\_ -> [])
++   mzero               = zeroParser
+ 
+    -- mplus       :: Parser a -> Parser a -> Parser a
+-   (P p) `mplus` (P q)  = P (\inp -> (p inp ++ q inp))
++   (P p) `mplus` (P q) = P (\inp -> (p inp ++ q inp))
++
++------------------------------
++
++pureParser :: a -> Parser a
++pureParser v = P (\inp -> [(v,inp)])
++
++bindParser :: Parser a -> (a -> Parser b) -> Parser b
++bindParser (P p) f = P (\inp -> concat [ papply (f v) out
++                                      | (v,out) <- p inp
++                                      ])
++failParser :: String -> Parser a
++failParser _ = zeroParser
++
++zeroParser :: Parser a
++zeroParser = P (\_ -> [])
+ 
+ -- ------------------------------------------------------------
+ -- * Other primitive parser combinators
+diff --git a/src/Text/ParserCombinators/HuttonMeijerWallace.hs b/src/Text/ParserCombinators/HuttonMeijerWallace.hs
+index 40cca1a..466c2f2 100644
+--- a/src/Text/ParserCombinators/HuttonMeijerWallace.hs
++++ b/src/Text/ParserCombinators/HuttonMeijerWallace.hs
+@@ -55,7 +55,7 @@ module Text.ParserCombinators.HuttonMeijerWallace
+ 
+ import Data.Char
+ import Control.Applicative ( Applicative(pure,(<*>)), Alternative(empty,(<|>)) )
+-import Control.Monad
++import Text.ParserCombinators.Poly.Compat
+ 
+ infixr 5 +++
+ 
+@@ -75,33 +75,96 @@ instance Functor (Parser s t e) where
+                         Left err  -> Left err
+                        )
+ 
++--------------------------------------------------
++#if defined(__GLASGOW_HASKELL__) && (__GLASGOW_HASKELL__ >= 800)
++
+ instance Applicative (Parser s t e) where
+-   pure  = return
++
++   pure  = pureParser
++
++   {-# INLINE pure #-}
++
+    (<*>) = ap
+ 
++   {-# INLINE (<*>) #-}
++
+ instance Monad (Parser s t e) where
+-   -- return      :: a -> Parser s t e a
+-   return v        = P (\st inp -> Right [(v,st,inp)])
+-   -- >>=         :: Parser s t e a -> (a -> Parser s t e b) -> Parser s t e b
+-   (P p) >>= f     = P (\st inp -> case p st inp of
+-                        Right res -> foldr joinresults (Right [])
+-                            [ papply' (f v) s out | (v,s,out) <- res ]
+-                        Left err  -> Left err
+-                       )
+-   -- fail        :: String -> Parser s t e a
+-   fail err        = P (\st inp -> Right [])
+-  -- I know it's counterintuitive, but we want no-parse, not an error.
++
++   (>>=) = bindParser
++
++   {-# INLINE (>>=) #-}
++
++-- | @'fail' _ = 'zeroParser'@
++
++instance MonadFail (Parser s t e) where
++
++  fail = failParser
++
++  {-# INLINE fail #-}
++
++--------------------------------------------------
++#else
++--------------------------------------------------
++
++instance Applicative (Parser s t e) where
++   -- pure      :: a -> Parser s t e a
++
++   pure  = pureParser
++
++   (<*>) = ap
++
++instance Monad (Parser s t e) where
++   -- return :: a -> Parser s t e a
++   return     = pure
++
++   -- (>>=)  :: Parser s t e a -> (a -> Parser s t e b) -> Parser s t e b
++   (>>=)      = bindParser
++
++   -- fail   :: String -> Parser s t e a
++   fail       = failParser
++
++#endif
++--------------------------------------------------
++
++-- | @instance@ is equivalent to 'MonadPlus'.
+ 
+ instance Alternative (Parser s t e) where
+    empty = mzero
+    (<|>) = mplus
+ 
++-- | @'mzero' = 'zeroParser'@
++
+ instance MonadPlus (Parser s t e) where
+    -- mzero       :: Parser s t e a
+-   mzero           = P (\st inp -> Right [])
++   mzero           = zeroParser
+    -- mplus       :: Parser s t e a -> Parser s t e a -> Parser s t e a
+    (P p) `mplus` (P q) = P (\st inp -> joinresults (p st inp) (q st inp))
+ 
++--------------------------------------------------
++
++-- I know it's counterintuitive, but we want no-parse, not an error.
++failParser :: String -> Parser s t e a
++failParser = const zeroParser
++
++-- Parser that parses nothing (and returns nothing).
++zeroParser :: Parser s t e a
++zeroParser = P (\_st _inp -> Right [])
++
++-- Parser that parses no text,
++-- but returns its input as a (single) valid parse.
++pureParser :: a -> Parser s t e a
++pureParser v = P (\st inp -> Right [(v,st,inp)])
++
++bindParser :: Parser s t e a -> (a -> Parser s t e b) -> Parser s t e b
++bindParser (P p) f = P go
++
++  where
++  go st inp = case p st inp of
++        Right res -> foldr joinresults
++                          (Right [])
++                          [ papply' (f v) s out | (v,s,out) <- res ]
++        Left err  -> Left err
++
+ -- joinresults ensures that explicitly raised errors are dominant,
+ -- provided no parse has yet been found.  The commented out code is
+ -- a slightly stricter specification of the real code.
+diff --git a/src/Text/ParserCombinators/Poly/Base.hs b/src/Text/ParserCombinators/Poly/Base.hs
+index d754baa..5e3e89a 100644
+--- a/src/Text/ParserCombinators/Poly/Base.hs
++++ b/src/Text/ParserCombinators/Poly/Base.hs
+@@ -1,26 +1,26 @@
+ module Text.ParserCombinators.Poly.Base
+   ( -- * The PolyParse classes
+-    Commitment(..)	-- class of all two-level-error values
+-  , PolyParse		-- class of all monadic two-level-error parsers
++    Commitment(..)    -- class of all two-level-error values
++  , PolyParse        -- class of all monadic two-level-error parsers
+ 
+     -- * Combinators general to all parser types.
+     -- ** Simple combinators
+-  , apply	-- :: PolyParse p => p (a->b) -> p a -> p b
+-  , discard	-- :: PolyParse p => p a      -> p b -> p a
++  , apply    -- :: PolyParse p => p (a->b) -> p a -> p b
++  , discard    -- :: PolyParse p => p a      -> p b -> p a
+     -- ** Error-handling
+-  , failBad	-- :: PolyParse p => String -> p a
++  , failBad    -- :: PolyParse p => String -> p a
+   , adjustErrBad-- :: PolyParse p => p a -> (String->String) -> p a
+-  , indent	-- :: Int -> String -> String
++  , indent    -- :: Int -> String -> String
+     -- ** Choices
+-  , oneOf	-- :: PolyParse p => [p a] -> p a
++  , oneOf    -- :: PolyParse p => [p a] -> p a
+     -- ** Sequences
+-  , exactly	-- :: PolyParse p => Int -> p a -> p [a]
+-  , upto	-- :: PolyParse p => Int -> p a -> p [a]
+-  , many1	-- :: PolyParse p => p a -> p [a]
+-  , sepBy	-- :: PolyParse p => p a -> p sep -> p [a]
+-  , sepBy1	-- :: PolyParse p => p a -> p sep -> p [a]
+-  , bracketSep	-- :: PolyParse p => p bra -> p sep -> p ket -> p a -> p [a]
+-  , bracket	-- :: PolyParse p => p bra -> p ket -> p a -> p a
++  , exactly    -- :: PolyParse p => Int -> p a -> p [a]
++  , upto    -- :: PolyParse p => Int -> p a -> p [a]
++  , many1    -- :: PolyParse p => p a -> p [a]
++  , sepBy    -- :: PolyParse p => p a -> p sep -> p [a]
++  , sepBy1    -- :: PolyParse p => p a -> p sep -> p [a]
++  , bracketSep    -- :: PolyParse p => p bra -> p sep -> p ket -> p a -> p [a]
++  , bracket    -- :: PolyParse p => p bra -> p ket -> p a -> p a
+   , manyFinally -- :: PolyParse p => p a -> p z -> p [a]
+   , manyFinally'-- :: PolyParse p => p a -> p z -> p [a]
+   ) where
+@@ -28,7 +28,7 @@ module Text.ParserCombinators.Poly.Base
+ import Control.Applicative
+ 
+ #ifdef __NHC__
+-default (Integer,Double,[])	-- hack to avoid bizarre type defaulting error
++default (Integer,Double,[])    -- hack to avoid bizarre type defaulting error
+ instance Commitment []
+ instance PolyParse []
+ #endif
+diff --git a/src/Text/ParserCombinators/Poly/ByteString.hs b/src/Text/ParserCombinators/Poly/ByteString.hs
+index 28f57b4..05b21a7 100644
+--- a/src/Text/ParserCombinators/Poly/ByteString.hs
++++ b/src/Text/ParserCombinators/Poly/ByteString.hs
+@@ -25,6 +25,11 @@ import Data.ByteString.Lazy (ByteString)
+ import Control.Applicative
+ import Data.Word
+ 
++import Text.ParserCombinators.Poly.Compat
++import Prelude hiding (fail)
++
++--------------------------------------------------------------------------------
++
+ -- | This @Parser@ datatype is a specialised parsing monad with error
+ --   reporting.  Whereas the standard version can be used for arbitrary
+ --   token types, this version is specialised to ByteString input only.
+@@ -37,14 +42,72 @@ runParser (P p) = resultToEither . p
+ instance Functor Parser where
+     fmap f (P p) = P (fmap f . p)
+ 
++------------------------------
++#if defined(__GLASGOW_HASKELL__) && (__GLASGOW_HASKELL__ >= 800)
++------------------------------
++
++instance Applicative Parser where
++
++   pure  = pureParser
++
++   {-# INLINE pure #-}
++
++   (<*>) = ap
++
++   {-# INLINE (<*>) #-}
++
++   (<*) = discard
++
++   {-# INLINE (<*) #-}
++
+ instance Monad Parser where
+-    return x     = P (\ts-> Success ts x)
+-    fail e       = P (\ts-> Failure ts e)
+-    (P f) >>= g  = P (continue . f)
+-      where
+-        continue (Success ts x)             = let (P g') = g x in g' ts
+-        continue (Committed r)              = Committed (continue r)
+-        continue (Failure ts e)             = Failure ts e
++
++   (>>=) = bindParser
++
++   {-# INLINE (>>=) #-}
++
++instance MonadFail Parser where
++
++  fail = failParser
++
++  {-# INLINE fail #-}
++
++------------------------------
++#else
++------------------------------
++
++instance Applicative Parser where
++    pure = pureParser
++    pf <*> px = do { f <- pf; x <- px; pure (f x) }
++
++#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ > 610
++    (<*) = discard
++    {-# INLINE (<*) #-}
++#endif
++
++instance Monad Parser where
++    return = pureParser
++    fail   = failParser
++    (>>=)  = bindParser
++
++------------------------------
++#endif
++------------------------------
++
++pureParser :: a -> Parser a
++pureParser x = P (\ts -> Success ts x)
++
++failParser :: String -> Parser a
++failParser e = P (\ts -> Failure ts e)
++
++bindParser :: Parser a -> (a -> Parser b) -> Parser b
++bindParser (P f) g = P (continue . f)
++  where
++  continue (Success ts x)             = let (P g') = g x in g' ts
++  continue (Committed r)              = Committed (continue r)
++  continue (Failure ts e)             = Failure ts e
++
++------------------------------
+ 
+ instance Commitment Parser where
+     commit (P p)         = P (Committed . squash . p)
+@@ -70,13 +133,6 @@ instance Commitment Parser where
+                            r@(Committed _)    -> r )
+             showErr (name,err) = name++":\n"++indent 2 err
+ 
+-instance Applicative Parser where
+-    pure f    = return f
+-    pf <*> px = do { f <- pf; x <- px; return (f x) }
+-#if defined(GLASGOW_HASKELL) && GLASGOW_HASKELL > 610
+-    p  <*  q  = p `discard` q
+-#endif
+-
+ instance Alternative Parser where
+     empty     = fail "no parse"
+     p <|> q   = p `onFail` q
+@@ -112,7 +168,7 @@ satisfy f = do { x <- next
+ onFail :: Parser a -> Parser a -> Parser a
+ (P p) `onFail` (P q) = P (\ts-> continue ts $ p ts)
+   where continue ts (Failure _ _) = q ts
+-    --  continue _  (Committed r) = r	-- no, remain Committed
++    --  continue _  (Committed r) = r    -- no, remain Committed
+         continue _  r             = r
+ 
+ ------------------------------------------------------------------------
+diff --git a/src/Text/ParserCombinators/Poly/ByteStringChar.hs b/src/Text/ParserCombinators/Poly/ByteStringChar.hs
+index 27b238a..aae803d 100644
+--- a/src/Text/ParserCombinators/Poly/ByteStringChar.hs
++++ b/src/Text/ParserCombinators/Poly/ByteStringChar.hs
+@@ -24,6 +24,11 @@ import qualified Data.ByteString.Lazy.Char8 as BS
+ import Data.ByteString.Lazy.Char8 (ByteString)
+ import Control.Applicative
+ 
++import Text.ParserCombinators.Poly.Compat
++import Prelude hiding (fail)
++
++--------------------------------------------------------------------------------
++
+ -- | This @Parser@ datatype is a specialised parsing monad with error
+ --   reporting.  Whereas the standard version can be used for arbitrary
+ --   token types, this version is specialised to ByteString input only.
+@@ -36,14 +41,77 @@ runParser (P p) = resultToEither . p
+ instance Functor Parser where
+     fmap f (P p) = P (fmap f . p)
+ 
++
++------------------------------
++#if defined(__GLASGOW_HASKELL__) && (__GLASGOW_HASKELL__ >= 800)
++------------------------------
++
++instance Applicative Parser where
++
++   pure  = pureParser
++
++   {-# INLINE pure #-}
++
++   (<*>) = ap
++
++   {-# INLINE (<*>) #-}
++
++   (<*) = discard
++
++   {-# INLINE (<*) #-}
++
+ instance Monad Parser where
+-    return x     = P (\ts-> Success ts x)
+-    fail e       = P (\ts-> Failure ts e)
+-    (P f) >>= g  = P (continue . f)
+-      where
+-        continue (Success ts x)             = let (P g') = g x in g' ts
+-        continue (Committed r)              = Committed (continue r)
+-        continue (Failure ts e)             = Failure ts e
++
++   (>>=) = bindParser
++
++   {-# INLINE (>>=) #-}
++
++instance MonadFail Parser where
++
++  fail = failParser
++
++  {-# INLINE fail #-}
++
++------------------------------
++#else
++------------------------------
++
++instance Applicative Parser where
++    pure = pureParser
++    pf <*> px = do { f <- pf; x <- px; pure (f x) }
++
++#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ > 610
++    (<*) = discard
++    {-# INLINE (<*) #-}
++#endif
++
++instance Monad Parser where
++    return = pureParser
++    fail   = failParser
++    (>>=)  = bindParser
++
++------------------------------
++#endif
++------------------------------
++
++pureParser :: a -> Parser a
++pureParser x = P (\ts -> Success ts x)
++
++failParser :: String -> Parser a
++failParser e = P (\ts -> Failure ts e)
++
++bindParser :: Parser a -> (a -> Parser b) -> Parser b
++bindParser (P f) g = P (continue . f)
++  where
++  continue (Success ts x)             = let (P g') = g x in g' ts
++  continue (Committed r)              = Committed (continue r)
++  continue (Failure ts e)             = Failure ts e
++
++------------------------------
++
++instance Alternative Parser where
++    empty     = fail "no parse"
++    p <|> q   = p `onFail` q
+ 
+ instance Commitment Parser where
+     commit (P p)         = P (Committed . squash . p)
+@@ -69,17 +137,6 @@ instance Commitment Parser where
+                            r@(Committed _)    -> r )
+             showErr (name,err) = name++":\n"++indent 2 err
+ 
+-instance Applicative Parser where
+-    pure f    = return f
+-    pf <*> px = do { f <- pf; x <- px; return (f x) }
+-#if defined(GLASGOW_HASKELL) && GLASGOW_HASKELL > 610
+-    p  <*  q  = p `discard` q
+-#endif
+-
+-instance Alternative Parser where
+-    empty     = fail "no parse"
+-    p <|> q   = p `onFail` q
+-
+ instance PolyParse Parser
+ 
+ ------------------------------------------------------------------------
+diff --git a/src/Text/ParserCombinators/Poly/Compat.hs b/src/Text/ParserCombinators/Poly/Compat.hs
+new file mode 100644
+index 0000000..e2983ab
+--- /dev/null
++++ b/src/Text/ParserCombinators/Poly/Compat.hs
+@@ -0,0 +1,69 @@
++--------------------------------------------------
++
++{-# LANGUAGE CPP #-}
++
++--------------------------------------------------
++
++#ifndef MIN_VERSION_GLASGOW_HASKELL
++#define MIN_VERSION_GLASGOW_HASKELL(x,y,z1,z2) 0
++#endif
++-- NOTE `ghc-7.10` introduced `MIN_VERSION_GLASGOW_HASKELL`.
++
++--------------------------------------------------
++
++#ifndef MIN_VERSION_base
++#define MIN_VERSION_base(x,y,z) 0
++#endif
++
++--------------------------------------------------
++
++{-| Compatibility module.
++
++Forwards-Compatibility and Backwards-Compatibility for:
++
++* the <https://prime.haskell.org/wiki/Libraries/Proposals/MonadFail MonadFail> proposal.
++
++    Exports 'Control.Monad' and (when present) 'Control.Monad.Fail'.
++
++    `ghc-8.0.*` bundles `base-4.9.0.0`, which introduces `Control.Monad.Fail`.
++
++-}
++
++module Text.ParserCombinators.Poly.Compat
++
++#if MIN_VERSION_base(4,9,0)
++  ( module Text.ParserCombinators.Poly.Compat
++  , module Control.Monad
++  , module Control.Monad.Fail
++#else
++  ( module Text.ParserCombinators.Poly.Compat
++  , module Control.Monad
++#endif
++  ) where
++
++--------------------------------------------------
++
++#if MIN_VERSION_base(4,9,0)
++import Control.Monad.Fail (MonadFail(..))
++import Control.Monad      hiding (fail)
++#else
++import Control.Monad
++#endif
++
++--------------------------------------------------
++
++#if __GLASGOW_HASKELL__
++import Control.Exception hiding (bracket)
++#endif
++
++--------------------------------------------------
++
++#if __GLASGOW_HASKELL__
++throwE :: String -> a
++throwE msg = throw (ErrorCall msg)
++#else
++throwE :: String -> a
++throwE msg = error msg
++#endif
++
++--------------------------------------------------
+\ No newline at end of file
+diff --git a/src/Text/ParserCombinators/Poly/Lazy.hs b/src/Text/ParserCombinators/Poly/Lazy.hs
+index 5bdf712..e567204 100644
+--- a/src/Text/ParserCombinators/Poly/Lazy.hs
++++ b/src/Text/ParserCombinators/Poly/Lazy.hs
+@@ -1,18 +1,18 @@
+ {-# LANGUAGE CPP, GeneralizedNewtypeDeriving #-}
+ module Text.ParserCombinators.Poly.Lazy
+   ( -- * The Parser datatype
+-    Parser(P)	-- datatype, instance of: Functor, Monad, PolyParse
+-  , Result(..)	-- internal to the parser monad
+-  , runParser	-- :: Parser t a -> [t] -> (Either String a, [t])
++    Parser(P)    -- datatype, instance of: Functor, Monad, PolyParse
++  , Result(..)    -- internal to the parser monad
++  , runParser    -- :: Parser t a -> [t] -> (Either String a, [t])
+     -- ** Basic parsers
+-  , next	-- :: Parser t t
+-  , eof		-- :: Parser t ()
+-  , satisfy	-- :: (t->Bool) -> Parser t t
+-  , satisfyMsg	-- :: (t->Bool) -> String -> Parser t t
++  , next    -- :: Parser t t
++  , eof        -- :: Parser t ()
++  , satisfy    -- :: (t->Bool) -> Parser t t
++  , satisfyMsg    -- :: (t->Bool) -> String -> Parser t t
+   , onFail      -- :: Parser t a -> Parser t a -> Parser t a
+ 
+     -- ** Re-parsing
+-  , reparse	-- :: [t] -> Parser t ()
++  , reparse    -- :: [t] -> Parser t ()
+     -- * Re-export all more general combinators
+   , module Text.ParserCombinators.Poly.Base
+   , module Control.Applicative
+@@ -23,59 +23,83 @@ import Text.ParserCombinators.Poly.Result
+ import qualified Text.ParserCombinators.Poly.Parser as P
+ import Control.Applicative
+ 
+-#if __GLASGOW_HASKELL__
+-import Control.Exception hiding (bracket)
+-throwE :: String -> a
+-throwE msg = throw (ErrorCall msg)
+-#else
+-throwE :: String -> a
+-throwE msg = error msg
+-#endif
++import Text.ParserCombinators.Poly.Compat
++import Prelude hiding (fail)
++
++------------------------------------------------------------------------
+ 
+ -- | The only differences between a Plain and a Lazy parser are the instance
+ --   of Applicative, and the type (and implementation) of runParser.
+ --   We therefore need to /newtype/ the original Parser type, to allow it
+---   to have a different instance.
++--   to have a different instance
++
+ newtype Parser t a = P (P.Parser t a)
++
++------------------------------
+ #ifdef __GLASGOW_HASKELL__
+-        deriving (Functor,Monad,Commitment)
++
++    deriving ( Functor
++             , Monad
++#if MIN_VERSION_base(4,9,0)
++             , MonadFail
++#endif
++             , Commitment
++             )
++
++------------------------------
+ #else
++------------------------------
++
+ instance Functor (Parser t) where
+     fmap f (P p) = P (fmap f p)
++
+ instance Monad (Parser t) where
+-    return x  = P (return x)
+-    fail e    = P (fail e)
+-    (P f) >>= g = P (f >>= (\(P g')->g') . g)
++    return x    = P (pure x)
++    fail e      = P (fail e)
++    (P f) >>= g = P (f >>= (\(P g') -> g') . g)
++
+ instance Commitment (Parser t) where
+     commit (P p)   = P (commit p)
+     (P p) `adjustErr` f  = P (p `adjustErr` f)
+-#endif
+ 
+--- | Apply a parser to an input token sequence.
+-runParser :: Parser t a -> [t] -> (a, [t])
+-runParser (P (P.P p)) = fromResult . p
+-  where
+-    fromResult :: Result z a -> (a, z)
+-    fromResult (Success z a)  =  (a, z)
+-    fromResult (Failure z e)  =  throwE e
+-    fromResult (Committed r)  =  fromResult r
++#endif
++------------------------------
+ 
+ instance Applicative (Parser t) where
+-    pure f    = return f
++
++    pure x = P (pure x)
++
+     --   Apply a parsed function to a parsed value.  This version
+     --   is strict in the result of the function parser, but
+     --   lazy in the result of the argument parser.  (Argument laziness is
+     --   the distinctive feature over other implementations.)
+-    (P (P.P pf)) <*> px = P (P.P (continue . pf))
++
++    (P (P.P pf)) <*> px = P (P.P go)
++
+       where
++        go = continue . pf
++
+         continue (Success z f)  = let (x,z') = runParser px z
+                                   in Success z' (f x)
+         continue (Committed r)  = Committed (continue r)
+         continue (Failure z e)  = Failure z e
+-#if defined(GLASGOW_HASKELL) && GLASGOW_HASKELL > 610
+-    p  <*  q  = p `discard` q
++
++#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ > 610
++    (<*) = discard
++    {-# INLINE (<*) #-}
+ #endif
+ 
++-- | Apply a parser to an input token sequence.
++runParser :: Parser t a -> [t] -> (a, [t])
++runParser (P (P.P p)) = fromResult . p
++  where
++    fromResult :: Result z a -> (a, z)
++    fromResult (Success z a)  =  (a, z)
++    fromResult (Failure _z e) =  throwE e
++    fromResult (Committed r)  =  fromResult r
++
++------------------------------
++
+ instance Alternative (Parser t) where
+     empty             = fail "no parse"
+     (P p) <|> (P q)   = P (p `P.onFail` q)
+diff --git a/src/Text/ParserCombinators/Poly/Lex.hs b/src/Text/ParserCombinators/Poly/Lex.hs
+index 65e237d..aafc4bc 100644
+--- a/src/Text/ParserCombinators/Poly/Lex.hs
++++ b/src/Text/ParserCombinators/Poly/Lex.hs
+@@ -1,3 +1,12 @@
++{-# LANGUAGE CPP #-}
++
++------------------------------
++#ifndef MIN_VERSION_GLASGOW_HASKELL
++#define MIN_VERSION_GLASGOW_HASKELL(x,y,z1,z2) 0
++#endif
++-- NOTE `ghc-7.10` introduced `MIN_VERSION_GLASGOW_HASKELL`.
++------------------------------
++
+ -- Author: Malcolm Wallace
+ 
+ -- | In a strict language, where creating the entire input list of tokens
+@@ -26,11 +35,15 @@ module Text.ParserCombinators.Poly.Lex
+   , module Control.Applicative
+   ) where
+ 
+-
+ import Text.ParserCombinators.Poly.Base
+ import Text.ParserCombinators.Poly.Result
+ import Control.Applicative
+ 
++import Text.ParserCombinators.Poly.Compat
++import Prelude hiding (fail)
++
++--------------------------------------------------------------------------------
++
+ -- | In a strict language, where creating the entire input list of tokens
+ --   in one shot may be infeasible, we can use a lazy "callback" kind of
+ --   architecture instead.  The lexer returns a single token at a time,
+@@ -53,14 +66,77 @@ runParser (P p) = (\ (a,b)->(a,stripLex b)) . resultToEither . p
+ instance Functor (Parser t) where
+     fmap f (P p) = P (fmap f . p)
+ 
++
++------------------------------
++#if defined(__GLASGOW_HASKELL__) && (__GLASGOW_HASKELL__ >= 800)
++------------------------------
++
++instance Applicative (Parser t) where
++
++   pure  = pureParser
++
++   {-# INLINE pure #-}
++
++   (<*>) = ap
++
++   {-# INLINE (<*>) #-}
++
++   (<*) = discard
++
++   {-# INLINE (<*) #-}
++
+ instance Monad (Parser t) where
+-    return x     = P (\ts-> Success ts x)
+-    fail e       = P (\ts-> Failure ts e)
+-    (P f) >>= g  = P (continue . f)
+-      where
+-        continue (Success ts x)             = let (P g') = g x in g' ts
+-        continue (Committed r)              = Committed (continue r)
+-        continue (Failure ts e)             = Failure ts e
++
++   (>>=) = bindParser
++
++   {-# INLINE (>>=) #-}
++
++instance MonadFail (Parser t) where
++
++  fail = failParser
++
++  {-# INLINE fail #-}
++
++------------------------------
++#else
++------------------------------
++
++instance Applicative (Parser t) where
++    pure = pureParser
++    pf <*> px = do { f <- pf; x <- px; pure (f x) }
++
++#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ > 610
++    (<*) = discard
++    {-# INLINE (<*) #-}
++#endif
++
++instance Monad (Parser t) where
++    return = pureParser
++    fail   = failParser
++    (>>=)  = bindParser
++
++------------------------------
++#endif
++------------------------------
++
++pureParser :: a -> Parser t a
++pureParser x = P (\ts -> Success ts x)
++
++failParser :: String -> Parser t a
++failParser e = P (\ts -> Failure ts e)
++
++bindParser :: (Parser t) a -> (a -> Parser t b) -> Parser t b
++bindParser (P f) g = P (continue . f)
++  where
++  continue (Success ts x)             = let (P g') = g x in g' ts
++  continue (Committed r)              = Committed (continue r)
++  continue (Failure ts e)             = Failure ts e
++
++------------------------------------------------------------------------
++
++instance Alternative (Parser t) where
++    empty     = fail "no parse"
++    p <|> q   = p `onFail` q
+ 
+ instance Commitment (Parser t) where
+     commit (P p)         = P (Committed . squash . p)
+@@ -86,7 +162,7 @@ instance Commitment (Parser t) where
+                            r@(Committed _)    -> r )
+             showErr (name,err) = name ++ "\n" ++ indent 2 err
+ 
+-infixl 6 `onFail`	-- not sure about precedence 6?
++infixl 6 `onFail`    -- not sure about precedence 6?
+ 
+ -- | @p `onFail` q@ means parse p, unless p fails, in which case
+ --   parse q instead.
+@@ -100,17 +176,6 @@ infixl 6 `onFail`	-- not sure about precedence 6?
+     --  continue _  (Committed r) = r    -- no, remain Committed
+         continue _  r             = r
+ 
+-instance Applicative (Parser t) where
+-    pure f    = return f
+-    pf <*> px = do { f <- pf; x <- px; return (f x) }
+-#if defined(GLASGOW_HASKELL) && GLASGOW_HASKELL > 610
+-    p  <*  q  = p `discard` q
+-#endif
+-
+-instance Alternative (Parser t) where
+-    empty     = fail "no parse"
+-    p <|> q   = p `onFail` q
+-
+ instance PolyParse (Parser t)
+ 
+ ------------------------------------------------------------------------
+diff --git a/src/Text/ParserCombinators/Poly/Parser.hs b/src/Text/ParserCombinators/Poly/Parser.hs
+index 66a320c..7f296da 100644
+--- a/src/Text/ParserCombinators/Poly/Parser.hs
++++ b/src/Text/ParserCombinators/Poly/Parser.hs
+@@ -1,26 +1,32 @@
++
+ -- | This module contains the definitions for a generic parser, without
+ --   running state.  These are the parts that are shared between the Plain
+ --   and Lazy variations.  Do not import this module directly, but only
+ --   via T.P.Poly.Plain or T.P.Poly.Lazy.
+ module Text.ParserCombinators.Poly.Parser
+   ( -- * The Parser datatype
+-    Parser(P)	-- datatype, instance of: Functor, Monad, PolyParse
+-  , Result(..)	-- internal to the Parser Monad.
++    Parser(P)    -- datatype, instance of: Functor, Monad, PolyParse
++  , Result(..)    -- internal to the Parser Monad.
+     -- ** Basic parsers
+-  , next	-- :: Parser t t
+-  , eof		-- :: Parser t ()
+-  , satisfy	-- :: (t->Bool) -> Parser t t
+-  , satisfyMsg	-- :: Show t => (t->Bool) -> String -> Parser t t
++  , next    -- :: Parser t t
++  , eof        -- :: Parser t ()
++  , satisfy    -- :: (t->Bool) -> Parser t t
++  , satisfyMsg    -- :: Show t => (t->Bool) -> String -> Parser t t
+   , onFail      -- :: Parser t a -> Parser t a -> Parser t a
+ 
+     -- ** Re-parsing
+-  , reparse	-- :: [t] -> Parser t ()
++  , reparse    -- :: [t] -> Parser t ()
+   ) where
+ 
+ import Text.ParserCombinators.Poly.Base
+ import Text.ParserCombinators.Poly.Result
+ import Control.Applicative
+ 
++import Text.ParserCombinators.Poly.Compat
++import Prelude hiding (fail)
++
++----------------------------------------
++
+ -- | This @Parser@ datatype is a fairly generic parsing monad with error
+ --   reporting.  It can be used for arbitrary token types, not just
+ --   String input.  (If you require a running state, use module Poly.State
+@@ -30,24 +36,76 @@ newtype Parser t a = P ([t] -> Result [t] a)
+ instance Functor (Parser t) where
+     fmap f (P p) = P (fmap f . p)
+ 
++
++------------------------------
++#if defined(__GLASGOW_HASKELL__) && (__GLASGOW_HASKELL__ >= 800)
++------------------------------
++
+ instance Applicative (Parser t) where
+-    pure f    = return f
+-    pf <*> px = do { f <- pf; x <- px; return (f x) }
+-#if defined(GLASGOW_HASKELL) && GLASGOW_HASKELL > 610
+-    p  <*  q  = p `discard` q
++
++   pure  = pureParser
++
++   {-# INLINE pure #-}
++
++   (<*>) = ap
++
++   {-# INLINE (<*>) #-}
++
++   (<*) = discard
++
++   {-# INLINE (<*) #-}
++
++instance Monad (Parser t) where
++
++   (>>=) = bindParser
++
++   {-# INLINE (>>=) #-}
++
++instance MonadFail (Parser t) where
++
++  fail = failParser
++
++  {-# INLINE fail #-}
++
++------------------------------
++#else
++------------------------------
++
++instance Applicative (Parser t) where
++    pure = pureParser
++    pf <*> px = do { f <- pf; x <- px; pure (f x) }
++
++#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ > 610
++    (<*) = discard
++    {-# INLINE (<*) #-}
+ #endif
+ 
+ instance Monad (Parser t) where
+-    return x     = P (\ts-> Success ts x)
+-    fail e       = P (\ts-> Failure ts e)
+-    (P f) >>= g  = P (continue . f)
+-      where
+-        continue (Success ts x)             = let (P g') = g x in g' ts
+-        continue (Committed r)              = Committed (continue r)
+-        continue (Failure ts e)             = Failure ts e
++    return = pureParser
++    fail   = failParser
++    (>>=)  = bindParser
++
++------------------------------
++#endif
++------------------------------
++
++pureParser :: a -> Parser t a
++pureParser x = P (\ts -> Success ts x)
++
++failParser :: String -> Parser t a
++failParser e = P (\ts -> Failure ts e)
++
++bindParser :: (Parser t) a -> (a -> Parser t b) -> Parser t b
++bindParser (P f) g = P (continue . f)
++  where
++  continue (Success ts x)             = let (P g') = g x in g' ts
++  continue (Committed r)              = Committed (continue r)
++  continue (Failure ts e)             = Failure ts e
++
++----------------------------------------
+ 
+ instance Alternative (Parser t) where
+-    empty     = fail "no parse"
++    empty     = failParser "no parse"
+     p <|> q   = p `onFail` q
+ 
+ instance PolyParse (Parser t)
+@@ -76,7 +134,7 @@ instance Commitment (Parser t) where
+                            r@(Committed _)    -> r )
+             showErr (name,err) = name++":\n"++indent 2 err
+ 
+-infixl 6 `onFail`	-- not sure about precedence 6?
++infixl 6 `onFail`    -- not sure about precedence 6?
+ 
+ -- | @p `onFail` q@ means parse p, unless p fails, in which case
+ --   parse q instead.
+@@ -91,7 +149,6 @@ onFail :: Parser t a -> Parser t a -> Parser t a
+ --  continue _  (Committed r) = r   -- no, remain Committed
+     continue _  r             = r
+ 
+-
+ ------------------------------------------------------------------------
+ 
+ -- | Simply return the next token in the input tokenstream.
+diff --git a/src/Text/ParserCombinators/Poly/Plain.hs b/src/Text/ParserCombinators/Poly/Plain.hs
+index ed84e63..15b117a 100644
+--- a/src/Text/ParserCombinators/Poly/Plain.hs
++++ b/src/Text/ParserCombinators/Poly/Plain.hs
+@@ -1,17 +1,17 @@
+ module Text.ParserCombinators.Poly.Plain
+   ( -- * The Parser datatype
+-    Parser(P)	-- datatype, instance of: Functor, Monad, PolyParse
+-  , Result(..)	-- internal to the Parser Monad.
+-  , runParser	-- :: Parser t a -> [t] -> (Either String a, [t])
++    Parser(P)    -- datatype, instance of: Functor, Monad, PolyParse
++  , Result(..)    -- internal to the Parser Monad.
++  , runParser    -- :: Parser t a -> [t] -> (Either String a, [t])
+     -- ** Basic parsers
+-  , next	-- :: Parser t t
+-  , eof		-- :: Parser t ()
+-  , satisfy	-- :: (t->Bool) -> Parser t t
+-  , satisfyMsg	-- :: (t->Bool) -> String -> Parser t t
+-  , onFail	-- :: Parser t a -> Parser t a -> Parser t a
++  , next    -- :: Parser t t
++  , eof        -- :: Parser t ()
++  , satisfy    -- :: (t->Bool) -> Parser t t
++  , satisfyMsg    -- :: (t->Bool) -> String -> Parser t t
++  , onFail    -- :: Parser t a -> Parser t a -> Parser t a
+ 
+     -- ** Re-parsing
+-  , reparse	-- :: [t] -> Parser t ()
++  , reparse    -- :: [t] -> Parser t ()
+     -- * Re-export all more general combinators
+   , module Text.ParserCombinators.Poly.Base
+   , module Control.Applicative
+diff --git a/src/Text/ParserCombinators/Poly/Result.hs b/src/Text/ParserCombinators/Poly/Result.hs
+index b6f6f23..cef1279 100644
+--- a/src/Text/ParserCombinators/Poly/Result.hs
++++ b/src/Text/ParserCombinators/Poly/Result.hs
+@@ -1,6 +1,6 @@
+ module Text.ParserCombinators.Poly.Result
+   ( -- * The parsing result type
+-    Result(..)	-- A parsing result type, with Success, Failure, and Commitment.
++    Result(..)    -- A parsing result type, with Success, Failure, and Commitment.
+   , resultToEither
+   ) where
+ 
+diff --git a/src/Text/ParserCombinators/Poly/State.hs b/src/Text/ParserCombinators/Poly/State.hs
+index 9475bf1..a5ecb64 100644
+--- a/src/Text/ParserCombinators/Poly/State.hs
++++ b/src/Text/ParserCombinators/Poly/State.hs
+@@ -1,19 +1,19 @@
+ module Text.ParserCombinators.Poly.State
+   ( -- * The Parser datatype
+-    Parser(P)	-- datatype, instance of: Functor, Monad, PolyParse
+-  , Result(..)	-- internal to the parser monad
+-  , runParser	-- :: Parser s t a -> s -> [t] -> (Either String a, s, [t])
++    Parser(P)    -- datatype, instance of: Functor, Monad, PolyParse
++  , Result(..)    -- internal to the parser monad
++  , runParser    -- :: Parser s t a -> s -> [t] -> (Either String a, s, [t])
+     -- ** Basic parsers
+-  , next	-- :: Parser s t t
+-  , eof		-- :: Parser s t ()
+-  , satisfy	-- :: (t->Bool) -> Parser s t t
+-  , onFail	-- :: Parser s t a -> Parser s t a -> Parser s t a
++  , next    -- :: Parser s t t
++  , eof        -- :: Parser s t ()
++  , satisfy    -- :: (t->Bool) -> Parser s t t
++  , onFail    -- :: Parser s t a -> Parser s t a -> Parser s t a
+     -- ** State-handling
+   , stUpdate    -- :: (s->s) -> Parser s t ()
+   , stQuery     -- :: (s->a) -> Parser s t a
+   , stGet       -- :: Parser s t s
+     -- ** Re-parsing
+-  , reparse	-- :: [t] -> Parser s t ()
++  , reparse    -- :: [t] -> Parser s t ()
+     -- * Re-export all more general combinators
+   , module Text.ParserCombinators.Poly.Base
+   , module Control.Applicative
+diff --git a/src/Text/ParserCombinators/Poly/StateLazy.hs b/src/Text/ParserCombinators/Poly/StateLazy.hs
+index 1714d17..2b6caeb 100644
+--- a/src/Text/ParserCombinators/Poly/StateLazy.hs
++++ b/src/Text/ParserCombinators/Poly/StateLazy.hs
+@@ -1,21 +1,21 @@
+ {-# LANGUAGE CPP, GeneralizedNewtypeDeriving #-}
+ module Text.ParserCombinators.Poly.StateLazy
+   ( -- * The Parser datatype
+-    Parser(P)	-- datatype, instance of: Functor, Monad, PolyParse
+-  , Result(..)	-- internal to the parser monad
+-  , runParser	-- :: Parser s t a -> s -> [t] -> (Either String a, s, [t])
++    Parser(P)    -- datatype, instance of: Functor, Monad, PolyParse
++  , Result(..)    -- internal to the parser monad
++  , runParser    -- :: Parser s t a -> s -> [t] -> (Either String a, s, [t])
+     -- ** Basic parsers
+-  , next	-- :: Parser s t t
+-  , eof		-- :: Parser s t ()
+-  , satisfy	-- :: (t->Bool) -> Parser s t t
++  , next    -- :: Parser s t t
++  , eof        -- :: Parser s t ()
++  , satisfy    -- :: (t->Bool) -> Parser s t t
+   , onFail      -- :: Parser s t a -> Parser s t a -> Parser s t a
+-  , manyFinally	-- :: Parser s t a -> Parser s t z -> Parser s t [a]
++  , manyFinally    -- :: Parser s t a -> Parser s t z -> Parser s t [a]
+     -- ** State-handling
+   , stUpdate    -- :: (s->s) -> Parser s t ()
+   , stQuery     -- :: (s->a) -> Parser s t a
+   , stGet       -- :: Parser s t s
+     -- ** Re-parsing
+-  , reparse	-- :: [t] -> Parser s t ()
++  , reparse    -- :: [t] -> Parser s t ()
+     -- * Re-export all more general combinators
+   , module Text.ParserCombinators.Poly.Base
+   , module Control.Applicative
+@@ -27,60 +27,84 @@ import Text.ParserCombinators.Poly.Result
+ import qualified Text.ParserCombinators.Poly.StateParser as P
+ import Control.Applicative
+ 
+-#if __GLASGOW_HASKELL__
+-import Control.Exception hiding (bracket)
+-throwE :: String -> a
+-throwE msg = throw (ErrorCall msg)
+-#else
+-throwE :: String -> a
+-throwE msg = error msg
+-#endif
++import Text.ParserCombinators.Poly.Compat
++import Prelude hiding (fail)
++
++------------------------------------------------------------------------
+ 
+ -- | The only differences between a State and a StateLazy parser are the
+ --   instance of Applicative, and the type (and implementation) of runParser.
+ --   We therefore need to /newtype/ the original Parser type, to allow it
+ --   to have a different instance.
++
+ newtype Parser s t a = P (P.Parser s t a)
++
++
++------------------------------
+ #ifdef __GLASGOW_HASKELL__
+-        deriving (Functor,Monad,Commitment)
++
++    deriving ( Functor
++             , Monad
++#if MIN_VERSION_base(4,9,0)
++             , MonadFail
++#endif
++             , Commitment
++             )
++
++------------------------------
+ #else
+-instance Functor (Parser s t) where
++------------------------------
++
++instance Functor (Parser t) where
+     fmap f (P p) = P (fmap f p)
+-instance Monad (Parser s t) where
+-    return x  = P (return x)
+-    fail e    = P (fail e)
+-    (P f) >>= g = P (f >>= (\(P g')->g') . g)
+-instance Commitment (Parser s t) where
++
++instance Monad (Parser t) where
++    return x    = P (pure x)
++    fail e      = P (fail e)
++    (P f) >>= g = P (f >>= (\(P g') -> g') . g)
++
++instance Commitment (Parser t) where
+     commit (P p)   = P (commit p)
+     (P p) `adjustErr` f  = P (p `adjustErr` f)
++
+ #endif
++------------------------------
+ 
+--- | Apply a parser to an input token sequence.
+-runParser :: Parser s t a -> s -> [t] -> (a, s, [t])
+-runParser (P (P.P p)) = \s -> fromResult . p s
+-  where
+-    fromResult :: Result (z,s) a -> (a, s, z)
+-    fromResult (Success (z,s) a)  =  (a, s, z)
+-    fromResult (Failure   _   e)  =  throwE e
+-    fromResult (Committed r)      =  fromResult r
++instance Applicative (Parser s t) where
+ 
++    pure x = P (pure x)
+ 
+-instance Applicative (Parser s t) where
+-    pure f    = return f
+     --   Apply a parsed function to a parsed value.  This version
+     --   is strict in the result of the function parser, but
+     --   lazy in the result of the argument parser.  (Argument laziness is
+     --   the distinctive feature over other implementations.)
+-    (P (P.P pf)) <*> px = P (P.P (\s-> continue . pf s))
++
++    (P (P.P pf)) <*> px = P (P.P go)
++
+       where
++        go s = continue . pf s
++
+         continue (Success (z,s) f) = let (x,s',z') = runParser px s z
+                                      in Success (z',s') (f x)
+-        continue (Failure zs e)    = Failure zs e
+         continue (Committed r)     = Committed (continue r)
+-#if defined(GLASGOW_HASKELL) && GLASGOW_HASKELL > 610
+-    p  <*  q  = p `discard` q
++        continue (Failure zs e)    = Failure zs e
++
++#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ > 610
++    (<*) = discard
++    {-# INLINE (<*) #-}
+ #endif
+ 
++-- | Apply a parser to an input token sequence.
++runParser :: Parser s t a -> s -> [t] -> (a, s, [t])
++runParser (P (P.P p)) = \s -> fromResult . p s
++  where
++    fromResult :: Result (z,s) a -> (a, s, z)
++    fromResult (Success (z,s) a)  =  (a, s, z)
++    fromResult (Failure   _   e)  =  throwE e
++    fromResult (Committed r)      =  fromResult r
++
++------------------------------
++
+ instance Alternative (Parser s t) where
+     empty     = fail "no parse"
+     p <|> q   = p `onFail` q
+diff --git a/src/Text/ParserCombinators/Poly/StateParser.hs b/src/Text/ParserCombinators/Poly/StateParser.hs
+index f21ee0a..ce0a0d5 100644
+--- a/src/Text/ParserCombinators/Poly/StateParser.hs
++++ b/src/Text/ParserCombinators/Poly/StateParser.hs
+@@ -1,22 +1,31 @@
++{-# LANGUAGE CPP #-}
++
++------------------------------
++#ifndef MIN_VERSION_GLASGOW_HASKELL
++#define MIN_VERSION_GLASGOW_HASKELL(x,y,z1,z2) 0
++#endif
++-- NOTE `ghc-7.10` introduced `MIN_VERSION_GLASGOW_HASKELL`.
++------------------------------
++
+ -- | This module contains the definitions for a generic parser, with
+ --   running state.  These are the parts that are shared between the State
+ --   and StateLazy variations.  Do not import this module directly, but only
+ --   via T.P.Poly.State or T.P.Poly.StateLazy.
+ module Text.ParserCombinators.Poly.StateParser
+   ( -- * The Parser datatype
+-    Parser(P)	-- datatype, instance of: Functor, Monad, PolyParse
+-  , Result(..)	-- internal to the parser monad
++    Parser(P)    -- datatype, instance of: Functor, Monad, PolyParse
++  , Result(..)    -- internal to the parser monad
+     -- ** basic parsers
+-  , next	-- :: Parser s t t
+-  , eof		-- :: Parser s t ()
+-  , satisfy	-- :: (t->Bool) -> Parser s t t
++  , next    -- :: Parser s t t
++  , eof        -- :: Parser s t ()
++  , satisfy    -- :: (t->Bool) -> Parser s t t
+   , onFail      -- :: Parser s t a -> Parser s t a -> Parser s t a
+     -- ** State-handling
+   , stUpdate    -- :: (s->s) -> Parser s t ()
+   , stQuery     -- :: (s->a) -> Parser s t a
+   , stGet       -- :: Parser s t s
+     -- ** re-parsing
+-  , reparse	-- :: [t] -> Parser s t ()
++  , reparse    -- :: [t] -> Parser s t ()
+   ) where
+ 
+ 
+@@ -24,30 +33,89 @@ import Text.ParserCombinators.Poly.Base
+ import Text.ParserCombinators.Poly.Result
+ import Control.Applicative
+ 
++import Text.ParserCombinators.Poly.Compat
++import Prelude hiding (fail)
++
++--------------------------------------------------------------------------------
++
+ -- | This @Parser@ datatype is a fairly generic parsing monad with error
+ --   reporting, and running state.
+ --   It can be used for arbitrary token types, not just String input.
+ --   (If you do not require a running state, use module Poly.Plain instead)
++
+ newtype Parser s t a = P (s -> [t] -> Result ([t],s) a)
+ 
+ instance Functor (Parser s t) where
+     fmap f (P p) = P (\s-> fmap f . p s)
+ 
++
++------------------------------
++#if defined(__GLASGOW_HASKELL__) && (__GLASGOW_HASKELL__ >= 800)
++------------------------------
++
+ instance Applicative (Parser s t) where
+-    pure f    = return f
+-    pf <*> px = do { f <- pf; x <- px; return (f x) }
+-#if defined(GLASGOW_HASKELL) && GLASGOW_HASKELL > 610
+-    p  <*  q  = p `discard` q
++
++   pure  = pureParser
++
++   {-# INLINE pure #-}
++
++   (<*>) = ap
++
++   {-# INLINE (<*>) #-}
++
++#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ > 610
++   (<*) = discard
++   {-# INLINE (<*) #-}
+ #endif
+ 
+ instance Monad (Parser s t) where
+-    return x     = P (\s ts-> Success (ts,s) x)
+-    fail e       = P (\s ts-> Failure (ts,s) e)
+-    (P f) >>= g  = P (\s-> continue . f s)
+-      where
+-        continue (Success (ts,s) x)        = let (P g') = g x in g' s ts
+-        continue (Committed r)             = Committed (continue r)
+-        continue (Failure tss e)           = Failure tss e
++
++   (>>=) = bindParser
++
++   {-# INLINE (>>=) #-}
++
++instance MonadFail (Parser s t) where
++
++  fail = failParser
++
++  {-# INLINE fail #-}
++
++------------------------------
++#else
++------------------------------
++
++instance Applicative (Parser s t) where
++    pure = pureParser
++    pf <*> px = do { f <- pf; x <- px; pure (f x) }
++
++#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ > 610
++    (<*) = discard
++    {-# INLINE (<*) #-}
++#endif
++
++instance Monad (Parser s t) where
++    return = pureParser
++    fail   = failParser
++    (>>=)  = bindParser
++
++------------------------------
++#endif
++------------------------------
++
++pureParser :: a -> Parser s t a
++pureParser x = P (\s ts-> Success (ts,s) x)
++
++failParser :: String -> Parser s t a
++failParser e = P (\s ts-> Failure (ts,s) e)
++
++bindParser :: Parser s t a -> (a -> Parser s t b) -> Parser s t b
++bindParser (P f) k = P (\s -> continue . f s)
++  where
++  continue (Success (ts,s) x)         = let (P k') = k x in k' s ts
++  continue (Committed r)              = Committed (continue r)
++  continue (Failure ts e)             = Failure ts e
++
++------------------------------
+ 
+ instance Alternative (Parser s t) where
+     empty     = fail "no parse"
+@@ -79,7 +147,7 @@ instance Commitment (Parser s t) where
+                            r@(Committed _)  -> r )
+             showErr (name,err) = name++":\n"++indent 2 err
+ 
+-infixl 6 `onFail`	-- not sure about precedence 6?
++infixl 6 `onFail`    -- not sure about precedence 6?
+ 
+ -- | @p `onFail` q@ means parse p, unless p fails, in which case
+ --   parse q instead.
+@@ -91,7 +159,7 @@ onFail :: Parser s t a -> Parser s t a -> Parser s t a
+ (P p) `onFail` (P q) = P (\s ts-> continue s ts $ p s ts)
+       where
+         continue s ts (Failure _ _) = q s ts
+-    --  continue _ _  (Committed r)   = r	-- no, remain Committed
++    --  continue _ _  (Committed r)   = r    -- no, remain Committed
+         continue _ _  r               = r
+ 
+ ------------------------------------------------------------------------
+diff --git a/src/Text/ParserCombinators/Poly/StateText.hs b/src/Text/ParserCombinators/Poly/StateText.hs
+index 1823890..3914c1e 100644
+--- a/src/Text/ParserCombinators/Poly/StateText.hs
++++ b/src/Text/ParserCombinators/Poly/StateText.hs
+@@ -1,3 +1,12 @@
++{-# LANGUAGE CPP #-}
++
++------------------------------
++#ifndef MIN_VERSION_GLASGOW_HASKELL
++#define MIN_VERSION_GLASGOW_HASKELL(x,y,z1,z2) 0
++#endif
++-- NOTE `ghc-7.10` introduced `MIN_VERSION_GLASGOW_HASKELL`.
++------------------------------
++
+ module Text.ParserCombinators.Poly.StateText
+   ( -- * The Parser datatype
+     Parser(P)
+@@ -29,6 +38,11 @@ import qualified Data.Text.Lazy as T
+ import Data.Text.Lazy (Text)
+ import Control.Applicative
+ 
++import Text.ParserCombinators.Poly.Compat
++import Prelude hiding (fail)
++
++----------------------------------------------------------------------------
++
+ -- | This @Parser@ datatype is a specialised parsing monad with error
+ --   reporting.  Whereas the standard version can be used for arbitrary
+ --   token types, this version is specialised to Text input only.
+@@ -43,14 +57,73 @@ runParser (P p) = \s -> reTuple . resultToEither . p s
+ instance Functor (Parser s) where
+     fmap f (P p) = P (\s-> fmap f . p s)
+ 
++
++------------------------------
++#if defined(__GLASGOW_HASKELL__) && (__GLASGOW_HASKELL__ >= 800)
++------------------------------
++
++instance Applicative (Parser s) where
++
++   pure  = pureParser
++
++   {-# INLINE pure #-}
++
++   (<*>) = ap
++
++   {-# INLINE (<*>) #-}
++
++   (<*) = discard
++
++   {-# INLINE (<*) #-}
++
+ instance Monad (Parser s) where
+-    return x     = P (\s ts-> Success (ts,s) x)
+-    fail e       = P (\s ts-> Failure (ts,s) e)
+-    (P f) >>= g  = P (\s-> continue . f s)
+-      where
+-        continue (Success (ts,s) x)         = let (P g') = g x in g' s ts
+-        continue (Committed r)              = Committed (continue r)
+-        continue (Failure ts e)             = Failure ts e
++
++   (>>=) = bindParser
++
++   {-# INLINE (>>=) #-}
++
++instance MonadFail (Parser s) where
++
++  fail = failParser
++
++  {-# INLINE fail #-}
++
++------------------------------
++#else
++------------------------------
++
++instance Applicative (Parser s) where
++    pure = pureParser
++    pf <*> px = do { f <- pf; x <- px; pure (f x) }
++
++#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ > 610
++    (<*) = discard
++    {-# INLINE (<*) #-}
++#endif
++
++instance Monad (Parser s) where
++    return = pureParser
++    fail   = failParser
++    (>>=)  = bindParser
++
++------------------------------
++#endif
++------------------------------
++
++pureParser :: a -> Parser s a
++pureParser x = P (\s ts-> Success (ts,s) x)
++
++failParser :: String -> Parser s a
++failParser e = P (\s ts-> Failure (ts,s) e)
++
++bindParser :: Parser s a -> (a -> Parser s b) -> Parser s b
++bindParser (P f) k = P (\s -> continue . f s)
++  where
++  continue (Success (ts,s) x)         = let (P k') = k x in k' s ts
++  continue (Committed r)              = Committed (continue r)
++  continue (Failure ts e)             = Failure ts e
++
++------------------------------
+ 
+ instance Commitment (Parser s) where
+     commit (P p)         = P (\s-> Committed . squash . p s)
+@@ -76,13 +149,6 @@ instance Commitment (Parser s) where
+                            r@(Committed _)    -> r )
+             showErr (name,err) = name++":\n"++indent 2 err
+ 
+-instance Applicative (Parser s) where
+-    pure f    = return f
+-    pf <*> px = do { f <- pf; x <- px; return (f x) }
+-#if defined(GLASGOW_HASKELL) && GLASGOW_HASKELL > 610
+-    p  <*  q  = p `discard` q
+-#endif
+-
+ instance Alternative (Parser s) where
+     empty     = fail "no parse"
+     p <|> q   = p `onFail` q
+@@ -118,7 +184,7 @@ satisfy f = do { x <- next
+ onFail :: Parser s a -> Parser s a -> Parser s a
+ (P p) `onFail` (P q) = P (\s ts-> continue s ts $ p s ts)
+   where continue s ts (Failure _ _) = q s ts
+-    --  continue _ _  (Committed r) = r	-- no, remain Committed
++    --  continue _ _  (Committed r) = r    -- no, remain Committed
+         continue _ _  r             = r
+ 
+ ------------------------------------------------------------------------
+diff --git a/src/Text/ParserCombinators/Poly/Text.hs b/src/Text/ParserCombinators/Poly/Text.hs
+index 2708e88..29bb03b 100644
+--- a/src/Text/ParserCombinators/Poly/Text.hs
++++ b/src/Text/ParserCombinators/Poly/Text.hs
+@@ -1,3 +1,12 @@
++{-# LANGUAGE CPP #-}
++
++------------------------------
++#ifndef MIN_VERSION_GLASGOW_HASKELL
++#define MIN_VERSION_GLASGOW_HASKELL(x,y,z1,z2) 0
++#endif
++-- NOTE `ghc-7.10` introduced `MIN_VERSION_GLASGOW_HASKELL`.
++------------------------------
++
+ module Text.ParserCombinators.Poly.Text
+   ( -- * The Parser datatype
+     Parser(P)
+@@ -25,6 +34,11 @@ import qualified Data.Text.Lazy as T
+ import Data.Text.Lazy (Text)
+ import Control.Applicative
+ 
++import Text.ParserCombinators.Poly.Compat
++import Prelude hiding (fail)
++
++--------------------------------------------------------------------------------
++
+ -- | This @Parser@ datatype is a specialised parsing monad with error
+ --   reporting.  Whereas the standard version can be used for arbitrary
+ --   token types, this version is specialised to Text input only.
+@@ -37,14 +51,76 @@ runParser (P p) = resultToEither . p
+ instance Functor Parser where
+     fmap f (P p) = P (fmap f . p)
+ 
++------------------------------
++#if defined(__GLASGOW_HASKELL__) && (__GLASGOW_HASKELL__ >= 800)
++------------------------------
++
++instance Applicative Parser where
++
++   pure  = pureParser
++
++   {-# INLINE pure #-}
++
++   (<*>) = ap
++
++   {-# INLINE (<*>) #-}
++
++   (<*) = discard
++
++   {-# INLINE (<*) #-}
++
+ instance Monad Parser where
+-    return x     = P (\ts-> Success ts x)
+-    fail e       = P (\ts-> Failure ts e)
+-    (P f) >>= g  = P (continue . f)
+-      where
+-        continue (Success ts x)             = let (P g') = g x in g' ts
+-        continue (Committed r)              = Committed (continue r)
+-        continue (Failure ts e)             = Failure ts e
++
++   (>>=) = bindParser
++
++   {-# INLINE (>>=) #-}
++
++instance MonadFail Parser where
++
++  fail = failParser
++
++  {-# INLINE fail #-}
++
++------------------------------
++#else
++------------------------------
++
++instance Applicative Parser where
++    pure = pureParser
++    pf <*> px = do { f <- pf; x <- px; pure (f x) }
++
++#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ > 610
++    (<*) = discard
++    {-# INLINE (<*) #-}
++#endif
++
++instance Monad Parser where
++    return = pureParser
++    fail   = failParser
++    (>>=)  = bindParser
++
++------------------------------
++#endif
++------------------------------
++
++pureParser :: a -> Parser a
++pureParser x = P (\ts -> Success ts x)
++
++failParser :: String -> Parser a
++failParser e = P (\ts -> Failure ts e)
++
++bindParser :: Parser a -> (a -> Parser b) -> Parser b
++bindParser (P f) g = P (continue . f)
++  where
++  continue (Success ts x)             = let (P g') = g x in g' ts
++  continue (Committed r)              = Committed (continue r)
++  continue (Failure ts e)             = Failure ts e
++
++------------------------------------------------------------------------
++
++instance Alternative Parser where
++    empty     = fail "no parse"
++    p <|> q   = p `onFail` q
+ 
+ instance Commitment Parser where
+     commit (P p)         = P (Committed . squash . p)
+@@ -70,17 +146,6 @@ instance Commitment Parser where
+                            r@(Committed _)    -> r )
+             showErr (name,err) = name++":\n"++indent 2 err
+ 
+-instance Applicative Parser where
+-    pure f    = return f
+-    pf <*> px = do { f <- pf; x <- px; return (f x) }
+-#if defined(GLASGOW_HASKELL) && GLASGOW_HASKELL > 610
+-    p  <*  q  = p `discard` q
+-#endif
+-
+-instance Alternative Parser where
+-    empty     = fail "no parse"
+-    p <|> q   = p `onFail` q
+-
+ instance PolyParse Parser
+ 
+ ------------------------------------------------------------------------
+@@ -112,7 +177,7 @@ satisfy f = do { x <- next
+ onFail :: Parser a -> Parser a -> Parser a
+ (P p) `onFail` (P q) = P (\ts-> continue ts $ p ts)
+   where continue ts (Failure _ _) = q ts
+-    --  continue _  (Committed r) = r	-- no, remain Committed
++    --  continue _  (Committed r) = r    -- no, remain Committed
+         continue _  r             = r
+ 
+ ------------------------------------------------------------------------
