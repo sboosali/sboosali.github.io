@@ -47,12 +47,14 @@ CheckHtml?=tidy -errors
 
 # ^ "⦗ -errors, -e ⦘ — show only errors and warnings."
 
-# CheckCss?=
+CheckCss?=csslint
 
-# CheckJs?=
+CheckJs?=eslint
 
 CheckBash?=shellcheck
-#CheckNix?=nix-instantiate
+
+CheckNix?=nix-instantiate --parse
+#TODO CheckNix?=nix eval
 
 # CheckTarball?=tar -C /tmp -zxvf
 
@@ -98,12 +100,12 @@ run: serve
 .PHONY: run
 
 ##################################################
-build: 
+build: $(WebFiles)
 
 .PHONY: build
 
 ##################################################
-check: check-html check-bash
+check: check-html check-bash check-nix
 
 .PHONY: check
 
@@ -113,9 +115,21 @@ check: check-html check-bash
 # Targets: File Types ############################
 ##################################################
 
+$(WebFiles): $(HtmlFiles) $(CssFiles) $(JsFiles)
+
+##################################################
+
 $(HtmlFiles): check-html
 
+$(CssFiles): #TODO check-css
+
+$(JsFiles): check-js
+
+##################################################
+
 $(BashFiles): check-bash
+
+$(NixFiles): check-nix
 
 ##################################################
 # Targets: Linters ###############################
@@ -126,10 +140,22 @@ check-html:
 .PHONY: check-html
 
 ##################################################
+check-css:
+	$(CheckCss) $(CssFiles) 2>/dev/null
+
+.PHONY: check-css
+
+##################################################
 check-bash:
 	$(CheckBash) $(BashFiles) 2>/dev/null
 
 .PHONY: check-bash
+
+##################################################
+check-nix:
+	$(CheckNix) $(NixFiles) 2>/dev/null >/dev/null
+
+.PHONY: check-nix
 
 # ##################################################
 # check-css: $(CssFiles)
