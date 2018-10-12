@@ -1,5 +1,5 @@
 ##################################################
-# Makefile Settings & Directives
+# Makefile Settings/Directives
 ##################################################
 
 SHELL=bash
@@ -7,18 +7,37 @@ SHELL=bash
 .EXPORT_ALL_VARIABLES:
 
 ##################################################
-# Makefile Customizeable Variables
+# Customizeable Variables ########################
 ##################################################
 
 Port?=2666
 
+###BaseDirectory?=$(CURDIR)
+
 ##################################################
+# Programs:
 
 Open?=xdg-open
 
 Python?=python
 
-BaseDirectory?=$(CURDIR)
+CheckHtml?=tidy
+
+# CheckCss?=
+
+# CheckJs?=
+
+##################################################
+# Files ##########################################
+##################################################
+
+IndexFile=index.html
+
+HtmlFiles=*.html
+
+CssFiles=css/*.css
+
+JsFiles=js/*.js
 
 ##################################################
 # Targets ########################################
@@ -43,10 +62,35 @@ build:
 .PHONY: build
 
 ##################################################
+check: check-html check-css check-js
+
+.PHONY: check
+
+##################################################
+# Linter Targets #################################
+##################################################
+check-html: $(HtmlFiles)
+	$(CheckHtml) $(HtmlFiles)
+
+.PHONY: check-html
+
+##################################################
+check-css: $(CssFiles)
+#TODO#	$(CheckCss) $(CssFiles)
+
+.PHONY: check-css
+
+##################################################
+check-js: $(JsFiles)
+#TODO#	$(CheckJs) $(JsFiles)
+
+.PHONY: check-js
+
+##################################################
 # Fake Targets (never return, or always succeed) #
 ##################################################
 open:
-	$(Open) index.html
+	$(Open) $(IndexFile)
 
 .PHONY: open
 

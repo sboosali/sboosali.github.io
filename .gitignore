@@ -4,6 +4,8 @@ ignore/
 notes
 goals
 TODO
+TODO.md
+TODO.org
 cbits/main
 .projectile
 result/
