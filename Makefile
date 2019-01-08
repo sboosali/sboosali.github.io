@@ -85,7 +85,9 @@ NixFiles=nix/*.nix
 ##################################################
 # Targets ########################################
 ##################################################
-default: $(Target)
+
+default: open-blog
+#default: $(Target)
 
 .PHONY: default
 
@@ -173,7 +175,13 @@ check-nix:
 check-markdown:
 	find -L . -name '*.md' -exec pandoc -f markdown -t html '{}' ';'
 
-.PHONY: list-html
+.PHONY: check-markdown
+
+##################################################
+build-blog:
+	pandoc --standalone -f markdown -t html --css "../css/post.css" blog/TSP.md > blog/TSP.html
+
+.PHONY: build-blog
 
 ##################################################
 # Fake Targets (never return, or always succeed) #
@@ -182,6 +190,13 @@ open:
 	$(Open) $(IndexFile)
 
 .PHONY: open
+
+##################################################
+open-blog: build-blog
+
+	$(Open) blog/TSP.html
+
+.PHONY: open-blog
 
 ##################################################
 serve:

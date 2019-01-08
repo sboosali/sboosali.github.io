@@ -1,0 +1,30 @@
+/************************************************/
+
+.image-link-preview {
+
+    background-image: url('../images/MagusOfTheDisk.png');
+    visibility:       visible; /*hidden;*/
+    height:           100px;
+    width:            100px;
+
+}
+
+/************************************************/
+
+.image-link {
+
+    background-image: url('../images/MagusOfTheDisk.png');
+    visibility:       visible; /*hidden;*/
+    height:           100px;
+    width:            100px;
+
+}
+
+/************************************************/
+
+a {
+    color: red;
+
+}
+
+/************************************************/
