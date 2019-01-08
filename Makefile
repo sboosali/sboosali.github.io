@@ -170,6 +170,12 @@ check-nix:
 # .PHONY: check-js
 
 ##################################################
+check-markdown:
+	find -L . -name '*.md' -exec pandoc -f markdown -t html '{}' ';'
+
+.PHONY: list-html
+
+##################################################
 # Fake Targets (never return, or always succeed) #
 ##################################################
 open:
