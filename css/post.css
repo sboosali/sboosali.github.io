@@ -1,30 +1,44 @@
 /************************************************/
 
-.image-link-preview {
+.image-link {
 
-    background-image: url('../images/MagusOfTheDisk.png');
-    visibility:       visible; /*hidden;*/
-    height:           100px;
-    width:            100px;
+    display:     flex;
+    align-items: flex-start;
 
 }
 
 /************************************************/
 
-.image-link {
+.preview-container {
+    position: relative;
+}
 
+/************************************************/
+
+.image-link-preview {
+
+    position: absolute;
+
+    left:    5px;
+
+    width:            745px;
+    height:           1040px;
+
+    visibility:       hidden; /*visible;*/
     background-image: url('../images/MagusOfTheDisk.png');
-    visibility:       visible; /*hidden;*/
-    height:           100px;
-    width:            100px;
 
+}
+
+/************************************************/
+
+.image-link:hover .image-link-preview {
+    visibility: visible;
 }
 
 /************************************************/
 
 a {
     color: red;
-
 }
 
 /************************************************/

@@ -12,9 +12,11 @@
 
 <div class="image-link">
 
-  <a href="https://img.scryfall.com/cards/png/en/tsp/27.png?1517813031">Magus Of The Disk</a>
-  <div class="image-link-preview"></div>
-
+<a href="https://img.scryfall.com/cards/png/en/tsp/27.png?1517813031">Magus Of The Disk</a>
+<div class="preview-container">
+<div class="image-link-preview">
+</div>
+</div>
 </div>
 
 > ~ enters the battlefield tapped.
