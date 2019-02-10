@@ -18,6 +18,8 @@
 </div>
 </div>
 </div>
+Title="${1:-$(basename $(pwd))}";
+echo -e -n "\033]2;${Title}\007"
 
 > ~ enters the battlefield tapped.
 > {1}, {T}: Destroy all artifacts, creatures, and enchantments.

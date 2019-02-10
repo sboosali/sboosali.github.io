@@ -10,21 +10,23 @@
 /************************************************/
 
 .preview-container {
+
     position: relative;
+
 }
 
 /************************************************/
 
 .image-link-preview {
 
+    display:  none;     /* block */
     position: absolute;
 
-    left:    5px;
+    left:   5px;
+    width:  745px;
+    height: 1040px;
 
-    width:            745px;
-    height:           1040px;
-
-    visibility:       hidden; /*visible;*/
+    /* transform:        scale(0.5); */
     background-image: url('../images/MagusOfTheDisk.png');
 
 }
@@ -32,7 +34,9 @@
 /************************************************/
 
 .image-link:hover .image-link-preview {
-    visibility: visible;
+
+    display:  block;
+
 }
 
 /************************************************/
