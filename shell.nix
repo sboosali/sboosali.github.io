@@ -1,5 +1,5 @@
 ##################################################
-{ nixpkgs ? <nixpkgs>
+{ nixpkgs ? (import ./nix/nixpkgs.nix)  # <nixpkgs>
 , pkgs    ? (import nixpkgs {}).pkgs
 }:
 

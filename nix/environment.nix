@@ -54,9 +54,10 @@ stdenv.mkDerivation {
   • JS: Interpreter, Minifier, Type System.
   '';
 
-  # The packages in the `buildInputs` list will be added to the PATH in our shell
-
   #----------------------------#
+
+  # The packages in the « buildInputs » list
+  # will be added to the « PATH » in our shell.
 
   buildInputs = programs;
 
@@ -66,6 +67,16 @@ stdenv.mkDerivation {
 
   #----------------------------#
 
-}
+   # « installPhase » is « make install » by default.
 
+   installPhase = ''
+
+     mkdir -p $out/
+
+     InstallDirectory=$out make install
+   '';
+
+  #----------------------------#
+
+}
 ##################################################

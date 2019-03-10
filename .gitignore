@@ -11,6 +11,7 @@ cbits/main
 result/
 result
 ghcid.txt
+./out
 
 # Haskell
 dist/
