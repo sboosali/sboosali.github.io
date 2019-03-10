@@ -25,7 +25,7 @@ InstallDirectory ?=./out
 # Programs:
 #------------------------------------------------#
 
-Open ?=xdg-open
+Pandoc ?=pandoc
 
 #------------------------------------------------#
 
@@ -34,6 +34,10 @@ Python ?=python
 Serve  ?=$(Python) -m SimpleHTTPServer $(Port)
 
 # ^ server program.
+
+#------------------------------------------------#
+
+Open ?=xdg-open
 
 #------------------------------------------------#
 
@@ -60,7 +64,18 @@ CheckNix	?=nix-instantiate --parse
 # Constants ######################################
 ##################################################
 
+BlogFiles=blog/TSP.html blog/PLC.html blog/FUT.html
+
+#------------------------------------------------#
+
 IndexFile=index.html
+
+CssPostFile=../css/post.css
+
+# ^ NOTE:
+#   the CSS path is relative to the desintation (i.e. « ./blog »).
+
+#------------------------------------------------#
 
 HtmlFiles=html/*.html
 
@@ -92,10 +107,38 @@ NixJsonFiles=nix/*.json
 # Targets ########################################
 ##################################################
 
-default: open-index
+default: blog
 
 .PHONY: default
 
+#------------------------------------------------#
+# File Targets ----------------------------------#
+#------------------------------------------------#
+
+blog/%.html : md/%.md
+
+	mkdir -p ./blog
+
+	$(Pandoc)  --standalone  --from markdown  --to html  --css $(CssPostFile)  $<   >   $@
+
+# e.g.
+#     $ pandoc  --standalone  --from markdown  --to html  --css ./css/post.css  --metadata pagetitle="PLC"  md/PLC.md  >  blog/PLC.html
+
+# --metadata pagetitle="$<"
+
+#------------------------------------------------#
+
+# shell: $(NixFiles) # $(NixJsonFiles)
+
+# 	$(CheckNix) ./shell.nix
+
+# 	touch                           "./shell"
+# 	echo "#!/bin/bash"           >> "./shell"
+# 	echo "nix-shell ./shell.nix" >> "./shell"
+# 	chmod +x ./shell
+
+#------------------------------------------------#
+# Standard Targets ------------------------------#
 #------------------------------------------------#
 
 build: $(WebFiles)
@@ -128,40 +171,34 @@ install: build
 
 .PHONY: install
 
-##################################################
-# File Targets ###################################
-##################################################
+#------------------------------------------------#
+# Blog ------------------------------------------#
 #------------------------------------------------#
 
-shell: $(NixFiles) # $(NixJsonFiles)
+blog: $(BlogFiles)
 
-	$(CheckNix) ./shell.nix
-
-	touch                           "./shell"
-	echo "#!/bin/bash"           >> "./shell"
-	echo "nix-shell ./shell.nix" >> "./shell"
-	chmod +x ./shell
+.PHONY: blog
 
 #------------------------------------------------#
 ##################################################
 # Targets: File Types ############################
 ##################################################
 
-$(WebFiles): $(HtmlFiles) $(CssFiles) $(JsFiles)
+# $(WebFiles): $(HtmlFiles) $(CssFiles) $(JsFiles)
 
-#------------------------------------------------#
+# #------------------------------------------------#
 
-$(HtmlFiles): check-html
+# $(HtmlFiles): check-html
 
-$(CssFiles): #TODO check-css
+# $(CssFiles): #TODO check-css
 
-$(JsFiles): check-js
+# $(JsFiles): check-js
 
-#------------------------------------------------#
+# #------------------------------------------------#
 
-$(BashFiles): check-bash
+# $(BashFiles): check-bash
 
-$(NixFiles): check-nix
+# $(NixFiles): check-nix
 
 ##################################################
 # Targets: Linters ###############################
@@ -210,20 +247,13 @@ check-nix:
 #------------------------------------------------#
 
 check-markdown:
-	find -L . -name '*.md' -exec pandoc -f markdown -t html '{}' ';'
+	find -L . -name '*.md' -exec $(Pandoc) -f markdown -t html '{}' ';'
 
 .PHONY: check-markdown
 
 ##################################################
 # Building #######################################
 ##################################################
-#------------------------------------------------#
-
-build-blog:
-	pandoc --standalone -f markdown -t html --css "../css/post.css" blog/TSP.md > blog/TSP.html
-
-.PHONY: build-blog
-
 #------------------------------------------------#
 ##################################################
 # Development ####################################
@@ -238,18 +268,20 @@ run: serve
 ##################################################
 # Fake Targets (never return, or always succeed) #
 ##################################################
-open:
-	$(Open) $(IndexFile)
+
+open: open-index
 
 .PHONY: open
 
 #------------------------------------------------#
+
 open-index:
 	$(Open) $(IndexFile)
 
 .PHONY: open-index
 
 #------------------------------------------------#
+
 open-blog: build-blog
 
 	$(Open) blog/TSP.html
@@ -258,14 +290,16 @@ open-blog: build-blog
 
 #------------------------------------------------#
 
-test: build open
-
-.PHONY: test
-
-#------------------------------------------------#
 serve:
 	$(Serve)
 
 .PHONY: serve
+
+#------------------------------------------------#
+
+clean:
+	rm -f blog/*.html
+
+.PHONY: clean
 
 ##################################################
