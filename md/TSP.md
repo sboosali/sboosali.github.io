@@ -6,6 +6,24 @@
 
 "Modernized" — to "modernize" a card, its templating may be cleaned up, deprecated keywords are replaced (e.g. `Islandwalk` becoming `Flying`), obsolete mechanics are replaced too (e.g. Color Hosing becoming Ability Hosing, like Blue Hate becoming Instant Hate or Flying Hate); e.g. Ante and Graveyard Order Matters become removed).
 
+## Mechanics
+
+### `Morph` in `TSP`
+
+TODO
+
+### `Madness` in `TSP`
+
+TODO
+
+### `Suspend` in `TSP`
+
+TODO
+
+### `Echo` in `TSP`
+
+TODO
+
 ## Cards
 
 ### `Magus Of The Disk`
