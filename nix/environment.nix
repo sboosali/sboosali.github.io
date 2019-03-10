@@ -29,9 +29,9 @@ stdenv.mkDerivation {
   description = ''
   Programs for web development:
 
-  • HTML/CSS/JS (and Bash): Linters.
-  • JS: Package Manager, Build Tool.
-  • JS: Interpreter, Minifier.
+  • HTML/CSS/JS (+ Bash/JSON): Linters.
+  • JS: Package Manager, Build Tool, Project Scaffolding.
+  • JS: Interpreter, Minifier, Type System.
   '';
 
 }
