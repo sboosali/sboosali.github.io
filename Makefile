@@ -265,6 +265,16 @@ run: serve
 .PHONY: run
 
 #------------------------------------------------#
+
+shake:
+
+#TODO	cabal new-build hs/shake.cabal
+
+	./hs/shake.hs
+
+.PHONY: shake
+
+#------------------------------------------------#
 ##################################################
 # Fake Targets (never return, or always succeed) #
 ##################################################
