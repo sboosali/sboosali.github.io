@@ -31,6 +31,10 @@ report.html
 .stack-work/
 cabal.project.local
 
+# JavaScript
+node_modules/
+package-lock.json
+
 # Emacs
 \#*
 *~
@@ -41,4 +45,3 @@ TAGS
 
 # OS X
 .DS_Store
-
