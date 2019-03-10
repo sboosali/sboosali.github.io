@@ -7,18 +7,26 @@
     <meta name="【sboo】Haskell and Pitbulls"
           content="【sboo】Homepage, Haskell patches, Haskell documentation.">
     
-    <link rel="stylesheet" type="text/css" href="css/site.css">
+    <link rel="stylesheet"
+          href="css/site.css"
+          type="text/css"
+          >
+
+    <link rel="icon"
+          href="./images/favicon.png"
+          type="image/png"
+          >
 
     <title>[sboo] Haskell and Pitbulls</title>
 
   </head>
+
   <!----------------------------------------------->
   <body>
 
     <!----------------------------------------------->
-    <hr/>
 
-    <div> Blog </div>
+    <h1><div> Blog </div></h1>
     <br/>
 
     <a href="blog/TSP.html"> TSP </a>
@@ -27,7 +35,7 @@
     <!----------------------------------------------->
     <hr/>
 
-    <div> Patches </div>
+    <h1><div> Patches </div></h1>
     <br/>
 
     <a href="patches/polyparse.diff"> polyparse.diff </a>
@@ -39,7 +47,7 @@
     <!----------------------------------------------->
     <hr/>
 
-    <div> Documentation </div>
+    <h1><div> Documentation </div></h1>
     <br/>
 
     <a href="documentation/enumerate-0.2.1/index.html"> enumerate.html </a>
@@ -56,6 +64,76 @@
 
     <!----------------------------------------------->
     <hr/>
+
+    <h1><div> Videos </div></h1>
+    <br/>
+
+    <div> Lullaby for a Pitbull: </div>
+
+    <video controls
+           <!-- ^ the video widget has controls:  volume  Increasing decreasing / muting; video seeking; pause/resume playback. -->
+
+           muted
+           autoplay
+           <!-- ^ autoplay the video, but (initially) silently. -->
+
+           poster="./videos/pitbull-lullaby.jpg"
+           <!-- ^ an image URI. show this thumbnail while the video is downloading. -->
+
+           preload=auto
+           <!-- ^ preload the whole video file. -->
+
+           width="200"
+           height="200"
+           <!-- ^ in absolute CSS pixels. -->
+
+           >
+
+    <source src="./videos/pitbull-lullaby.webm"
+            type="video/webm"
+            >
+
+    <source src="./videos/pitbull-lullaby.mp4"
+            type="video/mp4"
+            >
+
+(Your browser may be too old for embedded videos. <a href="./videos/pitbull-lullaby.mp4" >Click this link to watch the non-embedded video</a>.)
+
+    </video>
+    <br/>
+
+    <!----------------------------------------------->
+    <hr/>
+
+    <h1><div> (Testing HTML) </div></h1>
+
+    <label for="browser-form" >
+      Choose a browser from this list (e.g. "<sample>re</sample>" should match/autocomplete both "Firefox" and "Internet Explorer"):
+    </label>
+
+    <input list="browsers-list"
+           id="browser-form"
+           name="browser-form"
+           />
+
+    <datalist id="browsers-list" >
+      <option value="Chrome">
+      <option value="Firefox">
+      <option value="Internet Explorer">
+      <option value="Opera">
+      <option value="Safari">
+      <option value="Microsoft Edge">
+    </datalist>
+
+    <!----------------------------------------------->
+    <hr/>
+
+    <!-- TODO -->
+    
+
+    <!----------------------------------------------->
+    <hr/>
   </body>
+
   <!----------------------------------------------->
 </html>

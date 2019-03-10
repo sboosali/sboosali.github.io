@@ -7,7 +7,7 @@ SHELL=bash
 .EXPORT_ALL_VARIABLES:
 
 ##################################################
-# Customizeable Variables: Installation ########## 
+# Customizeable Variables: Installation ##########
 ##################################################
 
 Port?=2666
@@ -86,7 +86,7 @@ NixFiles=nix/*.nix
 # Targets ########################################
 ##################################################
 
-default: open-blog
+default: open-index
 #default: $(Target)
 
 .PHONY: default
@@ -190,6 +190,12 @@ open:
 	$(Open) $(IndexFile)
 
 .PHONY: open
+
+##################################################
+open-index:
+	$(Open) $(IndexFile)
+
+.PHONY: open-index
 
 ##################################################
 open-blog: build-blog
