@@ -39,8 +39,7 @@ import qualified "shake" Development.Shake          as Shake
 
 import           "shake" Development.Shake          ((%>))
 
-import           "shake" Development.Shake.FilePath ((</>), (-<.>))
---import           "shake" Development.Shake.FilePath ((</>), (<.>), (-<.>))
+import           "shake" Development.Shake.FilePath ((</>), (<.>), (-<.>))
 
 --------------------------------------------------
 
@@ -106,7 +105,7 @@ shakeRules = do
   buildDirectory <- io getCacheDirectory
   let buildFile = (buildDirectory </>) :: FilePath -> FilePath
 
-  Shake.action needBlogFiles
+  Shake.action (needBlogFiles buildFile)
 
   buildFile "posts//*.html" %> fromMarkdown
 
@@ -116,26 +115,34 @@ shakeRules = do
 
   where
 
-  needBlogFiles :: Shake.Action ()
-  needBlogFiles = do
+  needBlogFiles :: (FilePath -> FilePath) -> Shake.Action ()
+  needBlogFiles buildFile = do
 
-    blogFiles <- getBlogFiles
+    blogFiles <- getBlogFiles buildFile
 
     Shake.need blogFiles
 
-  getBlogFiles :: Shake.Action [FilePath]
-  getBlogFiles = do
+  getBlogFiles :: (FilePath -> FilePath) -> Shake.Action [FilePath]
+  getBlogFiles buildFile = do
 
     mdFiles <- getMarkdownFiles
 
-    let htmlFiles = mdFiles
-    return htmlFiles
+    let htmlFiles = mdFiles <&> (-<.> "html")
+
+    let postFiles = htmlFiles <&> asPostFile
+
+    return postFiles
+
+    where
+
+    asPostFile :: FilePath -> FilePath
+    asPostFile = buildFile . ("posts//" </>)
 
 --------------------------------------------------
 -- Constants -------------------------------------
 --------------------------------------------------
 
-author = "Spios Boosalis"
+author = "Spiros Boosalis"
 
 --tags = [ "mtg" ]
 
@@ -203,9 +210,10 @@ xdgNamespace = "sboo-io"
 
 data CompileMarkdown = CompileMarkdown
 
-  { md   :: FilePath
-  , html :: FilePath
-  , css  :: FilePath
+  { md    :: FilePath
+  , html  :: FilePath
+  , css   :: FilePath
+  , title :: String
   }
 
   deriving (Show,Eq,Ord,Generic)
@@ -216,10 +224,10 @@ data CompileMarkdown = CompileMarkdown
 
 cleanRule :: Shake.Rules ()
 cleanRule = Shake.phony "clean" do
+  io do
+    buildDirectory <- getCacheDirectory
 
-  buildDirectory <- io getCacheDirectory
-
-  io $ Shake.removeFiles buildDirectory ["//*"]
+    Shake.removeFiles buildDirectory ["//*"]
 
   --NOTE-- « Shake.removeFiles _ ["//*"] » means:
   --       delete everything inside the directory, but not the directory itself.
@@ -230,9 +238,17 @@ listRule :: Shake.Rules ()
 listRule = Shake.phony "list" do
   io do
     buildDirectory <- getCacheDirectory
-    buildFiles <- Shake.getDirectoryFilesIO buildDirectory ["//*"]
 
-    traverse_ putStrLn buildFiles
+    printDivider
+
+    whenM (Directory.doesDirectoryExist buildDirectory) do
+
+      relativeFiles  <- Shake.getDirectoryFilesIO buildDirectory ["//*"]
+      absolutePaths  <- return (relativeFiles <&> (buildDirectory </>))
+      canonicalPaths <- absolutePaths & traverse Directory.canonicalizePath
+
+      traverse_ putStrLn canonicalPaths
+      printDivider
 
 --------------------------------------------------
 -- Actions ---------------------------------------
@@ -241,17 +257,17 @@ listRule = Shake.phony "list" do
 fromMarkdown :: FilePath -> Shake.Action ()
 fromMarkdown html = do
 
-  Shake.need [ md, css ]
-
   runCompileMarkdown config
 
   where
 
-  md = File.replaceDirectory "md" (html -<.> "md")
+  name = File.takeBaseName html
+
+  md = asMarkdownFile (name <.> "md")
 
   css = cssPostFile
 
-  config = CompileMarkdown { md, html, css }
+  config = CompileMarkdown { md, html, css, title = name }
 
 --------------------------------------------------
 -- Programs --------------------------------------
@@ -333,7 +349,12 @@ $ pandoc  --standalone  --from markdown  --to html  --css "$CSS.css"  "$MD.md"  
 -}
 
 runCompileMarkdown :: (Shake.CmdResult r) => CompileMarkdown -> Shake.Action r
-runCompileMarkdown CompileMarkdown{ css, md, html } = pandoc options arguments
+runCompileMarkdown CompileMarkdown{ css, md, html, title } = do
+
+  Shake.need [ css, md ]
+
+  pandoc options arguments
+
   where
 
   options =
@@ -346,10 +367,11 @@ runCompileMarkdown CompileMarkdown{ css, md, html } = pandoc options arguments
   arguments = filterBlanks
 
     [ "--standalone"
-    , "--from markdown"
-    , "--to html"
-    , "--css " <> css
---  , F.formatToString ("--css " % F.string) css
+    , "--from=markdown"
+    , "--to=html"
+    , "--css=" <> css
+    , "--metadata", "pagetitle=" <> title
+--TODO , F.formatToString ("--css " % F.string) css
     , md
     , ""
     ]
@@ -401,6 +423,13 @@ filterBlanks = filter (not . isBlank)
   where
 
   isBlank = all Char.isSpace
+
+--------------------------------------------------
+
+printDivider :: IO ()
+printDivider = do
+
+  putStrLn "----------------------------------------"
 
 --------------------------------------------------
 -- EOF -------------------------------------------
