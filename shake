@@ -1,0 +1,98 @@
+#!/usr/bin/env cabal
+
+{- cabal:
+
+  build-depends: base     ^>= 4.12
+               , shake    ^>= 0.17
+
+-}
+
+--------------------------------------------------
+
+{-# LANGUAGE PackageImports #-}
+
+--------------------------------------------------
+
+{-| 
+
+-}
+
+--------------------------------------------------
+-- Imports ---------------------------------------
+--------------------------------------------------
+
+import qualified "shake" Development.Shake          as Shake
+import qualified "shake" Development.Shake.FilePath as Shake
+
+import           "shake" Development.Shake          ((%>))
+import           "shake" Development.Shake.FilePath ((-<.>))
+
+--------------------------------------------------
+
+import qualified "base" Data.Char as Char
+
+import "base" Data.Maybe
+
+import "base" Prelude
+
+--------------------------------------------------
+-- Main ------------------------------------------
+--------------------------------------------------
+
+main :: IO ()
+main = Shake.shakeArgs options rules
+
+--------------------------------------------------
+
+options :: Shake.ShakeOptions
+options = Shake.shakeOptions
+
+--------------------------------------------------
+
+rules :: Shake.Rules ()
+rules = do
+
+  Shake.want blogFiles
+
+  "*.html" %> fromMarkdown
+
+  where
+
+--------------------------------------------------
+-- Constants -------------------------------------
+--------------------------------------------------
+
+blogFiles :: [FilePath]
+blogFiles = filterBlanks
+
+  [ "TSP.html"
+  , "PLC.html"
+  , "FUT.html"
+  , ""
+  , ""
+  ]
+
+--------------------------------------------------
+-- Actions ---------------------------------------
+--------------------------------------------------
+
+fromMarkdown :: FilePath -> Shake.Action ()
+fromMarkdown out =
+
+      contents <- Shake.readFileLines $ out -<.> "txt"
+      Shake.need contents
+      Shake.cmd "tar -cf" [out] contents
+
+--------------------------------------------------
+-- Utilities -------------------------------------
+--------------------------------------------------
+
+filterBlanks :: [String] -> [String]
+filterBlanks = filter (not . isBlank)
+  where
+
+  isBlank = all Char.isSpace
+
+--------------------------------------------------
+-- EOF -------------------------------------------
+--------------------------------------------------

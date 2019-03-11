@@ -270,7 +270,7 @@ shake:
 
 #TODO	cabal new-build hs/shake.cabal
 
-	./hs/shake.hs
+	./shake
 
 .PHONY: shake
 
