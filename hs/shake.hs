@@ -73,25 +73,129 @@ import "spiros" Prelude.Spiros
 --------------------------------------------------
 
 main :: IO ()
-main = Shake.shakeArgs shakeOptions shakeRules
+main = do
+  shakeOptions <- getShakeOptions
+  Shake.shakeArgs shakeOptions shakeRules
 
 --------------------------------------------------
 
-shakeOptions :: Shake.ShakeOptions
-shakeOptions = Shake.shakeOptions
-  { Shake.shakeThreads = 6
-  }
+getShakeOptions :: IO Shake.ShakeOptions
+getShakeOptions = do
+
+  shakeDirectory <- getShakeCacheDirectory
+
+  let options = Shake.shakeOptions
+       { Shake.shakeThreads = 6
+       , Shake.shakeFiles   = shakeDirectory
+       }
+
+  return options
+
+  where
+
+  getShakeCacheDirectory :: IO FilePath
+  getShakeCacheDirectory = do
+    Directory.getXdgDirectory Directory.XdgCache ("shake" </> xdgNamespace)
+    -- e.g. « ~/.cache/shake/sboo-io ».
 
 --------------------------------------------------
 
 shakeRules :: Shake.Rules ()
 shakeRules = do
 
-  Shake.want ["../blog/*.html"] --TODO blogHtmlFiles
+  buildDirectory <- io getCacheDirectory
+  let buildFile = (buildDirectory </>) :: FilePath -> FilePath
 
-  "../blog/*.html" %> fromMarkdown
+  Shake.action needBlogFiles
 
-  clean
+  buildFile "posts//*.html" %> fromMarkdown
+
+  cleanRule
+
+  listRule
+
+  where
+
+  needBlogFiles :: Shake.Action ()
+  needBlogFiles = do
+
+    blogFiles <- getBlogFiles
+
+    Shake.need blogFiles
+
+  getBlogFiles :: Shake.Action [FilePath]
+  getBlogFiles = do
+
+    mdFiles <- getMarkdownFiles
+
+    let htmlFiles = mdFiles
+    return htmlFiles
+
+--------------------------------------------------
+-- Constants -------------------------------------
+--------------------------------------------------
+
+author = "Spios Boosalis"
+
+--tags = [ "mtg" ]
+
+copyright = "© " <> author <> " " <> licenseSPDX -- TODO Formatting. 
+
+--------------------------------------------------
+
+licenseSPDX = "CC-BY-NC-SA-4.0"
+licenseName = "Creative Commons Attribution Non Commercial Share Alike 4.0 International"
+licenseFile = "../text/CC-BY-NC-SA-4.0/LICENSE"
+
+--------------------------------------------------
+
+mdDirectory :: FilePath
+mdDirectory = "../md"
+
+--------------------------------------------------
+
+cssDirectory :: FilePath
+cssDirectory = "../css"
+
+--------------------------------------------------
+
+jsDirectory :: FilePath
+jsDirectory = "../js"
+
+--------------------------------------------------
+
+videoDirectory :: FilePath
+videoDirectory = "../video"
+
+--------------------------------------------------
+
+imageDirectory :: FilePath
+imageDirectory = "../image"
+
+--------------------------------------------------
+
+nixDirectory :: FilePath
+nixDirectory = "../nix"
+
+--------------------------------------------------
+
+hsDirectory :: FilePath
+hsDirectory = "../hs"
+
+--------------------------------------------------
+
+bashDirectory :: FilePath
+bashDirectory = "../bash"
+
+--------------------------------------------------
+
+cssPostFile :: FilePath
+cssPostFile = asCssFile "post.css"
+
+--------------------------------------------------
+
+xdgNamespace :: FilePath
+xdgNamespace = "sboo-io"
 
 --------------------------------------------------
 -- Types -----------------------------------------
@@ -107,57 +211,11 @@ data CompileMarkdown = CompileMarkdown
   deriving (Show,Eq,Ord,Generic)
 
 --------------------------------------------------
-
-
-
---------------------------------------------------
--- Constants -------------------------------------
+-- Ruless ----------------------------------------
 --------------------------------------------------
 
-blogHtmlFiles :: [FilePath]
-blogHtmlFiles = (fmap mkBlogFile . filterBlanks)
-
-  [ "TSP.html"
-  , "PLC.html"
-  , "FUT.html"
-  , ""
-  , ""
-  ]
-
-  where
-
-  mkBlogFile = ("../blog" </>)
-
---------------------------------------------------
-
-cssPostFile :: FilePath
-cssPostFile = "../css/post.css"
-
---------------------------------------------------
--- Actions ---------------------------------------
---------------------------------------------------
-
-fromMarkdown :: FilePath -> Shake.Action ()
-fromMarkdown htmlFile = do
-
-  Shake.need [ mdFile ]
-  runCompileMarkdown config
-
-  where
-
-  mdFile = File.replaceDirectory "md" (htmlFile -<.> "md")
-
-  config = CompileMarkdown
-
-    { md   = mdFile
-    , html = htmlFile
-    , css  = cssPostFile
-    }
-
---------------------------------------------------
-
-clean :: Shake.Rules ()
-clean = Shake.phony "clean" do
+cleanRule :: Shake.Rules ()
+cleanRule = Shake.phony "clean" do
 
   buildDirectory <- io getCacheDirectory
 

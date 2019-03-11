@@ -1,6 +1,7 @@
 # NOTES
 
-## `shake` package
+
+## `shake` (package)
 
 ### ``
 
@@ -67,7 +68,7 @@ data CmdOption
 ```
 
 
-## `pandoc` program
+## `pandoc` (program)
 
 e.g. 
 
@@ -77,4 +78,13 @@ pandoc  --standalone  --from markdown  --to html  --css X.css  Y.md   >  Z.html
 
 
 
+## CC-BY-NC-SA-4.0 (license)
+
+<https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode>
+<https://spdx.org/licenses/CC-BY-NC-SA-4.0.html>
+
+"CC-BY-NC-SA-4.0" abbreviates :Creative Commons Attribution Non Commercial Share Alike 4.0 International".
+
+
 ## 
+

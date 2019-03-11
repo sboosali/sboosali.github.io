@@ -95,7 +95,7 @@ VideoFiles=videos/*.*
 
 #------------------------------------------------#
 
-BashFiles=scripts/*.sh
+BashFiles=bash/*
 
 NixFiles=nix/*.nix
 
