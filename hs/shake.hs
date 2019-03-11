@@ -2,8 +2,9 @@
 
 {- cabal:
 
-  build-depends: base     ^>= 4.12
-               , shake    ^>= 0.17
+  build-depends: base       ^>= 4.12
+               , shake      ^>= 0.17
+               , formatting ^>= 6.3
 
 -}
 
@@ -25,7 +26,12 @@ import qualified "shake" Development.Shake          as Shake
 import qualified "shake" Development.Shake.FilePath as Shake
 
 import           "shake" Development.Shake          ((%>))
-import           "shake" Development.Shake.FilePath ((-<.>))
+import           "shake" Development.Shake.FilePath ((</>), (<.>), (-<.>))
+
+--------------------------------------------------
+
+import qualified "formatting" Formatting as F
+import           "formatting" Formatting ((%))
 
 --------------------------------------------------
 
@@ -52,18 +58,16 @@ options = Shake.shakeOptions
 rules :: Shake.Rules ()
 rules = do
 
-  Shake.want blogFiles
+  Shake.want blogHtmlFiles
 
   "*.html" %> fromMarkdown
-
-  where
 
 --------------------------------------------------
 -- Constants -------------------------------------
 --------------------------------------------------
 
-blogFiles :: [FilePath]
-blogFiles = filterBlanks
+blogHtmlFiles :: [FilePath]
+blogHtmlFiles = (fmap mkBlogFile . filterBlanks)
 
   [ "TSP.html"
   , "PLC.html"
@@ -72,26 +76,44 @@ blogFiles = filterBlanks
   , ""
   ]
 
+  where
+
+  mkBlogFile = ("blog" </>)
+
+--------------------------------------------------
+
+cssPostFile :: FilePath
+cssPostFile = "./css/post.css"
+
 --------------------------------------------------
 -- Actions ---------------------------------------
 --------------------------------------------------
 
 fromMarkdown :: FilePath -> Shake.Action ()
-fromMarkdown out =
+fromMarkdown htmlFile = return()
 
-      contents <- Shake.readFileLines $ out -<.> "txt"
-      Shake.need contents
-      Shake.cmd "tar -cf" [out] contents
+  -- Shake.need [ md ]
+  -- Shake.cmd (pandocMarkdownHTML cssPostFile mdFile htmlFile)
+
+  -- where
+
+  -- mdFile = htmlFile -<.> "md"
+
+  -- pandocMarkdownHTML css md html =
+
+  --   F.format ("pandoc  --standalone  --from markdown  --to html  --css " % F.text % " " % F.text % " > " % F.text % "") css md html
+
+-- "pandoc  --standalone  --from markdown  --to html  --css css  md   >  html"
 
 --------------------------------------------------
 -- Utilities -------------------------------------
 --------------------------------------------------
 
 filterBlanks :: [String] -> [String]
-filterBlanks = filter (not . isBlank)
-  where
+filterBlanks = id -- filter (not . isBlank)
+  -- where
 
-  isBlank = all Char.isSpace
+  -- isBlank = all Char.isSpace
 
 --------------------------------------------------
 -- EOF -------------------------------------------

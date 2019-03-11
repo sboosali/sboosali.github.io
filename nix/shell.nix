@@ -1,5 +1,5 @@
 ##################################################
-{ nixpkgs ? (import ./nix/nixpkgs.nix)  # <nixpkgs>
+{ nixpkgs ? (import ./nixpkgs.nix)
 , pkgs    ? (import nixpkgs {}).pkgs
 }:
 
@@ -9,7 +9,7 @@
 let
 #------------------------------------------------#
 
-environment = import ./nix/environment.nix
+environment = import ./environment.nix
   {
     inherit (pkgs) stdenv nodePackages;
     systemPackages = pkgs;
