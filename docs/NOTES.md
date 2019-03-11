@@ -67,5 +67,14 @@ data CmdOption
 ```
 
 
+## `pandoc` program
+
+e.g. 
+
+```sh
+pandoc  --standalone  --from markdown  --to html  --css X.css  Y.md   >  Z.html
+```
+
+
 
 ## 

@@ -268,9 +268,10 @@ run: serve
 
 shake:
 
-#TODO	cabal new-build hs/shake.cabal
+	(cd "./hs"  &&  cabal new-run "exe:shake-sboo-io")
 
-	./shake
+#	cabal new-run --project-file=./hs/cabal.project "exe:shake-sboo-io"
+#	(cd ./hs  &&  cabal new-run "exe:shake-sboo-io")
 
 .PHONY: shake
 

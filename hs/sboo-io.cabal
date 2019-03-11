@@ -9,7 +9,7 @@ build-type:          Simple
 
 --------------------------------------------------
 
-name:                shake-sboo-io
+name:                sboo-io
 version:             0.0.0
                      -- ^ ❲ A.B.C.D ❳:
                      --
@@ -186,8 +186,8 @@ common Haskell2020Library
 
  -----------------------------
 
- build-depends: base >=4.10 && <5
---build-depends: base-noprelude >=4.10 && <5
+ build-depends: base   ^>= 4.12
+              , spiros ^>= 0.3
 
  -----------------------------
 
@@ -543,11 +543,29 @@ executable shake-sboo-io
 
   ----------------------------
 
-  build-depends: base       ^>= 4.12
-               , shake      ^>= 0.17
-               , formatting ^>= 6.3
+  build-depends: shake      ^>= 0.17
 
-  ----------------------------
+               , formatting ^>= 6.3
+               , directory  ^>= 1.3
+               , filepath   ^>= 1.4
+
+               -- , text     
+               -- , bytestring
+               -- , transformers
+               -- , mtl
+               -- , containers
+               -- , deepseq
+               -- , hashable  ^>= 
+
+            -- , generic-lens
+
+-- async
+-- stm
+-- vector
+-- process
+-- unix
+-- deepseq
+-- optparse-applicative
 
 --TODO--
 -- 
@@ -558,6 +576,36 @@ executable shake-sboo-io
 --     ghc-options: -pgml gcc "-optl-Wl,--allow-multiple-definition" "-optl-Wl,--whole-archive" "-optl-Wl,-Bstatic" "-optl-Wl,-lXYZ" "-optl-Wl,-Bdynamic" "-optl-Wl,--no-whole-archive"
 -- 
 -- 
+
+--------------------------------------------------
+-- Test Suites -----------------------------------
+--------------------------------------------------
+
+test-suite integration
+
+ import: Haskell2020Program
+
+ -----------------------------
+
+ hs-source-dirs: test
+
+ main-is:        integration.hs
+
+ -----------------------------
+
+ build-tool-depends: sboo-io:shake-sboo-io
+                   , hserv:hserv
+
+  ----------------------------
+
+ build-depends: spiros
+              , directory     ^>= 1.3
+              , filepath      ^>= 1.4
+              , typed-process ^>= 0.2
+
+ -----------------------------
+
+ type: exitcode-stdio-1.0
 
 --------------------------------------------------
 -- EOF -------------------------------------------
