@@ -109,6 +109,8 @@ shakeRules = do
 
   buildFile "posts//*.html" %> fromMarkdown
 
+  buildFile "share/bash-completion/shake-sboo-io" %> mkBashCompletion
+
   cleanRule
 
   listRule
@@ -154,6 +156,13 @@ licenseSPDX = "CC-BY-NC-SA-4.0"
 licenseName = "Creative Commons Attribution Non Commercial Share Alike 4.0 International"
 licenseFile = "../text/CC-BY-NC-SA-4.0/LICENSE"
 
+--------------------------------------------------
+--------------------------------------------------
+
+postsSubDirectory :: FilePath
+postsSubDirectory = "posts"
+
+--------------------------------------------------
 --------------------------------------------------
 
 mdDirectory :: FilePath
@@ -219,7 +228,7 @@ data CompileMarkdown = CompileMarkdown
   deriving (Show,Eq,Ord,Generic)
 
 --------------------------------------------------
--- Ruless ----------------------------------------
+-- Rules -----------------------------------------
 --------------------------------------------------
 
 cleanRule :: Shake.Rules ()
@@ -268,6 +277,13 @@ fromMarkdown html = do
   css = cssPostFile
 
   config = CompileMarkdown { md, html, css, title = name }
+
+--------------------------------------------------
+
+mkBashCompletion :: FilePath -> Shake.Action ()
+mkBashCompletion bashFile = do
+
+  nothing
 
 --------------------------------------------------
 -- Programs --------------------------------------
@@ -370,8 +386,12 @@ runCompileMarkdown CompileMarkdown{ css, md, html, title } = do
     , "--from=markdown"
     , "--to=html"
     , "--css=" <> css
-    , "--metadata", "pagetitle=" <> title
 --TODO , F.formatToString ("--css " % F.string) css
+
+    , "--metadata=pagetitle:" <> title
+    , "--metadata=title:"     <> title
+    , "--metadata=author:"    <> author
+
     , md
     , ""
     ]

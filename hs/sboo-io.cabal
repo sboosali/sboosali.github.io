@@ -539,7 +539,7 @@ executable shake-sboo-io
 
   hs-source-dirs: .
 
-  main-is: shake.hs
+  main-is: shake-sboo-io.hs
 
   ----------------------------
 
