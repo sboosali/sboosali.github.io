@@ -1,0 +1,3 @@
+[submodule "Slick"]
+	path = submodules/Slick
+	url = https://github.com/sboosali/Slick
