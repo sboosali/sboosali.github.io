@@ -66,17 +66,37 @@ main = do
 
   putStrLn "sboo.io"
 
-  Process.runProcess_ $ hserv () [ "--port=6556" ]
+  Process.runProcess_ $ hserv ()
+    [ "--port=" <> port
+    ]
 
---------------------------------------------------
--- Types -----------------------------------------
---------------------------------------------------
+  Process.runProcess_ $ open ()
+    [ url
+    ]
+
+  where
+
+  port = show portNumber
+
+  url  = "http://0.0.0.0:" <> port
 
 --------------------------------------------------
 -- Constants -------------------------------------
 --------------------------------------------------
 
+portNumber :: Word16
+portNumber = 6556
+
 --------------------------------------------------
+
+xdgNamespace :: FilePath
+xdgNamespace = "sboo-io"
+
+--------------------------------------------------
+-- Types -----------------------------------------
+--------------------------------------------------
+
+-------------------------------------------------
 -- Programs --------------------------------------
 --------------------------------------------------
 
@@ -84,12 +104,12 @@ hserv :: () -> [String] -> Process.ProcessConfig () () () -- stdin stdout stderr
 hserv _options arguments = Process.proc "hserv" arguments
 
 --------------------------------------------------
--- XDG -------------------------------------------
+
+open :: () -> [String] -> Process.ProcessConfig () () () -- stdin stdout stderr
+open _options arguments = Process.proc "open" arguments -- TODO or xdg-open
+
 --------------------------------------------------
-
-xdgNamespace :: FilePath
-xdgNamespace = "sboo-io"
-
+-- XDG -------------------------------------------
 --------------------------------------------------
 
 getConfigDirectory :: IO FilePath

@@ -225,6 +225,35 @@ cleanRule = Shake.phony "clean" do
   --       delete everything inside the directory, but not the directory itself.
 
 --------------------------------------------------
+
+listRule :: Shake.Rules ()
+listRule = Shake.phony "list" do
+  io do
+    buildDirectory <- getCacheDirectory
+    buildFiles <- Shake.getDirectoryFilesIO buildDirectory ["//*"]
+
+    traverse_ putStrLn buildFiles
+
+--------------------------------------------------
+-- Actions ---------------------------------------
+--------------------------------------------------
+
+fromMarkdown :: FilePath -> Shake.Action ()
+fromMarkdown html = do
+
+  Shake.need [ md, css ]
+
+  runCompileMarkdown config
+
+  where
+
+  md = File.replaceDirectory "md" (html -<.> "md")
+
+  css = cssPostFile
+
+  config = CompileMarkdown { md, html, css }
+
+--------------------------------------------------
 -- Programs --------------------------------------
 --------------------------------------------------
 
@@ -233,11 +262,6 @@ pandoc options arguments = Shake.command options "pandoc" arguments
 
 --------------------------------------------------
 -- XDG -------------------------------------------
---------------------------------------------------
-
-xdgNamespace :: FilePath
-xdgNamespace = "sboo-io"
-
 --------------------------------------------------
 
 getConfigDirectory :: IO FilePath
@@ -258,6 +282,46 @@ getCacheDirectory = do
 
 --------------------------------------------------
 -- Utilities -------------------------------------
+--------------------------------------------------
+
+getMarkdownFiles :: Shake.Action [FilePath]
+getMarkdownFiles = Shake.getDirectoryFiles mdDirectory ["//*.md"]
+
+--------------------------------------------------
+
+getCssFiles :: Shake.Action [FilePath]
+getCssFiles = Shake.getDirectoryFiles cssDirectory ["//*.css"]
+
+--------------------------------------------------
+
+getJsFiles :: Shake.Action [FilePath]
+getJsFiles = Shake.getDirectoryFiles jsDirectory ["//*.js"]
+
+--------------------------------------------------
+
+getVideoFiles :: Shake.Action [FilePath]
+getVideoFiles = Shake.getDirectoryFiles videoDirectory ["//*.ogg", "//*.mp4", "//*.mkv"]
+
+--------------------------------------------------
+
+getImageFiles :: Shake.Action [FilePath]
+getImageFiles = Shake.getDirectoryFiles imageDirectory ["//*.png", "//*.jpg", "//*.gif"]
+
+--------------------------------------------------
+
+getHaskelFiles :: Shake.Action [FilePath]
+getHaskelFiles = Shake.getDirectoryFiles nixDirectory ["//*.hs", "//*.lhs"]
+
+--------------------------------------------------
+
+getNixFiles :: Shake.Action [FilePath]
+getNixFiles = Shake.getDirectoryFiles nixDirectory ["//*.nix", "//*.json"]
+
+--------------------------------------------------
+
+getBashFiles :: Shake.Action [FilePath]
+getBashFiles = Shake.getDirectoryFiles bashDirectory ["//*"] -- TODO if executable
+
 --------------------------------------------------
 
 {-| Invokes @pandoc@ to convert a Markdown file into an HTML file.
@@ -289,6 +353,46 @@ runCompileMarkdown CompileMarkdown{ css, md, html } = pandoc options arguments
     , md
     , ""
     ]
+
+--------------------------------------------------
+
+asMarkdownFile :: FilePath -> FilePath
+asMarkdownFile = (mdDirectory </>)
+
+--------------------------------------------------
+
+asCssFile :: FilePath -> FilePath
+asCssFile = (cssDirectory </>)
+
+--------------------------------------------------
+
+asJsFile :: FilePath -> FilePath
+asJsFile = (jsDirectory </>)
+
+--------------------------------------------------
+
+asVideoFile :: FilePath -> FilePath
+asVideoFile = (videoDirectory </>)
+
+--------------------------------------------------
+
+asImageFile :: FilePath -> FilePath
+asImageFile = (imageDirectory </>)
+
+--------------------------------------------------
+
+asNixFile :: FilePath -> FilePath
+asNixFile = (nixDirectory </>)
+
+--------------------------------------------------
+
+asHaskellFile :: FilePath -> FilePath
+asHaskellFile = (hsDirectory </>)
+
+--------------------------------------------------
+
+asBashFile :: FilePath -> FilePath
+asBashFile = (bashDirectory </>)
 
 --------------------------------------------------
 
