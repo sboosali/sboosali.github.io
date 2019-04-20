@@ -66,6 +66,8 @@ CheckNix	?=nix-instantiate --parse
 
 BlogFiles=blog/TSP.html blog/PLC.html blog/FUT.html
 
+MirrorFiles=mirror/boolean-blindness.html
+
 #------------------------------------------------#
 
 IndexFile=index.html
@@ -128,6 +130,14 @@ blog/%.html : md/%.md
 
 #------------------------------------------------#
 
+mirror/%.html : mirror/%.md
+
+	mkdir -p ./mirror
+
+	$(Pandoc)  --standalone  --from markdown  --to html  --css $(CssPostFile)  $<   >   $@
+
+#------------------------------------------------#
+
 # shell: $(NixFiles) # $(NixJsonFiles)
 
 # 	$(CheckNix) ./shell.nix
@@ -178,6 +188,12 @@ install: build
 blog: $(BlogFiles)
 
 .PHONY: blog
+
+#------------------------------------------------#
+
+mirror: $(MirrorFiles)
+
+.PHONY: mirror
 
 #------------------------------------------------#
 ##################################################
