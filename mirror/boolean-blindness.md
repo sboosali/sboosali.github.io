@@ -2,7 +2,7 @@
 
 ## *Original*
 
-(Authored by “*Abstract Type*”)
+(Authored by “*Abstract Type*”. Hosted on their blog, at <https://existentialtype.wordpress.com/2011/03/15/boolean-blindness/>.)
 
 I hate Booleans!  But isn’t everything “just bits”?  Aren’t computers built from gates?  And aren’t gates just the logical connectives?  How can a Computer Scientist possibly hate Booleans?
 
@@ -35,4 +35,8 @@ No Boolean necessary, and the code is improved as well!  In particular, we obtai
 As an exercise, convince yourself that the entire business of “null pointer analysis” is pointless, for exactly the same reasons!  There are few things more stupid in the world than code that compares a pointer for equality with null, then branches on the outcome, and then finds itself needing a sat solver or model checker to propagate the provenance of a boolean that should never have been computed in the first place!
 
 ## *Commentary*
+
+Links:
+
+* <https://www.reddit.com/r/programming/comments/gk2le/boolean_blindness_why_bool_isnt_good_enough/>
 

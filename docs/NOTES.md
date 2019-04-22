@@ -86,5 +86,13 @@ pandoc  --standalone  --from markdown  --to html  --css X.css  Y.md   >  Z.html
 "CC-BY-NC-SA-4.0" abbreviates :Creative Commons Attribution Non Commercial Share Alike 4.0 International".
 
 
+## Tufte
+
+<https://edwardtufte.github.io/tufte-css/>
+
+>A given document can have multiple articles in it; for example, on a blog that shows the text of each article one after another as the reader scrolls, each post would be contained in an `<article>` element, possibly with one or more `<section>`s within.
+
+
+
 ## 
 

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+set -u
+
+##################################################
+
+# ./video-strip-metadata input.mkv output.mkv
+
+HELP="««« $(basename $0) <INPUT> <OUTPUT> [TITLE] »»»"
+
+##################################################
+
+ffmpeg -y -i "${1:?$HELP}" -c copy -map_metadata -1 -metadata title="${3:-Title}" -metadata "creation_time=1971-12-12" -map_chapters -1 "${2:?$HELP}"
+
+##################################################

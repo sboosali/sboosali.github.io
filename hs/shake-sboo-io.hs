@@ -22,7 +22,7 @@
 
 --------------------------------------------------
 
-
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
 
 --------------------------------------------------
 
@@ -37,7 +37,7 @@
 import qualified "shake" Development.Shake          as Shake
 --import qualified "shake" Development.Shake.FilePath as Shake
 
-import           "shake" Development.Shake          ((%>))
+import           "shake" Development.Shake          ((%>), (~>))
 
 import           "shake" Development.Shake.FilePath ((</>), (<.>), (-<.>))
 
@@ -55,6 +55,10 @@ import qualified "filepath" System.FilePath as File
 import qualified "directory" System.Directory as Directory
 
 --------------------------------------------------
+--------------------------------------------------
+
+import qualified "containers" Data.Map as Map
+import           "containers" Data.Map (Map)
 
 --import qualified "base" Data.Version as Version
 --import           "base" Data.Version (Version)
@@ -84,13 +88,29 @@ getShakeOptions = do
   shakeDirectory <- getShakeCacheDirectory
 
   let options = Shake.shakeOptions
-       { Shake.shakeThreads = 6
-       , Shake.shakeFiles   = shakeDirectory
+
+       { Shake.shakeThreads        = 6
+       , Shake.shakeFiles          = shakeDirectory
+       , Shake.shakeColor          = True
+       , Shake.shakeVersion        = version
+       , Shake.shakeLint           = Just Shake.LintBasic
+       , Shake.shakeChange         = Shake.ChangeModtimeAndDigestInput
+       , Shake.shakeCommandOptions = defaultCommandOptions
+       , Shake.shakeProgress       = Shake.progressSimple
+       , Shake.shakeAbbreviations  = abbreviations
        }
 
   return options
 
   where
+
+  defaultCommandOptions :: [Shake.CmdOption]
+  defaultCommandOptions = []
+
+  abbreviations :: [(String, String)]
+  abbreviations =
+    [ "/home/sboo/.cache/sboo-io/" -: "sboo-io/"
+    ]
 
   getShakeCacheDirectory :: IO FilePath
   getShakeCacheDirectory = do
@@ -107,41 +127,26 @@ shakeRules = do
 
   Shake.action (needBlogFiles buildFile)
 
-  buildFile "posts//*.html" %> fromMarkdown
+  buildFile "posts/*.html" %> fromMarkdown
 
   buildFile "share/bash-completion/shake-sboo-io" %> mkBashCompletion
 
+  _ <- getEnvironmentVariables
+        [ "XDG_CONFIG_HOME"
+        , "XDG_DATA_HOME"
+        , "XDG_CACHE_HOME"
+        ]
+
+  blogRule
   cleanRule
-
   listRule
-
-  where
-
-  needBlogFiles :: (FilePath -> FilePath) -> Shake.Action ()
-  needBlogFiles buildFile = do
-
-    blogFiles <- getBlogFiles buildFile
-
-    Shake.need blogFiles
-
-  getBlogFiles :: (FilePath -> FilePath) -> Shake.Action [FilePath]
-  getBlogFiles buildFile = do
-
-    mdFiles <- getMarkdownFiles
-
-    let htmlFiles = mdFiles <&> (-<.> "html")
-
-    let postFiles = htmlFiles <&> asPostFile
-
-    return postFiles
-
-    where
-
-    asPostFile :: FilePath -> FilePath
-    asPostFile = buildFile . ("posts//" </>)
 
 --------------------------------------------------
 -- Constants -------------------------------------
+--------------------------------------------------
+
+version = "1"
+
 --------------------------------------------------
 
 author = "Spiros Boosalis"
@@ -231,8 +236,16 @@ data CompileMarkdown = CompileMarkdown
 -- Rules -----------------------------------------
 --------------------------------------------------
 
+blogRule :: Shake.Rules ()
+blogRule = "blog" ~> do
+  buildDirectory <- io getCacheDirectory
+
+  Shake.need [ buildFile "posts/*.html" ]
+
+--------------------------------------------------
+
 cleanRule :: Shake.Rules ()
-cleanRule = Shake.phony "clean" do
+cleanRule = "clean" ~> do
   io do
     buildDirectory <- getCacheDirectory
 
@@ -244,7 +257,7 @@ cleanRule = Shake.phony "clean" do
 --------------------------------------------------
 
 listRule :: Shake.Rules ()
-listRule = Shake.phony "list" do
+listRule = "list" ~> do
   io do
     buildDirectory <- getCacheDirectory
 
@@ -284,6 +297,48 @@ mkBashCompletion :: FilePath -> Shake.Action ()
 mkBashCompletion bashFile = do
 
   nothing
+
+--------------------------------------------------
+
+needBlogFiles :: (FilePath -> FilePath) -> Shake.Action ()
+needBlogFiles buildFile = do
+
+  blogFiles <- getBlogFiles buildFile
+
+  Shake.need blogFiles
+
+--------------------------------------------------
+
+getBlogFiles :: (FilePath -> FilePath) -> Shake.Action [FilePath]
+getBlogFiles buildFile = do
+
+  mdFiles <- getMarkdownFiles
+
+  let htmlFiles = mdFiles <&> (-<.> "html")
+
+  let postFiles = htmlFiles <&> asPostFile
+
+  return postFiles
+
+  where
+
+  asPostFile :: FilePath -> FilePath
+  asPostFile = buildFile . ("posts//" </>)
+
+--------------------------------------------------
+
+getEnvironmentVariables :: [String] -> Shake.Action (Map String String)
+getEnvironmentVariables = go
+
+  where
+
+  go variables = do
+    values <- traverse getEnvWithKey variables
+    Map.fromList values
+
+  getEnvWithKey variable = do
+    Shake.getEnv variable >>= maybe [] (\value -> [ variable -: value ]
+
 
 --------------------------------------------------
 -- Programs --------------------------------------

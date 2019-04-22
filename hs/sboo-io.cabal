@@ -549,11 +549,11 @@ executable shake-sboo-io
                , directory  ^>= 1.3
                , filepath   ^>= 1.4
 
-               -- , text     
+               , text     
                -- , bytestring
                -- , transformers
                -- , mtl
-               -- , containers
+               , containers
                -- , deepseq
                -- , hashable  ^>= 
 
