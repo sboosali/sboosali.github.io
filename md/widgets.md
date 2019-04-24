@@ -1,18 +1,22 @@
+<article>
+
 # “Universal” Widgets
 
+<section>
 ## Introduction
+</section>
 
-## Widgets
+<!-- 
 
 ### Widget
 
-Type:
+*Type*:
 
 ``` haskell
 :: 
 ```
 
-Value:
+*Value*:
 
 * 
 
@@ -26,7 +30,7 @@ HTML:
 <input type="">: <input/>
 ```
 
-Emacs:
+`Emacs`:
 
 ``` elisp
 (read- ": ")
@@ -47,16 +51,18 @@ Links:
 - <>
 - <>
 
+-->
 
-### *Short* Text Widget
+<section>
+## *Short* Text Widget
 
-Type:
+*Type*:
 
 ``` haskell
 :: String
 ```
 
-Value:
+*Value*:
 
 * *single-line* text.
 
@@ -70,7 +76,7 @@ HTML:
 <input type="">Name: <input/>
 ```
 
-Emacs:
+`Emacs`:
 
 ``` elisp
 (read-string "Name :")
@@ -100,15 +106,17 @@ Links:
 - <>
 - <>
 
-### *Long* Text Widget
+</section>
+## *Long* Text Widget
+<section>
 
-Type:
+*Type*:
 
 ``` haskell
 :: [String]
 ```
 
-Value:
+*Value*:
 
 * *multi-line* text.
 
@@ -122,7 +130,7 @@ HTML:
 <textarea><textarea/>
 ```
 
-Emacs:
+`Emacs`:
 
 ``` elisp
 (read-buffer? "Text :")
@@ -143,17 +151,19 @@ Links:
 - <>
 - <>
 
-### *Secret* Text Widget
+</section>
+## *Secret* Text Widget
+<section>
 
 i.e. Password Input.
 
-Type:
+*Type*:
 
 ``` haskell
 :: String
 ```
 
-Value:
+*Value*:
 
 * text which is *secret*.
 
@@ -169,7 +179,7 @@ HTML:
 <input type="password">Password: <input/>
 ```
 
-Emacs:
+`Emacs`:
 
 ``` elisp
 (read-passwors "Password :") TODO
@@ -200,17 +210,19 @@ Links:
 - <>
 - <>
 
-### Choices Widget
+</section>
+## Choices Widget
+<section>
 
 i.e. a Checklist.
 
-Type:
+*Type*:
 
 ``` haskell
 :: (Enum a) => Set a
 ```
 
-Value:
+*Value*:
 
 * 
 
@@ -218,7 +230,7 @@ Behavior:
 
 * 
 
-HTML:
+`HTML`:
 
 ``` html
 <>
@@ -248,17 +260,19 @@ Links:
 - <>
 - <>
 
-### Choice Widget (for *few* choices)
+</section>
+## Choice Widget (for *few* choices)
+<section>
 
 i.e. a Radio-Group.
 
-Type:
+*Type*:
 
 ``` haskell
 :: (Enum a) => a
 ```
 
-Value:
+*Value*:
 
 * one choice, from a set of choices
 
@@ -267,7 +281,7 @@ Behavior:
 * Press a single key.
 * Click a single button.
 
-HTML:
+`HTML`:
 
 ``` html
 <input type="radio">
@@ -282,7 +296,7 @@ HTML:
 
 ```
 
-Emacs:
+`Emacs`:
 
 ``` elisp
 (read-choice-
@@ -303,17 +317,19 @@ Links:
 - <>
 -
 
-### Choice Widget (for *many* choices)
+</section>
+## Choice Widget (for *many* choices)
+<section>
 
 i.e. a “Finite-List”.
 
-Type:
+*Type*:
 
 ``` haskell
 :: (Enum a) => a
 ```
 
-Value:
+*Value*:
 
 * one choice, from a set of choices
 
@@ -323,7 +339,7 @@ Behavior:
 * Defaulting (possibly)
 * Vertical Navigation (possibly)
 
-HTML:
+`HTML`:
 
 ``` html
 <!-- the chooser: -->
@@ -347,7 +363,7 @@ HTML:
 </datalist>
 ```
 
-Emacs:
+`Emacs`:
 
 ``` elisp
 (let ((CHOICES '(
@@ -424,17 +440,19 @@ Links:
 - <>
 - <https://www.gnu.org/software/emacs/manual/html_node/elisp/Minibuffer-Completion.html>
 
-### File Widget
+</section>
+## File Widget
+<section>
 
 i.e. a File-Chooser.
 
-Type:
+*Type*:
 
 ``` haskell
 :: FilePath
 ```
 
-Value:
+*Value*:
 
 * one filepath, from a set of choices.
 * *regular-only* (possibly) or "directory-only*(possibly).
@@ -445,16 +463,18 @@ Behavior:
 * Vertical Navigation (possibly) between the directory contents
 * Horizontal Navigation (possibly) between *returning to* the parent directory or *descending into* subdirectories.
 
-HTML:
+`HTML`:
 
 ``` html
 
 ```
 
-Emacs:
+`read-file-name` (`Emacs`):
+<label for="sn--elisp--read-file-name" class="margin-toggle sidenote-number"></label><input type="checkbox" id="sn--elisp--read-file-name" class="margin-toggle"/>
+<span class="sidennote"> <code>(read-file-name <var>PROMPT</var> &optional <var>DIR</var> <var>DEFAULT-FILENAME</var> <var>MUSTMATCH</var> <var>INITIAL</var> <var>PREDICATE</var>)</code><i>(a.k.a <kbd>C-x C-f</kbd>)</i></span>
 
 ``` elisp
-(read-file-name "Open File: " )
+(read-file-name "Open File: " default-directory nil t)
 ```
 
 ``` elisp
@@ -464,6 +484,15 @@ Emacs:
 ``` elisp
 (read-file-name "New File: " )
 ```
+
+``` elisp
+(defun sboo-elisp-filename-p (filename)
+  (match filename (rx ".el" eos))) ;TODO
+
+  (read-file-name "Open File: " default-directory nil nil nil #'sboo-elisp-filename-p))
+```
+
+<!-- TODO sidenote signature -->
 
 CLI (Completion):
 
@@ -485,6 +514,9 @@ Links:
 - <>
 
 
+</section>
 ## Conclusion
+<section>
 
-## 
+
+</article>

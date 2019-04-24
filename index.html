@@ -55,21 +55,24 @@
     <br/>
     
 
+    Articles on UX (<i>User Experience</i>):
+    <br/>
+
+    <ul>
+      <li><a href="./blog/widgets.html"> <em>Universal</em> Widgets </a><br/></li>
+    </ul><br/>
+
     Articles on Magic The Gathering (the card game):
     <br/>
-    
 
     Card-by-card analyses (for Magic The Gathering):
     <br/>
 
-    <a href="./blog/TSP.html"> <pre>TSP</pre> (Time Spiral) </a>
-    <br/>
-
-    <a href="./blog/PLC.html"> <pre>PLC</pre> (Planar Chaos) </a>
-    <br/>
-
-    <a href="./blog/FUT.html"> <pre>FUT</pre> (Future Sight) </a>
-    <br/>
+    <ul>
+      <li><a href="./blog/TSP.html"> <pre>TSP</pre> (<cite>Time Spiral</cite>) </a></li><br/>
+      <li><a href="./blog/PLC.html"> <pre>PLC</pre> (<cite>Planar Chaos</cite>) </a></li><br/>
+      <li><a href="./blog/FUT.html"> <pre>FUT</pre> (<cite>Future Sight</cite>) </a></li> <br/>
+    </ul><br/>
 
     <!----------------------------------------------->
 
@@ -85,10 +88,10 @@
     <h1><div> Patches </div></h1>
     <br/>
 
-    <a href="patches/polyparse.diff"> polyparse.diff </a>
+    <a href="patches/polyparse.diff"> <code>polyparse.diff</code> </a>
     <br/>
 
-    <a href="patches/haxml.diff"> haxml.diff </a>
+    <a href="patches/haxml.diff"> <code>haxml.diff</code> </a>
     <br/>
 
     <!----------------------------------------------->
@@ -117,36 +120,35 @@
 
     <div> Lullaby for a Pitbull: </div>
 
-    <video controls
-           <!-- ^ the video widget has controls: volume increasing / decreasing / muting; video seeking; pause/resume playback. -->
+<!--     <video controls -->
+<!--            <\!-- ^ the video widget has controls: volume increasing / decreasing / muting; video seeking; pause/resume playback. -\-> -->
 
-           muted
-           autoplay
-           <!-- ^ autoplay the video, but (initially) silently. -->
+<!--            muted -->
+<!--            autoplay -->
+<!--            <\!-- ^ autoplay the video, but (initially) silently. -\-> -->
 
-           poster="./videos/pitbull-lullaby.jpg"
-           <!-- ^ an image URI. show this thumbnail while the video is downloading. -->
+<!--            poster="./videos/pitbull-lullaby.jpg" -->
+<!--            <\!-- ^ an image URI. show this thumbnail while the video is downloading. -\-> -->
 
-           preload=auto
-           <!-- ^ preload the whole video file. -->
+<!--            preload=auto -->
+<!--            <\!-- ^ preload the whole video file. -\-> -->
 
-           width="200"
-           height="200"
-           <!-- ^ in absolute CSS pixels. -->
+<!--            width="200" -->
+<!--            height="200" -->
+<!--            <\!-- ^ in absolute CSS pixels. -\-> -->
+<!--            > -->
 
-           >
+<!--     <source src="./videos/pitbull-lullaby.webm" -->
+<!--             type="video/webm" -->
+<!--             > -->
 
-    <source src="./videos/pitbull-lullaby.webm"
-            type="video/webm"
-            >
+<!--     <source src="./videos/pitbull-lullaby.mp4" -->
+<!--             type="video/mp4" -->
+<!--             > -->
 
-    <source src="./videos/pitbull-lullaby.mp4"
-            type="video/mp4"
-            >
+<!-- (Your browser may be too old for embedded videos. <a href="./videos/pitbull-lullaby.mp4">Click this link to watch the non-embedded video</a>.) -->
+<!--     </video> -->
 
-(Your browser may be too old for embedded videos. <a href="./videos/pitbull-lullaby.mp4">Click this link to watch the non-embedded video</a>.)
-
-    </video>
     <br/>
 
     <!----------------------------------------------->
@@ -177,6 +179,36 @@
 
     <!-- TODO -->
     
+    <!----------------------------------------------->
+    <hr/>
+
+<form>
+  <fieldset>
+    <legend>Choose your favorite monster</legend>
+
+    <input type="radio" id="kraken" name="monster">
+    <label for="kraken">Kraken</label><br/>
+
+    <input type="radio" id="sasquatch" name="monster">
+    <label for="sasquatch">Sasquatch</label><br/>
+
+    <input type="radio" id="mothman" name="monster">
+    <label for="mothman">Mothman</label>
+
+  </fieldset>
+</form>
+
+<!-- <form> -->
+<!-- <fieldset> -->
+
+<!-- <input type="{TYPE}" id="{ID1}" name="{NAME}"> -->
+<!-- <label for="{ID1}">_</label><br/> -->
+
+<!-- <input type="{TYPE}" id="{ID2}" name="{NAME}"> -->
+<!-- <label for="{ID2}">_</label><br/> -->
+
+<!-- </fieldset> -->
+<!-- </form> -->
 
     <!----------------------------------------------->
     <hr/>

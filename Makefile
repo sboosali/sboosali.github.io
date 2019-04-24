@@ -64,7 +64,7 @@ CheckNix	?=nix-instantiate --parse
 # Constants ######################################
 ##################################################
 
-BlogFiles=blog/TSP.html blog/PLC.html blog/FUT.html
+BlogFiles=blog/TSP.html blog/PLC.html blog/FUT.html blog/widgets.html
 
 MirrorFiles=mirror/boolean-blindness.html
 
