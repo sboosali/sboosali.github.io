@@ -1,4 +1,5 @@
 # Instants trump Color Pie
+<p class="subtitle">by Spiros Boosalis</p>
 
 ## Magic the Gathering
 
@@ -40,6 +41,16 @@ Kinds of Instants:
 * Combat Instants — e.g. `Angelic Favor`. The card can only be played in combat.
 * Stack Instants — e.g. `Counterspell`. The card has to target a card on the stack.
 * Reactive Instants — e.g. ` `. Cards that don't *need* instant-speed timing, but that *want* instant-speed timing (for richer gameplay).
+
+<div>
+ <blockquote cite="https://scryfall.com/card/ced/78/sirens-call">
+  <p>Siren's Call</p>
+  <p>{U}</p>
+  <p>Instant</p>
+  <p>Cast this spell only during an opponent's turn, before attackers are declared. Creatures the active player controls attack this turn if able. At the beginning of the next end step, destroy all non-Wall creatures that player controls that didn't attack this turn. Ignore this effect for each creature the player didn't control continuously since the beginning of the turn.</p>
+ </blockquote>
+ <cite><a href="https://scryfall.com/card/ced/78/sirens-call">Scryfall</a></cite>
+</div>
 
 ## References
 
